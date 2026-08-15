@@ -164,9 +164,11 @@ button:focus-visible{
   outline-offset:2px;
 }
 
-.blue{ background:#2563eb; }
-.red{ background:#c62828; }
-.gray{ background:#64748b; }
+/* Warna teks ikut ditetapkan di sini agar tombol berwarna tetap putih
+   walau berada di dalam nav, yang teks bawaannya biru tua. */
+.blue{ background:#2563eb; color:#fff; }
+.red{ background:#c62828; color:#fff; }
+.gray{ background:#64748b; color:#fff; }
 
 .page{ display:none; }
 .page.active{ display:block; }
@@ -1195,7 +1197,7 @@ tfoot td{
   Tempel URL Web App Google Apps Script (berakhiran /exec)
   di antara tanda kutip di bawah ini.
 ==========================================================*/
-const API_URL = "https://script.google.com/macros/s/AKfycbxUsWEYmkMq6Cwjx_7NczBFX-3b1h0c7HpepyzB4Z_3Hfix_KQhjRDIgMPRTo1qECie/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbw6zbLe2O_JhngqmmDt3OEqWVuNE_wvh4uGkuaeim5NdBRdcy7rHACPmVA857BHiQU8/exec";
 
 /*==========================================================
   2. KEADAAN DATA
