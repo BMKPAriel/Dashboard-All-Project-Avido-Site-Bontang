@@ -23,8 +23,14 @@ body{
   color:#243447;
   -webkit-text-size-adjust:100%;
 }
+
 /* Sembunyikan semua alat input bila belum masuk dengan kata sandi. */
 body.mode-tamu .hanya-admin{
+  display:none!important;
+}
+
+/* Sebaliknya, keterangan mode lihat hanya untuk pengunjung. */
+body:not(.mode-tamu) .hanya-tamu{
   display:none!important;
 }
 
@@ -731,15 +737,15 @@ tfoot td{
     Dashboard Rekap
   </button>
 
-  <button type="button" data-menu="timesheet" onclick="buka('timesheet')">
+  <button type="button" class="hanya-admin" data-menu="timesheet" onclick="buka('timesheet')">
     Daily Time Sheet
   </button>
 
-  <button type="button" data-menu="absensi" onclick="buka('absensi')">
+  <button type="button" class="hanya-admin" data-menu="absensi" onclick="buka('absensi')">
     Daily Absensi
   </button>
 
-  <button type="button" data-menu="pettycash" onclick="buka('pettycash')">
+  <button type="button" class="hanya-admin" data-menu="pettycash" onclick="buka('pettycash')">
     Petty Cash
   </button>
 
@@ -782,6 +788,14 @@ tfoot td{
 <!-- DASHBOARD -->
 <div id="dashboard" class="page active">
 
+  <div class="info hanya-tamu no-print">
+    <b>Mode lihat.</b>
+    Halaman ini menampilkan rekap progres pemancangan saja.
+    Daily Time Sheet, Daily Absensi, dan Petty Cash hanya dapat dibuka
+    oleh pemegang kata sandi melalui tombol <b>Masuk untuk input</b>
+    di bagian atas.
+  </div>
+
   <section class="hanya-admin">
     <h2>Target PO</h2>
     <div id="target" class="form"></div>
@@ -819,7 +833,7 @@ tfoot td{
 </div>
 
 <!-- TIME SHEET -->
-<div id="timesheet" class="page">
+<div id="timesheet" class="page hanya-admin">
 
   <section class="hanya-admin">
     <h2 id="judulTimeSheet">Input Daily Time Sheet</h2>
@@ -946,7 +960,7 @@ tfoot td{
 </div>
 
 <!-- ABSENSI -->
-<div id="absensi" class="page">
+<div id="absensi" class="page hanya-admin">
 
   <section class="hanya-admin">
     <h2 id="judulAbsensi">Input Daily Absensi</h2>
@@ -1083,7 +1097,7 @@ tfoot td{
 </div>
 
 <!-- PETTY CASH -->
-<div id="pettycash" class="page">
+<div id="pettycash" class="page hanya-admin">
 
   <div id="kpiPetty" class="grid"></div>
 
@@ -1181,7 +1195,7 @@ tfoot td{
   Tempel URL Web App Google Apps Script (berakhiran /exec)
   di antara tanda kutip di bawah ini.
 ==========================================================*/
-const API_URL = "https://script.google.com/macros/s/AKfycbxUsWEYmkMq6Cwjx_7NczBFX-3b1h0c7HpepyzB4Z_3Hfix_KQhjRDIgMPRTo1qECie/exec";
+const API_URL = "";
 
 /*==========================================================
   2. KEADAAN DATA
@@ -1264,6 +1278,23 @@ function perbaruiModeAkses(){
     : "Masuk untuk input";
 
   $("tombolAkses").onclick = sudahMasuk() ? keluar : bukaDialogMasuk;
+
+  /* Pengunjung tanpa sandi selalu dikembalikan ke Dashboard Rekap. */
+  if(!sudahMasuk()){
+    const aktif = document.querySelector(".page.active");
+
+    if(!aktif || HALAMAN_TERBATAS.includes(aktif.id)){
+      document.querySelectorAll(".page").forEach(page => {
+        page.classList.remove("active");
+      });
+
+      $("dashboard").classList.add("active");
+
+      document.querySelectorAll("nav button[data-menu]").forEach(tombol => {
+        tombol.classList.toggle("aktif", tombol.dataset.menu === "dashboard");
+      });
+    }
+  }
 }
 
 function bukaDialogMasuk(){
@@ -1299,9 +1330,8 @@ async function prosesMasuk(){
     sandiSesi = sandi;
     simpanSandi(sandi);
     perbaruiModeAkses();
-    renderSemua();
     tutupDialogMasuk();
-    setStatus("online", "Berhasil masuk. Anda dapat menambah dan mengubah data.");
+    await muatDariServer();
   }catch(error){
     tampilkanPesanSandi(error.message);
   }finally{
@@ -1324,9 +1354,15 @@ function keluar(){
 
   sandiSesi = "";
   hapusSandi();
+
+  /* Data sensitif dikosongkan dari halaman, lalu dimuat ulang
+     versi publiknya saja. */
+  dataAbsensi = [];
+  dataPetty = [];
+
   perbaruiModeAkses();
   renderSemua();
-  setStatus("online", "Mode lihat. Masuk kembali bila ingin input data.");
+  muatDariServer();
 }
 
 $("isianSandi").addEventListener("keydown", e => {
@@ -1426,6 +1462,8 @@ async function catatPerubahan(pesan){
       alert(error.message + "\n\nSilakan masuk ulang dengan kata sandi yang benar.");
       sandiSesi = "";
       hapusSandi();
+      dataAbsensi = [];
+      dataPetty = [];
       perbaruiModeAkses();
       await muatDariServer();
       return;
@@ -1481,10 +1519,30 @@ async function muatDariServer(){
   try{
     await prosesAntrian();
 
-    const data = await ambilDariServer();
+    let data;
 
-    if(!data.ok){
-      throw new Error(data.pesan || "Server melaporkan kesalahan.");
+    if(sudahMasuk()){
+      /* Pemegang sandi: server mengirim seluruh data, termasuk
+         Absensi dan Petty Cash. */
+      try{
+        data = (await kirimKeServer({ aksi:"muat", sandi:sandiSesi })).hasil;
+      }catch(error){
+        if(/sandi/i.test(error.message)){
+          sandiSesi = "";
+          hapusSandi();
+          perbaruiModeAkses();
+          data = await ambilDariServer();
+        }else{
+          throw error;
+        }
+      }
+    }else{
+      /* Pengunjung biasa: server hanya mengirim data Dashboard Rekap. */
+      data = await ambilDariServer();
+    }
+
+    if(!data || !data.ok){
+      throw new Error((data && data.pesan) || "Server melaporkan kesalahan.");
     }
 
     dataTimeSheet = (data.timesheet || []).map(item =>
@@ -1499,7 +1557,9 @@ async function muatDariServer(){
 
     renderSemua();
 
-    setStatus("online", "Data terbaru dari server, pukul " + jamSekarang() + ".");
+    setStatus("online", data.publik
+      ? "Mode lihat — rekap terbaru pukul " + jamSekarang() + "."
+      : "Data lengkap terbaru dari server, pukul " + jamSekarang() + ".");
   }catch(error){
     renderSemua();
     setStatus("offline", "Gagal memuat: " + error.message);
@@ -1651,7 +1711,15 @@ function tombolAksi(fungsiUbah, fungsiHapus, id){
     "action hanya-admin");
 }
 
+/* Menu yang hanya boleh dibuka pemegang kata sandi. */
+const HALAMAN_TERBATAS = ["timesheet", "absensi", "pettycash"];
+
 function buka(id){
+  if(!sudahMasuk() && HALAMAN_TERBATAS.includes(id)){
+    bukaDialogMasuk();
+    return;
+  }
+
   document.querySelectorAll(".page").forEach(page => {
     page.classList.remove("active");
   });
