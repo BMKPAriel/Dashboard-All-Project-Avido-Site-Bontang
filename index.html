@@ -1,0 +1,2750 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#123d5a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+
+<title>Dashboard Monitoring Progress Pemancangan Spun Pile</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+body{
+  margin:0;
+  background:#eef2f6;
+  font:15px/1.5 Arial,Helvetica,sans-serif;
+  color:#243447;
+  -webkit-text-size-adjust:100%;
+}
+
+/* Sembunyikan semua alat input bila belum masuk dengan kata sandi. */
+body.mode-tamu .hanya-admin{
+  display:none!important;
+}
+
+header{
+  padding:16px 4%;
+  background:#123d5a;
+  color:#fff;
+}
+
+.header-content{
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
+
+.header-logo{
+  width:88px;
+  height:88px;
+  flex-shrink:0;
+  object-fit:contain;
+  background:#fff;
+  padding:5px;
+  border-radius:8px;
+  box-shadow:0 2px 8px #0003;
+}
+
+.header-text{
+  min-width:0;
+}
+
+.header-text h1{
+  margin:0 0 6px;
+  font-size:20px;
+  line-height:1.3;
+}
+
+.header-subtitle{
+  font-size:14px;
+  line-height:1.5;
+  opacity:.92;
+}
+
+.status-bar{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:10px;
+  padding:9px 4%;
+  background:#0d2f46;
+  color:#dbe7f0;
+  font-size:13px;
+}
+
+.status-titik{
+  width:10px;
+  height:10px;
+  flex-shrink:0;
+  border-radius:50%;
+  background:#94a3b8;
+}
+
+.status-titik.online{ background:#22c55e; }
+.status-titik.sibuk{ background:#facc15; }
+.status-titik.offline{ background:#ef4444; }
+
+.status-teks{
+  flex:1;
+  min-width:130px;
+}
+
+.status-bar button{
+  padding:6px 12px;
+  min-height:34px;
+  font-size:12.5px;
+  background:#1d5478;
+}
+
+.status-bar button.kunci{
+  background:#087f73;
+}
+
+nav{
+  position:sticky;
+  top:0;
+  z-index:20;
+  display:flex;
+  gap:6px;
+  padding:10px 4%;
+  background:#fff;
+  box-shadow:0 2px 6px #0001;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+
+nav::-webkit-scrollbar{ display:none; }
+
+nav button{
+  flex:0 0 auto;
+  background:#e6edf3;
+  color:#26415a;
+  font-weight:bold;
+}
+
+nav button.aktif{
+  background:#087f73;
+  color:#fff;
+}
+
+main{
+  padding:18px 4% 60px;
+}
+
+button{
+  padding:11px 14px;
+  border:0;
+  border-radius:6px;
+  background:#087f73;
+  color:#fff;
+  font:inherit;
+  font-size:14px;
+  cursor:pointer;
+  margin:2px;
+  min-height:42px;
+}
+
+button:active{ transform:translateY(1px); }
+
+button:focus-visible{
+  outline:3px solid #facc15;
+  outline-offset:2px;
+}
+
+.blue{ background:#2563eb; }
+.red{ background:#c62828; }
+.gray{ background:#64748b; }
+
+.page{ display:none; }
+.page.active{ display:block; }
+
+section,
+.card{
+  background:#fff;
+  padding:17px;
+  border-radius:10px;
+  box-shadow:0 2px 8px #0001;
+  margin-bottom:16px;
+}
+
+section h2{
+  margin:0 0 14px;
+  font-size:17px;
+}
+
+.judul-baris{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:14px;
+}
+
+.judul-baris h2{
+  margin:0;
+}
+
+.lencana{
+  padding:3px 10px;
+  border-radius:20px;
+  background:#e6f4f1;
+  color:#0b6b60;
+  font-size:12.5px;
+  font-weight:bold;
+  white-space:nowrap;
+}
+
+.grid,
+.form{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:13px;
+}
+
+.card-title{ font-weight:bold; }
+
+.card b{
+  display:block;
+  font-size:22px;
+  margin:8px 0;
+}
+
+.bar{
+  height:8px;
+  margin-top:10px;
+  background:#d7dee5;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.bar i{
+  display:block;
+  height:100%;
+  background:#16a34a;
+}
+
+label{
+  display:block;
+  font-weight:bold;
+  font-size:13px;
+}
+
+input,
+select,
+textarea{
+  width:100%;
+  padding:11px;
+  margin-top:6px;
+  border:1px solid #b6c0ca;
+  border-radius:6px;
+  background:#fff;
+  font:inherit;
+  font-size:16px;
+  font-weight:normal;
+  color:#243447;
+}
+
+textarea{
+  min-height:72px;
+  resize:vertical;
+}
+
+.form-action{
+  grid-column:1/-1;
+  display:flex;
+  gap:6px;
+}
+
+.table-wrap{
+  width:100%;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  font-size:14px;
+}
+
+th,
+td{
+  padding:10px 11px;
+  border-bottom:1px solid #dce2e8;
+  vertical-align:middle;
+}
+
+th{
+  background:#dde7ef;
+  white-space:nowrap;
+  text-align:left;
+}
+
+tfoot td{
+  background:#f1f6fa;
+  border-top:2px solid #b7c6d3;
+  font-weight:bold;
+}
+
+.numeric,
+.action{ text-align:center; }
+
+.action{ white-space:nowrap; }
+
+.action button{
+  padding:7px 11px;
+  min-height:36px;
+  font-size:13px;
+}
+
+.empty{
+  padding:22px;
+  text-align:center!important;
+  color:#64748b;
+}
+
+.info{
+  padding:11px 13px;
+  margin-bottom:15px;
+  border-left:4px solid #087f73;
+  background:#ecfdf5;
+  font-size:13.5px;
+  line-height:1.6;
+}
+
+.info.peringatan{
+  border-left-color:#c62828;
+  background:#fef2f2;
+}
+
+.info.perhatian{
+  border-left-color:#d97706;
+  background:#fffbeb;
+}
+
+.money{
+  text-align:right;
+  white-space:nowrap;
+}
+
+.grafik{
+  width:100%;
+  overflow:hidden;
+}
+
+.grafik svg{
+  display:block;
+  width:100%;
+  height:auto;
+}
+
+.grafik-kosong{
+  padding:26px 10px;
+  text-align:center;
+  color:#64748b;
+  font-size:13.5px;
+}
+
+/* KOTAK MASUK KATA SANDI */
+.dialog{
+  position:fixed;
+  inset:0;
+  z-index:60;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:#0f172acc;
+}
+
+.dialog[hidden]{ display:none; }
+
+.dialog-kotak{
+  width:100%;
+  max-width:380px;
+  padding:22px;
+  border-radius:12px;
+  background:#fff;
+  box-shadow:0 18px 40px #0004;
+}
+
+.dialog-kotak h2{
+  margin:0 0 8px;
+  font-size:18px;
+}
+
+.dialog-kotak p{
+  margin:0 0 14px;
+  color:#5b6b7c;
+  font-size:13.5px;
+}
+
+.dialog-aksi{
+  display:flex;
+  gap:8px;
+  margin-top:14px;
+}
+
+.dialog-aksi button{ flex:1; }
+
+.pesan-salah{
+  margin-top:10px;
+  padding:9px 11px;
+  border-radius:6px;
+  background:#fef2f2;
+  color:#b91c1c;
+  font-size:13px;
+}
+
+@media screen and (min-width:721px){
+  #tabelRekapNama{ min-width:820px; }
+
+  #tabelRekapNama th,
+  #tabelRekapNama td{ text-align:center; }
+
+  #tabelRekapNama th:nth-child(-n+2),
+  #tabelRekapNama td:nth-child(-n+2){ text-align:left; }
+}
+
+@media screen and (max-width:1000px){
+  .grid,
+  .form{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+
+/* TAMPILAN HP: TABEL BERUBAH JADI KARTU */
+@media screen and (max-width:720px){
+  header,
+  .status-bar,
+  nav,
+  main{
+    padding-left:14px;
+    padding-right:14px;
+  }
+
+  .header-content{ gap:12px; }
+
+  .header-logo{
+    width:58px;
+    height:58px;
+    padding:3px;
+  }
+
+  .header-text h1{ font-size:16px; }
+  .header-subtitle{ font-size:12.5px; }
+
+  main{ padding-top:14px; }
+
+  section,
+  .card{ padding:14px; }
+
+  section h2,
+  .judul-baris h2{ font-size:15.5px; }
+
+  .grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+  }
+
+  .card b{ font-size:18px; }
+
+  .form{ grid-template-columns:1fr; }
+
+  .form-action{ flex-direction:column; }
+
+  .form-action button{ width:100%; }
+
+  .table-wrap{ overflow-x:visible; }
+
+  table,
+  tbody,
+  tfoot,
+  tr,
+  td{
+    display:block;
+    width:100%;
+  }
+
+  thead{ display:none; }
+
+  tr{
+    margin-bottom:11px;
+    padding:4px 12px;
+    border:1px solid #dbe3ea;
+    border-radius:10px;
+    background:#fff;
+  }
+
+  tfoot tr{
+    border-color:#b7c6d3;
+    background:#f1f6fa;
+  }
+
+  td{
+    display:flex;
+    gap:14px;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:9px 0;
+    border-bottom:1px dashed #eaeff4;
+    text-align:right!important;
+  }
+
+  td:last-child{ border-bottom:0; }
+
+  td::before{
+    content:attr(data-label);
+    flex:0 0 42%;
+    color:#5b6b7c;
+    font-weight:bold;
+    font-size:12.5px;
+    text-align:left;
+  }
+
+  td.action{
+    display:flex;
+    gap:8px;
+    justify-content:stretch;
+  }
+
+  td.action::before{
+    content:"";
+    display:none;
+  }
+
+  td.action button{
+    flex:1;
+    margin:4px 0;
+  }
+
+  td.empty{ display:block; }
+
+  td.empty::before{
+    content:"";
+    display:none;
+  }
+
+  /* Sel subtotal yang kosong tidak perlu tampil sebagai baris kartu. */
+  tfoot td:empty{ display:none; }
+
+  tr:has(td.empty){
+    border:0;
+    background:transparent;
+  }
+}
+
+/* PENGATURAN PRINT DAN PDF */
+@page{
+  size:A4 landscape;
+  margin:12mm 10mm 15mm;
+}
+
+@media print{
+  *{
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+
+  body{
+    margin:0!important;
+    background:#fff!important;
+    color:#000!important;
+    font-size:9pt;
+  }
+
+  header{
+    padding:0 0 6mm!important;
+    background:#fff!important;
+    color:#000!important;
+    border-bottom:2px solid #123d5a;
+  }
+
+  .header-content{
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    text-align:left!important;
+    gap:12px!important;
+  }
+
+  .header-logo{
+    display:block!important;
+    width:68px!important;
+    height:68px!important;
+    padding:2px!important;
+    border:1px solid #cbd5e1;
+    border-radius:4px!important;
+    box-shadow:none!important;
+  }
+
+  .header-text h1{
+    margin:0 0 4px!important;
+    font-size:15pt!important;
+  }
+
+  .header-subtitle{ font-size:9pt!important; }
+
+  nav,
+  .status-bar,
+  .dialog,
+  .no-print,
+  .print-hide{
+    display:none!important;
+  }
+
+  main{ padding:6mm 0 0!important; }
+
+  .page{ display:none!important; }
+  .page.active{ display:block!important; }
+
+  section,
+  .card{
+    box-shadow:none!important;
+    border:1px solid #9aa5b1;
+    border-radius:0!important;
+    margin-bottom:5mm!important;
+    padding:4mm!important;
+    break-inside:avoid;
+  }
+
+  .grid{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  }
+
+  .grafik svg{
+    max-height:70mm;
+  }
+
+  .table-wrap{ overflow:visible!important; }
+
+  table,
+  #tabelRekapNama{
+    display:table!important;
+    width:100%!important;
+    min-width:0!important;
+    table-layout:auto!important;
+    border-collapse:collapse!important;
+    font-size:7.5pt;
+  }
+
+  thead{ display:table-header-group!important; }
+  tbody{ display:table-row-group!important; }
+  tfoot{ display:table-footer-group!important; }
+
+  tr{
+    display:table-row!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    break-inside:avoid;
+    page-break-inside:avoid;
+  }
+
+  td{
+    display:table-cell!important;
+    text-align:left!important;
+  }
+
+  td::before{
+    content:""!important;
+    display:none!important;
+  }
+
+  th,
+  td{
+    padding:4px!important;
+    border:1px solid #8d99a5!important;
+    vertical-align:middle;
+  }
+
+  th{ background:#dde7ef!important; }
+
+  .numeric{ text-align:center!important; }
+  .money{ text-align:right!important; }
+  .action{ display:none!important; }
+
+  .print-heading{
+    display:block!important;
+    margin:0 0 5mm;
+    padding-bottom:3mm;
+    text-align:center;
+    border-bottom:1px solid #cbd5e1;
+  }
+
+  .print-heading h2{
+    margin:0 0 4px;
+    font-size:14pt;
+  }
+
+  .print-heading div{ font-size:9pt; }
+}
+
+.print-heading{ display:none; }
+</style>
+</head>
+
+<body class="mode-tamu">
+
+<header>
+  <div class="header-content">
+    <img
+      src="logo-avindo.jpg"
+      alt="Logo PT Avindo Energi Nusantara"
+      class="header-logo"
+      onerror="this.style.display='none'"
+    >
+
+    <div class="header-text">
+      <h1>
+        Dashboard Monitoring Progress Pemancangan Spun Pile
+        PT. Avindo Energi Nusantara
+      </h1>
+
+      <div class="header-subtitle">
+        Customer PT Mucoindo Prakarsa di Area PT KIE - Site Bontang
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="status-bar no-print">
+  <span id="statusTitik" class="status-titik"></span>
+  <span id="statusTeks" class="status-teks">Menyiapkan data…</span>
+
+  <button type="button" onclick="muatDariServer()">Muat ulang</button>
+
+  <button type="button" id="tombolAkses" class="kunci" onclick="bukaDialogMasuk()">
+    Masuk untuk input
+  </button>
+</div>
+
+<nav>
+  <button type="button" data-menu="dashboard" onclick="buka('dashboard')">
+    Dashboard Rekap
+  </button>
+
+  <button type="button" data-menu="timesheet" onclick="buka('timesheet')">
+    Daily Time Sheet
+  </button>
+
+  <button type="button" data-menu="absensi" onclick="buka('absensi')">
+    Daily Absensi
+  </button>
+
+  <button type="button" data-menu="pettycash" onclick="buka('pettycash')">
+    Petty Cash
+  </button>
+
+  <button type="button" class="blue" onclick="cetakHalamanAktif()">
+    Print / Simpan PDF
+  </button>
+</nav>
+
+<main>
+
+<div id="peringatanApi" class="info peringatan no-print" hidden>
+  <b>Alamat server belum diisi.</b>
+  Buka file <code>index.html</code>, cari <code>const API_URL = ""</code>,
+  lalu isi dengan URL Web App Google Apps Script yang berakhiran
+  <code>/exec</code>. Selama masih kosong, data tidak bisa disimpan.
+</div>
+
+<div id="peringatanAntrian" class="info peringatan no-print" hidden>
+  <b>Ada perubahan yang belum tersimpan ke server.</b>
+  <span id="jumlahAntrian"></span>
+  Jangan tutup halaman ini dulu.
+  <button type="button" onclick="prosesAntrian()">Coba kirim lagi</button>
+</div>
+
+<div id="bannerMigrasi" class="info perhatian no-print" hidden>
+  <b>Ditemukan data lama di perangkat ini.</b>
+  <span id="ringkasanMigrasi"></span>
+  Data ini masih tersimpan di browser laptop/HP ini saja dan belum ada
+  di server. Masuk dengan kata sandi, lalu kirim ke server.
+  <div class="hanya-admin" style="margin-top:8px">
+    <button type="button" onclick="kirimDataLama()">
+      Kirim data lama ke server
+    </button>
+    <button type="button" class="gray" onclick="hapusDataLama()">
+      Hapus data lama dari perangkat
+    </button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="page active">
+
+  <section class="hanya-admin">
+    <h2>Target PO</h2>
+    <div id="target" class="form"></div>
+  </section>
+
+  <div id="kpi" class="grid"></div>
+
+  <section>
+    <div class="judul-baris">
+      <h2>Kurva S — Kumulatif SP Tertanam</h2>
+      <span class="lencana" id="lencanaKurva">—</span>
+    </div>
+
+    <div id="grafikKurva" class="grafik"></div>
+  </section>
+
+  <section>
+    <div class="judul-baris">
+      <h2>Produksi per Bulan</h2>
+      <span class="lencana">Titik &amp; Joint</span>
+    </div>
+
+    <div id="grafikBulanan" class="grafik"></div>
+  </section>
+
+  <div class="judul-baris no-print" style="margin-top:22px">
+    <h2>Rekap Aktual Pemancangan per Bulan</h2>
+    <button type="button" class="gray" onclick="unduhCsvTimeSheet()">
+      Unduh CSV
+    </button>
+  </div>
+
+  <div id="rekapBulanan"></div>
+
+</div>
+
+<!-- TIME SHEET -->
+<div id="timesheet" class="page">
+
+  <section class="hanya-admin">
+    <h2 id="judulTimeSheet">Input Daily Time Sheet</h2>
+
+    <form id="formTimeSheet" class="form">
+
+      <label>
+        Tanggal
+        <input type="date" name="tanggal" required>
+      </label>
+
+      <label>
+        No. PO
+        <input name="po" id="po" required>
+      </label>
+
+      <label>
+        Shift
+        <select name="shift">
+          <option>Pagi-Sore</option>
+          <option>Sore-Malam</option>
+        </select>
+      </label>
+
+      <label>
+        No. Alat
+        <input name="alat" required>
+      </label>
+
+      <label>
+        Diameter
+        <select name="diameter">
+          <option>D400</option>
+          <option>D500</option>
+        </select>
+      </label>
+
+      <label>
+        Nama Titik
+        <textarea
+          name="namaTitik"
+          id="namaTitik"
+          placeholder="Contoh: P-01, P-02, P-03"
+          required
+        ></textarea>
+      </label>
+
+      <label>
+        Jumlah Titik
+        <input
+          name="jumlahTitik"
+          id="jumlahTitik"
+          type="number"
+          inputmode="numeric"
+          min="0"
+          required
+        >
+      </label>
+
+      <label>
+        SP Tertanam (m)
+        <input name="tertanam" type="number" inputmode="decimal"
+               min="0" step=".01" required>
+      </label>
+
+      <label>
+        SP Handling (m)
+        <input name="handling" type="number" inputmode="decimal"
+               min="0" step=".01" required>
+      </label>
+
+      <label>
+        Jumlah Joint
+        <input name="joint" type="number" inputmode="numeric" min="0" required>
+      </label>
+
+      <label>
+        Status
+        <select name="status">
+          <option>Selesai</option>
+          <option>Proses</option>
+          <option>Tertunda</option>
+        </select>
+      </label>
+
+      <label>
+        Kendala
+        <input name="kendala" value="-">
+      </label>
+
+      <div class="form-action">
+        <button type="submit">Simpan</button>
+        <button type="button" class="gray" onclick="batalTimeSheet()">Batal</button>
+      </div>
+
+    </form>
+  </section>
+
+  <section>
+    <div class="judul-baris">
+      <h2>Data Daily Time Sheet</h2>
+      <button type="button" class="gray no-print" onclick="unduhCsvTimeSheet()">
+        Unduh CSV
+      </button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Shift</th>
+            <th>Nama Titik</th>
+            <th>Jumlah</th>
+            <th class="hanya-admin">Aksi</th>
+          </tr>
+        </thead>
+
+        <tbody id="daftarTimeSheet"></tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<!-- ABSENSI -->
+<div id="absensi" class="page">
+
+  <section class="hanya-admin">
+    <h2 id="judulAbsensi">Input Daily Absensi</h2>
+
+    <div class="info">
+      <b>Shift 1:</b> 07:00–17:00, istirahat 12:00–13:00, efektif 9 jam.
+      <br>
+      <b>Shift 2:</b> 18:00–22:00, efektif 4 jam.
+    </div>
+
+    <form id="formAbsensi" class="form">
+
+      <label>
+        Tanggal
+        <input type="date" name="tanggal" required>
+      </label>
+
+      <label>
+        Nama
+        <input name="nama" required>
+      </label>
+
+      <label>
+        Jabatan
+        <input name="jabatan" required>
+      </label>
+
+      <label>
+        Shift
+        <select name="shift">
+          <option value="Pagi-Sore">Shift 1 - Pagi-Sore</option>
+          <option value="Sore-Malam">Shift 2 - Sore-Malam</option>
+        </select>
+      </label>
+
+      <label>
+        Status
+        <select name="status">
+          <option>Hadir</option>
+          <option>Sakit</option>
+          <option>Izin</option>
+          <option>Alpa</option>
+        </select>
+      </label>
+
+      <label>
+        Keterangan
+        <input name="ket" value="-">
+      </label>
+
+      <div class="form-action">
+        <button id="tombolSimpanAbsensi" type="submit">Simpan</button>
+        <button type="button" class="gray" onclick="batalAbsensi()">Batal</button>
+      </div>
+
+    </form>
+  </section>
+
+  <section>
+    <div class="judul-baris">
+      <h2>Data Absensi Harian</h2>
+      <button type="button" class="gray no-print" onclick="unduhCsvAbsensi()">
+        Unduh CSV
+      </button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Nama</th>
+            <th>Jabatan</th>
+            <th>Shift</th>
+            <th>Jam Kerja</th>
+            <th>Jam Efektif</th>
+            <th>Status</th>
+            <th>Keterangan</th>
+            <th class="hanya-admin">Aksi</th>
+          </tr>
+        </thead>
+
+        <tbody id="daftarAbsensi"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Rekap Jam per Hari</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Nama</th>
+            <th>Jabatan</th>
+            <th>Hadir</th>
+            <th>Shift 1</th>
+            <th>Shift 2</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+
+        <tbody id="rekapHarianAbsensi"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Rekap Keseluruhan per Nama</h2>
+
+    <div class="table-wrap">
+      <table id="tabelRekapNama">
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>Jabatan</th>
+            <th>Hadir</th>
+            <th>Shift 1</th>
+            <th>Shift 2</th>
+            <th>Total</th>
+            <th>Sakit</th>
+            <th>Izin</th>
+            <th>Alpa</th>
+          </tr>
+        </thead>
+
+        <tbody id="rekapNamaAbsensi"></tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<!-- PETTY CASH -->
+<div id="pettycash" class="page">
+
+  <div id="kpiPetty" class="grid"></div>
+
+  <section>
+    <div class="judul-baris">
+      <h2>Arus Kas per Bulan</h2>
+      <span class="lencana">Masuk &amp; Keluar</span>
+    </div>
+
+    <div id="grafikPetty" class="grafik"></div>
+  </section>
+
+  <section class="hanya-admin">
+    <h2 id="judulPetty">Input Petty Cash</h2>
+
+    <form id="formPetty" class="form">
+
+      <label>
+        Tanggal
+        <input type="date" name="tanggal" required>
+      </label>
+
+      <label>
+        Keterangan
+        <textarea name="keterangan" required></textarea>
+      </label>
+
+      <label>
+        ACC Oleh
+        <input name="acc" required>
+      </label>
+
+      <label>
+        Dana Masuk
+        <input type="number" inputmode="numeric" name="masuk" min="0" value="0">
+      </label>
+
+      <label>
+        Dana Keluar
+        <input type="number" inputmode="numeric" name="keluar" min="0" value="0">
+      </label>
+
+      <div class="form-action">
+        <button type="submit">Simpan</button>
+        <button type="button" class="gray" onclick="batalPetty()">Batal</button>
+      </div>
+
+    </form>
+  </section>
+
+  <div class="judul-baris no-print" style="margin-top:22px">
+    <h2>Buku Petty Cash per Bulan</h2>
+    <button type="button" class="gray" onclick="unduhCsvPetty()">
+      Unduh CSV
+    </button>
+  </div>
+
+  <div id="pettyBulanan"></div>
+
+</div>
+
+</main>
+
+<!-- KOTAK MASUK -->
+<div id="dialogMasuk" class="dialog no-print" hidden>
+  <div class="dialog-kotak">
+    <h2>Masuk untuk input data</h2>
+
+    <p>
+      Melihat data tidak perlu kata sandi. Kata sandi hanya diperlukan
+      untuk menambah, mengubah, dan menghapus data.
+    </p>
+
+    <label>
+      Kata sandi
+      <input type="password" id="isianSandi" autocomplete="current-password">
+    </label>
+
+    <div id="pesanSandi" class="pesan-salah" hidden></div>
+
+    <div class="dialog-aksi">
+      <button type="button" id="tombolProsesMasuk" onclick="prosesMasuk()">
+        Masuk
+      </button>
+      <button type="button" class="gray" onclick="tutupDialogMasuk()">
+        Batal
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/*==========================================================
+  1. ALAMAT SERVER
+  Tempel URL Web App Google Apps Script (berakhiran /exec)
+  di antara tanda kutip di bawah ini.
+==========================================================*/
+const API_URL = "https://script.google.com/macros/s/AKfycbzXpb58Y0gNIXzzY1d_Rcg_X7P5brNE69MrEgwoN5WhBkd5katkCJ2ghEGI4q_5i_E/exec";
+
+/*==========================================================
+  2. KEADAAN DATA
+  Seluruh data hanya hidup di server (Google Sheet).
+  Tidak ada lagi penyimpanan localStorage di dashboard ini.
+  Yang disimpan sementara di perangkat hanyalah kata sandi
+  sesi, yang otomatis hilang saat tab ditutup.
+==========================================================*/
+const KUNCI_SESI = "AEN_SANDI_SESI";
+
+const KONFIG_AWAL = {
+  po:"MPO-001",
+  titik:200,
+  tertanam:4312,
+  handling:4312,
+  joint:195
+};
+
+const BULAN_PENDEK = ["Jan","Feb","Mar","Apr","Mei","Jun",
+                      "Jul","Agu","Sep","Okt","Nov","Des"];
+
+const BULAN_PANJANG = ["Januari","Februari","Maret","April","Mei","Juni",
+                       "Juli","Agustus","September","Oktober","November","Desember"];
+
+const PALET = {
+  hijau:"#087f73",
+  biru:"#2563eb",
+  oranye:"#e08a1e",
+  merah:"#c62828",
+  garis:"#cbd5e1",
+  teks:"#5b6b7c"
+};
+
+let dataTimeSheet = [];
+let dataAbsensi   = [];
+let dataPetty     = [];
+let konfigurasi   = Object.assign({}, KONFIG_AWAL);
+
+/* Perubahan yang gagal terkirim ditampung di memori dan dicoba lagi. */
+let antrian = [];
+
+let editIdTimeSheet = null;
+let editIdAbsensi   = null;
+let editIdPetty     = null;
+
+const $ = id => document.getElementById(id);
+const angka = value => Number(String(value ?? "").replace(",", ".")) || 0;
+
+function idBaru(){
+  return "x" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+/*==========================================================
+  3. KATA SANDI
+==========================================================*/
+function ambilSandi(){
+  try{ return sessionStorage.getItem(KUNCI_SESI) || ""; }
+  catch(error){ return ""; }
+}
+
+function simpanSandi(sandi){
+  try{ sessionStorage.setItem(KUNCI_SESI, sandi); }
+  catch(error){ /* mode penyamaran: sandi hanya berlaku selama halaman terbuka */ }
+}
+
+function hapusSandi(){
+  try{ sessionStorage.removeItem(KUNCI_SESI); }
+  catch(error){}
+}
+
+let sandiSesi = ambilSandi();
+
+const sudahMasuk = () => sandiSesi.length > 0;
+
+function perbaruiModeAkses(){
+  document.body.classList.toggle("mode-tamu", !sudahMasuk());
+
+  $("tombolAkses").textContent = sudahMasuk()
+    ? "Keluar"
+    : "Masuk untuk input";
+
+  $("tombolAkses").onclick = sudahMasuk() ? keluar : bukaDialogMasuk;
+}
+
+function bukaDialogMasuk(){
+  $("pesanSandi").hidden = true;
+  $("isianSandi").value = "";
+  $("dialogMasuk").hidden = false;
+  setTimeout(() => $("isianSandi").focus(), 60);
+}
+
+function tutupDialogMasuk(){
+  $("dialogMasuk").hidden = true;
+}
+
+async function prosesMasuk(){
+  const sandi = $("isianSandi").value.trim();
+
+  if(!sandi){
+    tampilkanPesanSandi("Kata sandi belum diisi.");
+    return;
+  }
+
+  if(!apiAktif()){
+    tampilkanPesanSandi("Alamat server belum diisi, sandi tidak bisa diperiksa.");
+    return;
+  }
+
+  $("tombolProsesMasuk").disabled = true;
+  $("tombolProsesMasuk").textContent = "Memeriksa…";
+
+  try{
+    await kirimKeServer({ aksi:"masuk", sandi:sandi });
+
+    sandiSesi = sandi;
+    simpanSandi(sandi);
+    perbaruiModeAkses();
+    renderSemua();
+    tutupDialogMasuk();
+    setStatus("online", "Berhasil masuk. Anda dapat menambah dan mengubah data.");
+  }catch(error){
+    tampilkanPesanSandi(error.message);
+  }finally{
+    $("tombolProsesMasuk").disabled = false;
+    $("tombolProsesMasuk").textContent = "Masuk";
+  }
+}
+
+function tampilkanPesanSandi(pesan){
+  $("pesanSandi").textContent = pesan;
+  $("pesanSandi").hidden = false;
+}
+
+function keluar(){
+  if(antrian.length && !confirm(
+    "Masih ada " + antrian.length + " perubahan yang belum terkirim. Tetap keluar?"
+  )){
+    return;
+  }
+
+  sandiSesi = "";
+  hapusSandi();
+  perbaruiModeAkses();
+  renderSemua();
+  setStatus("online", "Mode lihat. Masuk kembali bila ingin input data.");
+}
+
+$("isianSandi").addEventListener("keydown", e => {
+  if(e.key === "Enter"){
+    e.preventDefault();
+    prosesMasuk();
+  }
+});
+
+/*==========================================================
+  4. HUBUNGAN KE SERVER
+==========================================================*/
+const apiAktif = () =>
+  /^https:\/\/script\.google\.com\/.+\/exec$/.test(API_URL.trim());
+
+function setStatus(kondisi, teks){
+  $("statusTitik").className = "status-titik " + kondisi;
+  $("statusTeks").textContent = teks;
+}
+
+function perbaruiPeringatanAntrian(){
+  const ada = antrian.length > 0;
+
+  $("peringatanAntrian").hidden = !ada;
+
+  if(ada){
+    $("jumlahAntrian").textContent =
+      antrian.length + " perubahan menunggu jaringan.";
+  }
+}
+
+/* Pengambilan data memakai JSONP supaya tetap jalan di semua browser
+   HP tanpa terhalang aturan lintas domain (CORS). */
+function ambilDariServer(){
+  return new Promise((resolve, reject) => {
+    const nama = "aenCallback" + Date.now() + Math.floor(Math.random() * 1000);
+    const skrip = document.createElement("script");
+
+    const batasWaktu = setTimeout(() => {
+      bersihkan();
+      reject(new Error("Server tidak menjawab."));
+    }, 25000);
+
+    function bersihkan(){
+      clearTimeout(batasWaktu);
+      delete window[nama];
+      if(skrip.parentNode){ skrip.parentNode.removeChild(skrip); }
+    }
+
+    window[nama] = data => { bersihkan(); resolve(data); };
+
+    skrip.onerror = () => {
+      bersihkan();
+      reject(new Error("Gagal menghubungi server."));
+    };
+
+    skrip.src = API_URL.trim() + "?callback=" + nama + "&t=" + Date.now();
+    document.body.appendChild(skrip);
+  });
+}
+
+/* Pengiriman perubahan memakai POST teks biasa supaya tidak memicu
+   permintaan preflight yang sering ditolak Apps Script. */
+async function kirimKeServer(pesan){
+  const jawaban = await fetch(API_URL.trim(), {
+    method:"POST",
+    headers:{ "Content-Type":"text/plain;charset=utf-8" },
+    body:JSON.stringify(pesan)
+  });
+
+  const hasil = await jawaban.json();
+
+  if(!hasil.ok){
+    throw new Error(hasil.pesan || "Server menolak permintaan.");
+  }
+
+  return hasil;
+}
+
+async function catatPerubahan(pesan){
+  if(!apiAktif()){
+    setStatus("offline", "Alamat server belum diisi — perubahan tidak tersimpan.");
+    return;
+  }
+
+  pesan.sandi = sandiSesi;
+
+  setStatus("sibuk", "Menyimpan ke server…");
+
+  try{
+    await kirimKeServer(pesan);
+    setStatus("online", "Tersimpan. Semua perangkat melihat data yang sama.");
+    perbaruiPeringatanAntrian();
+  }catch(error){
+    if(/sandi/i.test(error.message)){
+      setStatus("offline", error.message);
+      alert(error.message + "\n\nSilakan masuk ulang dengan kata sandi yang benar.");
+      sandiSesi = "";
+      hapusSandi();
+      perbaruiModeAkses();
+      await muatDariServer();
+      return;
+    }
+
+    antrian.push(pesan);
+    perbaruiPeringatanAntrian();
+    setStatus("offline",
+      "Belum terkirim (" + antrian.length + " menunggu). Akan dicoba lagi otomatis.");
+  }
+}
+
+async function prosesAntrian(){
+  if(!apiAktif() || !antrian.length){
+    perbaruiPeringatanAntrian();
+    return;
+  }
+
+  setStatus("sibuk", "Mengirim " + antrian.length + " perubahan tertunda…");
+
+  while(antrian.length){
+    try{
+      antrian[0].sandi = sandiSesi;
+      await kirimKeServer(antrian[0]);
+      antrian.shift();
+      perbaruiPeringatanAntrian();
+    }catch(error){
+      perbaruiPeringatanAntrian();
+      setStatus("offline", antrian.length + " perubahan masih menunggu jaringan.");
+      return;
+    }
+  }
+
+  setStatus("online", "Semua perubahan tertunda berhasil dikirim.");
+}
+
+function rapikanAngka(item, daftarField){
+  daftarField.forEach(field => { item[field] = angka(item[field]); });
+  return item;
+}
+
+async function muatDariServer(){
+  if(!apiAktif()){
+    $("peringatanApi").hidden = false;
+    setStatus("offline", "Alamat server belum diisi.");
+    renderSemua();
+    return;
+  }
+
+  $("peringatanApi").hidden = true;
+  setStatus("sibuk", "Memuat data dari server…");
+
+  try{
+    await prosesAntrian();
+
+    const data = await ambilDariServer();
+
+    if(!data.ok){
+      throw new Error(data.pesan || "Server melaporkan kesalahan.");
+    }
+
+    dataTimeSheet = (data.timesheet || []).map(item =>
+      rapikanAngka(item, ["jumlahTitik", "tertanam", "handling", "joint"]));
+
+    dataAbsensi = data.absensi || [];
+
+    dataPetty = (data.petty || []).map(item =>
+      rapikanAngka(item, ["masuk", "keluar"]));
+
+    konfigurasi = Object.assign({}, KONFIG_AWAL, data.konfigurasi || {});
+
+    renderSemua();
+
+    setStatus("online", "Data terbaru dari server, pukul " + jamSekarang() + ".");
+  }catch(error){
+    renderSemua();
+    setStatus("offline", "Gagal memuat: " + error.message);
+  }
+}
+
+function jamSekarang(){
+  return new Date().toLocaleTimeString("id-ID",
+    { hour:"2-digit", minute:"2-digit" });
+}
+
+/*==========================================================
+  5. TANGGAL DAN PENGELOMPOKAN BULAN
+==========================================================*/
+function normalisasiTanggal(nilai){
+  const teks = String(nilai || "").trim();
+
+  const iso = teks.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+
+  if(iso){
+    return iso[1] + "-"
+      + String(iso[2]).padStart(2, "0") + "-"
+      + String(iso[3]).padStart(2, "0");
+  }
+
+  /* Menerima juga data lama berformat dd/mm/yyyy. */
+  const lama = teks.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+
+  if(lama){
+    return lama[3] + "-"
+      + String(lama[2]).padStart(2, "0") + "-"
+      + String(lama[1]).padStart(2, "0");
+  }
+
+  return "";
+}
+
+/* Format tampilan: dd/MMM/yyyy, contoh 01/Agu/2026 */
+function tanggalIndo(nilai){
+  const iso = normalisasiTanggal(nilai);
+
+  if(!iso){
+    return aman(String(nilai || "-"));
+  }
+
+  const bagian = iso.split("-");
+
+  return bagian[2] + "/" + BULAN_PENDEK[Number(bagian[1]) - 1] + "/" + bagian[0];
+}
+
+function kunciBulan(nilai){
+  const iso = normalisasiTanggal(nilai);
+  return iso ? iso.slice(0, 7) : "0000-00";
+}
+
+function namaBulan(kunci){
+  if(kunci === "0000-00"){
+    return "Tanpa Tanggal";
+  }
+
+  const bagian = kunci.split("-");
+
+  return BULAN_PANJANG[Number(bagian[1]) - 1] + " " + bagian[0];
+}
+
+function namaBulanPendek(kunci){
+  if(kunci === "0000-00"){
+    return "n/a";
+  }
+
+  const bagian = kunci.split("-");
+
+  return BULAN_PENDEK[Number(bagian[1]) - 1] + " " + bagian[0].slice(2);
+}
+
+/* Mengurutkan data menurut tanggal, lalu mengelompokkan per bulan. */
+function kelompokBulan(daftar){
+  const urut = daftar.slice().sort((a, b) => {
+    const x = normalisasiTanggal(a.tanggal);
+    const y = normalisasiTanggal(b.tanggal);
+    return x < y ? -1 : x > y ? 1 : 0;
+  });
+
+  const peta = new Map();
+
+  urut.forEach(item => {
+    const kunci = kunciBulan(item.tanggal);
+
+    if(!peta.has(kunci)){
+      peta.set(kunci, []);
+    }
+
+    peta.get(kunci).push(item);
+  });
+
+  return [...peta.keys()].sort().map(kunci => ({
+    kunci:kunci,
+    nama:namaBulan(kunci),
+    pendek:namaBulanPendek(kunci),
+    isi:peta.get(kunci)
+  }));
+}
+
+/*==========================================================
+  6. BANTUAN TAMPILAN
+==========================================================*/
+function aman(value){
+  return String(value ?? "-")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function rupiah(value){
+  return "Rp " + angka(value).toLocaleString("id-ID");
+}
+
+function ringkas(value){
+  const n = angka(value);
+
+  if(Math.abs(n) >= 1000000){ return (n / 1000000).toFixed(1) + " jt"; }
+  if(Math.abs(n) >= 1000){ return (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1) + " rb"; }
+
+  return n.toLocaleString("id-ID");
+}
+
+/* Tiap sel diberi data-label supaya di layar HP tabel tampil sebagai
+   kartu bertingkat, bukan tabel yang harus digeser ke samping. */
+function sel(label, isi, kelas){
+  return '<td data-label="' + label + '"'
+    + (kelas ? ' class="' + kelas + '"' : "")
+    + ">" + isi + "</td>";
+}
+
+function barisKosong(jumlahKolom, pesan){
+  return '<tr><td colspan="' + jumlahKolom + '" class="empty">' + pesan + "</td></tr>";
+}
+
+function tombolAksi(fungsiUbah, fungsiHapus, id){
+  if(!sudahMasuk()){
+    return "";
+  }
+
+  return sel("Aksi",
+    '<button class="blue" onclick="' + fungsiUbah + "('" + id + '\')">Edit</button>'
+    + '<button class="red" onclick="' + fungsiHapus + "('" + id + '\')">Hapus</button>',
+    "action hanya-admin");
+}
+
+function buka(id){
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.remove("active");
+  });
+
+  $(id).classList.add("active");
+
+  document.querySelectorAll("nav button[data-menu]").forEach(tombol => {
+    tombol.classList.toggle("aktif", tombol.dataset.menu === id);
+  });
+
+  renderSemua();
+  window.scrollTo({ top:0, behavior:"smooth" });
+}
+
+function tipeShift(shift){
+  return String(shift || "").toLowerCase().includes("pagi") ? 1 : 2;
+}
+
+function detailJam(item){
+  if(item.status !== "Hadir"){
+    return { waktu:"-", jam:0 };
+  }
+
+  return tipeShift(item.shift) === 1
+    ? { waktu:"07:00–17:00", jam:9 }
+    : { waktu:"18:00–22:00", jam:4 };
+}
+
+function cariIndeks(daftar, id){
+  return daftar.findIndex(item => String(item.id) === String(id));
+}
+
+/*==========================================================
+  7. GRAFIK (SVG BUATAN SENDIRI, TANPA PUSTAKA LUAR)
+==========================================================*/
+function lebarGrafik(){
+  const layar = window.innerWidth;
+
+  /* Lebar kanvas disesuaikan lebar layar supaya tulisan pada grafik
+     tidak ikut mengecil saat dibuka di HP. */
+  return layar < 500 ? 380
+    : layar < 760 ? 520
+    : 800;
+}
+
+function batasBagus(nilai){
+  if(nilai <= 0){ return 1; }
+
+  const pangkat = Math.pow(10, Math.floor(Math.log10(nilai)));
+  const rasio = nilai / pangkat;
+  const kelipatan = rasio <= 1 ? 1
+    : rasio <= 2 ? 2
+    : rasio <= 2.5 ? 2.5
+    : rasio <= 5 ? 5 : 10;
+
+  return kelipatan * pangkat;
+}
+
+function kerangkaGrafik(W, H, kiri, seri){
+  const atas = seri.length > 1 ? 36 : 18;
+  const bawah = 48;
+  const kanan = 14;
+
+  return {
+    kiri:kiri, kanan:kanan, atas:atas, bawah:bawah,
+    plotW:W - kiri - kanan,
+    plotH:H - atas - bawah
+  };
+}
+
+function legenda(seri, kiri, W){
+  return seri.map((s, i) => {
+    const x = kiri + i * Math.min(160, (W - kiri) / seri.length);
+
+    return '<rect x="' + x + '" y="6" width="12" height="12" rx="3" fill="'
+      + s.warna + '"/>'
+      + '<text x="' + (x + 18) + '" y="16" font-size="13" fill="' + PALET.teks
+      + '">' + s.nama + "</text>";
+  }).join("");
+}
+
+function sumbuY(bentuk, maks, W){
+  let keluaran = "";
+
+  for(let i = 0; i <= 4; i++){
+    const y = bentuk.atas + bentuk.plotH - (bentuk.plotH * i / 4);
+    const nilai = maks * i / 4;
+
+    keluaran += '<line x1="' + bentuk.kiri + '" y1="' + y
+      + '" x2="' + (W - bentuk.kanan) + '" y2="' + y
+      + '" stroke="' + PALET.garis + '" stroke-width="1"'
+      + (i === 0 ? "" : ' stroke-dasharray="4 4"') + "/>"
+      + '<text x="' + (bentuk.kiri - 8) + '" y="' + (y + 4)
+      + '" font-size="12" text-anchor="end" fill="' + PALET.teks + '">'
+      + ringkas(nilai) + "</text>";
+  }
+
+  return keluaran;
+}
+
+function labelX(bentuk, daftarLabel, W){
+  const lebarSlot = bentuk.plotW / daftarLabel.length;
+  const miring = daftarLabel.length > 5;
+
+  return daftarLabel.map((label, i) => {
+    const x = bentuk.kiri + lebarSlot * (i + 0.5);
+    const y = bentuk.atas + bentuk.plotH + 20;
+
+    return '<text x="' + x + '" y="' + y + '" font-size="12.5" fill="'
+      + PALET.teks + '" text-anchor="' + (miring ? "end" : "middle") + '"'
+      + (miring ? ' transform="rotate(-32 ' + x + ' ' + y + ')"' : "")
+      + ">" + label + "</text>";
+  }).join("");
+}
+
+function svgBatang(daftar, seri){
+  if(!daftar.length){
+    return '<div class="grafik-kosong">Belum ada data untuk digambarkan.</div>';
+  }
+
+  const W = lebarGrafik();
+  const H = W < 500 ? 280 : 320;
+  const bentuk = kerangkaGrafik(W, H, W < 500 ? 48 : 62, seri);
+
+  let tertinggi = 0;
+
+  daftar.forEach(item => {
+    item.nilai.forEach(n => { tertinggi = Math.max(tertinggi, angka(n)); });
+  });
+
+  const maks = batasBagus(tertinggi);
+  const lebarSlot = bentuk.plotW / daftar.length;
+  const lebarBatang = Math.min(46, lebarSlot * 0.72 / seri.length);
+  const tampilkanNilai = daftar.length * seri.length <= 14;
+
+  let batang = "";
+
+  daftar.forEach((item, i) => {
+    const tengah = bentuk.kiri + lebarSlot * (i + 0.5);
+    const mulai = tengah - (lebarBatang * seri.length) / 2;
+
+    item.nilai.forEach((n, j) => {
+      const tinggi = Math.max(2, bentuk.plotH * angka(n) / maks);
+      const x = mulai + j * lebarBatang;
+      const y = bentuk.atas + bentuk.plotH - tinggi;
+
+      batang += '<rect x="' + (x + 2) + '" y="' + y
+        + '" width="' + (lebarBatang - 4) + '" height="' + tinggi
+        + '" rx="3" fill="' + seri[j].warna + '"/>';
+
+      if(tampilkanNilai && angka(n) > 0){
+        batang += '<text x="' + (x + lebarBatang / 2) + '" y="' + (y - 6)
+          + '" font-size="12" font-weight="bold" text-anchor="middle" fill="'
+          + seri[j].warna + '">' + ringkas(n) + "</text>";
+      }
+    });
+  });
+
+  return '<svg viewBox="0 0 ' + W + " " + H
+    + '" xmlns="http://www.w3.org/2000/svg" role="img">'
+    + (seri.length > 1 ? legenda(seri, bentuk.kiri, W) : "")
+    + sumbuY(bentuk, maks, W)
+    + batang
+    + labelX(bentuk, daftar.map(item => item.label), W)
+    + "</svg>";
+}
+
+function svgGaris(daftar, seri){
+  if(daftar.length < 1){
+    return '<div class="grafik-kosong">Belum ada data untuk digambarkan.</div>';
+  }
+
+  const W = lebarGrafik();
+  const H = W < 500 ? 280 : 320;
+  const bentuk = kerangkaGrafik(W, H, W < 500 ? 48 : 62, seri);
+
+  let tertinggi = 0;
+
+  daftar.forEach(item => {
+    item.nilai.forEach(n => { tertinggi = Math.max(tertinggi, angka(n)); });
+  });
+
+  const maks = batasBagus(tertinggi);
+  const lebarSlot = bentuk.plotW / Math.max(daftar.length, 1);
+
+  const posisiX = i => bentuk.kiri + lebarSlot * (i + 0.5);
+  const posisiY = n => bentuk.atas + bentuk.plotH - bentuk.plotH * angka(n) / maks;
+
+  let jalur = "";
+
+  seri.forEach((s, j) => {
+    const titik = daftar.map((item, i) =>
+      posisiX(i).toFixed(1) + "," + posisiY(item.nilai[j]).toFixed(1));
+
+    if(j === 0 && daftar.length > 1){
+      jalur += '<polygon points="'
+        + posisiX(0).toFixed(1) + "," + (bentuk.atas + bentuk.plotH) + " "
+        + titik.join(" ") + " "
+        + posisiX(daftar.length - 1).toFixed(1) + "," + (bentuk.atas + bentuk.plotH)
+        + '" fill="' + s.warna + '" opacity="0.12"/>';
+    }
+
+    jalur += '<polyline points="' + titik.join(" ")
+      + '" fill="none" stroke="' + s.warna + '" stroke-width="3"'
+      + ' stroke-linejoin="round" stroke-linecap="round"'
+      + (s.putus ? ' stroke-dasharray="8 6"' : "") + "/>";
+
+    daftar.forEach((item, i) => {
+      jalur += '<circle cx="' + posisiX(i).toFixed(1) + '" cy="'
+        + posisiY(item.nilai[j]).toFixed(1)
+        + '" r="4.5" fill="#fff" stroke="' + s.warna + '" stroke-width="2.5"/>';
+    });
+  });
+
+  return '<svg viewBox="0 0 ' + W + " " + H
+    + '" xmlns="http://www.w3.org/2000/svg" role="img">'
+    + legenda(seri, bentuk.kiri, W)
+    + sumbuY(bentuk, maks, W)
+    + jalur
+    + labelX(bentuk, daftar.map(item => item.label), W)
+    + "</svg>";
+}
+
+/*==========================================================
+  8. DAILY TIME SHEET
+==========================================================*/
+$("namaTitik").addEventListener("input", event => {
+  $("jumlahTitik").value = event.target.value
+    .split(",")
+    .filter(item => item.trim())
+    .length;
+});
+
+function totalTimeSheet(field){
+  return dataTimeSheet.reduce((total, item) => total + angka(item[field]), 0);
+}
+
+function ubahTarget(field, value){
+  konfigurasi[field] = field === "po" ? value : angka(value);
+
+  renderDashboard();
+  catatPerubahan({ aksi:"konfigurasi", konfigurasi:konfigurasi });
+}
+
+$("formTimeSheet").addEventListener("submit", e => {
+  e.preventDefault();
+
+  const item = Object.fromEntries(new FormData(e.target).entries());
+
+  rapikanAngka(item, ["jumlahTitik", "tertanam", "handling", "joint"]);
+
+  const indeks = cariIndeks(dataTimeSheet, editIdTimeSheet);
+
+  if(indeks < 0){
+    item.id = idBaru();
+    dataTimeSheet.push(item);
+  }else{
+    item.id = dataTimeSheet[indeks].id;
+    dataTimeSheet[indeks] = item;
+  }
+
+  batalTimeSheet();
+  renderSemua();
+  catatPerubahan({ aksi:"simpan", tipe:"timesheet", item:item });
+  buka("dashboard");
+});
+
+function ubahTimeSheet(id){
+  const item = dataTimeSheet[cariIndeks(dataTimeSheet, id)];
+
+  if(!item){ return; }
+
+  editIdTimeSheet = id;
+
+  Object.entries(item).forEach(([key, value]) => {
+    const kolom = $("formTimeSheet").elements[key];
+
+    if(kolom && kolom.tagName){
+      kolom.value = key === "tanggal" ? normalisasiTanggal(value) : value;
+    }
+  });
+
+  $("judulTimeSheet").textContent = "Edit Daily Time Sheet";
+  buka("timesheet");
+}
+
+function hapusTimeSheet(id){
+  if(!confirm("Hapus data Daily Time Sheet ini?")){ return; }
+
+  const indeks = cariIndeks(dataTimeSheet, id);
+
+  if(indeks < 0){ return; }
+
+  dataTimeSheet.splice(indeks, 1);
+  renderSemua();
+  catatPerubahan({ aksi:"hapus", tipe:"timesheet", id:id });
+}
+
+function batalTimeSheet(){
+  editIdTimeSheet = null;
+  $("formTimeSheet").reset();
+  $("judulTimeSheet").textContent = "Input Daily Time Sheet";
+  $("po").value = konfigurasi.po;
+}
+
+function renderTimeSheet(){
+  if(editIdTimeSheet === null && !$("po").value){
+    $("po").value = konfigurasi.po;
+  }
+
+  const urut = kelompokBulan(dataTimeSheet)
+    .reduce((semua, bulan) => semua.concat(bulan.isi), []);
+
+  $("daftarTimeSheet").innerHTML = urut.length
+    ? urut.map(item => "<tr>"
+        + sel("Tanggal", tanggalIndo(item.tanggal))
+        + sel("Shift", aman(item.shift))
+        + sel("Nama Titik", aman(item.namaTitik))
+        + sel("Jumlah", angka(item.jumlahTitik), "numeric")
+        + tombolAksi("ubahTimeSheet", "hapusTimeSheet", item.id)
+        + "</tr>").join("")
+    : barisKosong(5, "Belum ada data Daily Time Sheet.");
+}
+
+/*==========================================================
+  9. DASHBOARD REKAP
+==========================================================*/
+function renderDashboard(){
+  const targets = [
+    ["po", "No. PO"],
+    ["titik", "Target Titik"],
+    ["tertanam", "Target Tertanam"],
+    ["handling", "Target Handling"],
+    ["joint", "Target Joint"]
+  ];
+
+  /* Kolom target tidak digambar ulang selama sedang diketik,
+     supaya kursor tidak melompat keluar di HP. */
+  if(!$("target").contains(document.activeElement)){
+    $("target").innerHTML = targets.map(([field, label]) => `
+      <label>
+        ${label}
+        <input value="${aman(konfigurasi[field])}"
+               onchange="ubahTarget('${field}',this.value)">
+      </label>
+    `).join("");
+  }
+
+  const kpi = [
+    ["Jumlah Titik", "titik", "jumlahTitik", "titik"],
+    ["Tertanam", "tertanam", "tertanam", "m"],
+    ["Handling", "handling", "handling", "m"],
+    ["Joint", "joint", "joint", "joint"]
+  ];
+
+  $("kpi").innerHTML = kpi.map(([judul, targetField, actualField, satuan]) => {
+    const target = angka(konfigurasi[targetField]);
+    const aktual = totalTimeSheet(actualField);
+    const sisa = target - aktual;
+    const persen = target > 0 ? aktual / target * 100 : 0;
+
+    return `
+      <div class="card">
+        <span class="card-title">${judul}</span>
+
+        <b>Sisa: ${sisa.toLocaleString("id-ID")} ${satuan}</b>
+
+        Target: ${target.toLocaleString("id-ID")}<br>
+        Aktual: ${aktual.toLocaleString("id-ID")}<br>
+        Progres: ${persen.toFixed(2)}%
+
+        <div class="bar">
+          <i style="width:${Math.min(Math.max(persen, 0), 100)}%"></i>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  const perBulan = kelompokBulan(dataTimeSheet);
+
+  gambarKurvaS(perBulan);
+  gambarProduksiBulanan(perBulan);
+  gambarRekapBulanan(perBulan);
+}
+
+function gambarKurvaS(perBulan){
+  const targetTertanam = angka(konfigurasi.tertanam);
+
+  let kumulatif = 0;
+
+  const titik = perBulan.map((bulan, i) => {
+    kumulatif += bulan.isi.reduce((t, item) => t + angka(item.tertanam), 0);
+
+    return {
+      label:bulan.pendek,
+      nilai:[
+        kumulatif,
+        targetTertanam * (i + 1) / Math.max(perBulan.length, 1)
+      ]
+    };
+  });
+
+  $("grafikKurva").innerHTML = svgGaris(titik, [
+    { nama:"Aktual kumulatif", warna:PALET.hijau },
+    { nama:"Rencana linear", warna:PALET.oranye, putus:true }
+  ]);
+
+  const persen = targetTertanam > 0 ? kumulatif / targetTertanam * 100 : 0;
+
+  $("lencanaKurva").textContent = persen.toFixed(1) + "% dari target";
+}
+
+function gambarProduksiBulanan(perBulan){
+  const daftar = perBulan.map(bulan => ({
+    label:bulan.pendek,
+    nilai:[
+      bulan.isi.reduce((t, item) => t + angka(item.jumlahTitik), 0),
+      bulan.isi.reduce((t, item) => t + angka(item.joint), 0)
+    ]
+  }));
+
+  $("grafikBulanan").innerHTML = svgBatang(daftar, [
+    { nama:"Jumlah Titik", warna:PALET.hijau },
+    { nama:"Jumlah Joint", warna:PALET.biru }
+  ]);
+}
+
+/* Rekap Aktual Pemancangan dipecah menjadi satu bagian per bulan,
+   masing-masing dengan baris subtotal. */
+function gambarRekapBulanan(perBulan){
+  if(!perBulan.length){
+    $("rekapBulanan").innerHTML =
+      '<section><div class="empty">Belum ada data Daily Time Sheet.</div></section>';
+    return;
+  }
+
+  $("rekapBulanan").innerHTML = perBulan.map(bulan => {
+    const jumlahTitik = bulan.isi.reduce((t, i) => t + angka(i.jumlahTitik), 0);
+    const tertanam = bulan.isi.reduce((t, i) => t + angka(i.tertanam), 0);
+    const handling = bulan.isi.reduce((t, i) => t + angka(i.handling), 0);
+    const joint = bulan.isi.reduce((t, i) => t + angka(i.joint), 0);
+
+    const baris = bulan.isi.map(item => "<tr>"
+      + sel("Tanggal", tanggalIndo(item.tanggal))
+      + sel("PO MP", aman(item.po))
+      + sel("Shift", aman(item.shift))
+      + sel("No. Alat", aman(item.alat))
+      + sel("Diameter", aman(item.diameter))
+      + sel("No. Titik", aman(item.namaTitik))
+      + sel("Jumlah", angka(item.jumlahTitik), "numeric")
+      + sel("Tertanam", angka(item.tertanam).toLocaleString("id-ID"), "numeric")
+      + sel("Handling", angka(item.handling).toLocaleString("id-ID"), "numeric")
+      + sel("Joint", angka(item.joint), "numeric")
+      + "</tr>").join("");
+
+    return `
+      <section>
+        <div class="judul-baris">
+          <h2>Rekap Aktual Pemancangan — ${bulan.nama}</h2>
+          <span class="lencana">${bulan.isi.length} hari kerja</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>PO MP</th>
+                <th>Shift</th>
+                <th>No. Alat</th>
+                <th>Diameter</th>
+                <th>No. Titik</th>
+                <th>Jumlah</th>
+                <th>Tertanam</th>
+                <th>Handling</th>
+                <th>Joint</th>
+              </tr>
+            </thead>
+
+            <tbody>${baris}</tbody>
+
+            <tfoot>
+              <tr>
+                ${sel("Subtotal", "Subtotal " + bulan.nama)}
+                ${sel("PO MP", "")}
+                ${sel("Shift", "")}
+                ${sel("No. Alat", "")}
+                ${sel("Diameter", "")}
+                ${sel("No. Titik", "")}
+                ${sel("Jumlah", jumlahTitik.toLocaleString("id-ID"), "numeric")}
+                ${sel("Tertanam", tertanam.toLocaleString("id-ID"), "numeric")}
+                ${sel("Handling", handling.toLocaleString("id-ID"), "numeric")}
+                ${sel("Joint", joint.toLocaleString("id-ID"), "numeric")}
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
+    `;
+  }).join("");
+}
+
+/*==========================================================
+  10. DAILY ABSENSI
+==========================================================*/
+$("formAbsensi").addEventListener("submit", e => {
+  e.preventDefault();
+
+  const item = Object.fromEntries(new FormData(e.target).entries());
+  const indeks = cariIndeks(dataAbsensi, editIdAbsensi);
+
+  if(indeks < 0){
+    item.id = idBaru();
+    dataAbsensi.push(item);
+  }else{
+    item.id = dataAbsensi[indeks].id;
+    dataAbsensi[indeks] = item;
+  }
+
+  batalAbsensi();
+  renderSemua();
+  catatPerubahan({ aksi:"simpan", tipe:"absensi", item:item });
+});
+
+function ubahAbsensi(id){
+  const item = dataAbsensi[cariIndeks(dataAbsensi, id)];
+
+  if(!item){ return; }
+
+  editIdAbsensi = id;
+
+  Object.entries(item).forEach(([key, value]) => {
+    const kolom = $("formAbsensi").elements[key];
+
+    if(kolom && kolom.tagName){
+      kolom.value = key === "tanggal" ? normalisasiTanggal(value) : value;
+    }
+  });
+
+  $("judulAbsensi").textContent = "Edit Daily Absensi";
+  $("tombolSimpanAbsensi").textContent = "Simpan Perubahan";
+
+  buka("absensi");
+}
+
+function hapusAbsensi(id){
+  if(!confirm("Hapus data absensi ini?")){ return; }
+
+  const indeks = cariIndeks(dataAbsensi, id);
+
+  if(indeks < 0){ return; }
+
+  dataAbsensi.splice(indeks, 1);
+  renderSemua();
+  catatPerubahan({ aksi:"hapus", tipe:"absensi", id:id });
+}
+
+function batalAbsensi(){
+  editIdAbsensi = null;
+  $("formAbsensi").reset();
+  $("judulAbsensi").textContent = "Input Daily Absensi";
+  $("tombolSimpanAbsensi").textContent = "Simpan";
+}
+
+function kelompokAbsensi(perHari){
+  const hasil = {};
+
+  dataAbsensi.forEach(item => {
+    const nama = String(item.nama || "").trim().toLowerCase();
+
+    if(!nama){ return; }
+
+    const key = perHari ? normalisasiTanggal(item.tanggal) + "|" + nama : nama;
+
+    if(!hasil[key]){
+      hasil[key] = {
+        tanggal:item.tanggal,
+        nama:item.nama,
+        jabatan:item.jabatan,
+        hadir:0, shift1:0, shift2:0,
+        sakit:0, izin:0, alpa:0
+      };
+    }
+
+    const rekap = hasil[key];
+
+    rekap.jabatan = item.jabatan || rekap.jabatan;
+
+    if(item.status === "Hadir"){
+      rekap.hadir++;
+
+      if(tipeShift(item.shift) === 1){
+        rekap.shift1 += 9;
+      }else{
+        rekap.shift2 += 4;
+      }
+    }else{
+      const status = String(item.status || "").toLowerCase();
+
+      if(status in rekap){
+        rekap[status]++;
+      }
+    }
+  });
+
+  return Object.values(hasil);
+}
+
+function renderAbsensi(){
+  const urut = kelompokBulan(dataAbsensi)
+    .reduce((semua, bulan) => semua.concat(bulan.isi), []);
+
+  $("daftarAbsensi").innerHTML = urut.length
+    ? urut.map(item => {
+        const detail = detailJam(item);
+
+        return "<tr>"
+          + sel("Tanggal", tanggalIndo(item.tanggal))
+          + sel("Nama", aman(item.nama))
+          + sel("Jabatan", aman(item.jabatan))
+          + sel("Shift", "Shift " + tipeShift(item.shift))
+          + sel("Jam Kerja", detail.waktu, "numeric")
+          + sel("Jam Efektif", detail.jam + " jam", "numeric")
+          + sel("Status", aman(item.status))
+          + sel("Keterangan", aman(item.ket || "-"))
+          + tombolAksi("ubahAbsensi", "hapusAbsensi", item.id)
+          + "</tr>";
+      }).join("")
+    : barisKosong(9, "Belum ada data absensi.");
+
+  const harian = kelompokAbsensi(true);
+
+  $("rekapHarianAbsensi").innerHTML = harian.length
+    ? harian.map(rekap => "<tr>"
+        + sel("Tanggal", tanggalIndo(rekap.tanggal))
+        + sel("Nama", aman(rekap.nama))
+        + sel("Jabatan", aman(rekap.jabatan))
+        + sel("Hadir", rekap.hadir + " shift")
+        + sel("Shift 1", rekap.shift1 + " jam")
+        + sel("Shift 2", rekap.shift2 + " jam")
+        + sel("Total", "<b>" + (rekap.shift1 + rekap.shift2) + " jam</b>")
+        + "</tr>").join("")
+    : barisKosong(7, "Belum ada rekap harian.");
+
+  const perNama = kelompokAbsensi(false);
+
+  $("rekapNamaAbsensi").innerHTML = perNama.length
+    ? perNama.map(rekap => "<tr>"
+        + sel("Nama", aman(rekap.nama))
+        + sel("Jabatan", aman(rekap.jabatan))
+        + sel("Hadir", rekap.hadir + " shift")
+        + sel("Shift 1", rekap.shift1 + " jam")
+        + sel("Shift 2", rekap.shift2 + " jam")
+        + sel("Total", "<b>" + (rekap.shift1 + rekap.shift2) + " jam</b>")
+        + sel("Sakit", rekap.sakit)
+        + sel("Izin", rekap.izin)
+        + sel("Alpa", rekap.alpa)
+        + "</tr>").join("")
+    : barisKosong(9, "Belum ada rekap keseluruhan.");
+}
+
+/*==========================================================
+  11. PETTY CASH
+==========================================================*/
+$("formPetty").addEventListener("submit", e => {
+  e.preventDefault();
+
+  const item = Object.fromEntries(new FormData(e.target).entries());
+
+  item.masuk = angka(item.masuk);
+  item.keluar = angka(item.keluar);
+
+  if(!item.masuk && !item.keluar){
+    alert("Isi dana masuk atau dana keluar.");
+    return;
+  }
+
+  const indeks = cariIndeks(dataPetty, editIdPetty);
+
+  if(indeks < 0){
+    item.id = idBaru();
+    dataPetty.push(item);
+  }else{
+    item.id = dataPetty[indeks].id;
+    dataPetty[indeks] = item;
+  }
+
+  batalPetty();
+  renderPetty();
+  catatPerubahan({ aksi:"simpan", tipe:"petty", item:item });
+});
+
+function ubahPetty(id){
+  const item = dataPetty[cariIndeks(dataPetty, id)];
+
+  if(!item){ return; }
+
+  editIdPetty = id;
+
+  Object.entries(item).forEach(([key, value]) => {
+    const kolom = $("formPetty").elements[key];
+
+    if(kolom && kolom.tagName){
+      kolom.value = key === "tanggal" ? normalisasiTanggal(value) : value;
+    }
+  });
+
+  $("judulPetty").textContent = "Edit Petty Cash";
+  window.scrollTo({ top:0, behavior:"smooth" });
+}
+
+function hapusPetty(id){
+  if(!confirm("Hapus transaksi ini?")){ return; }
+
+  const indeks = cariIndeks(dataPetty, id);
+
+  if(indeks < 0){ return; }
+
+  dataPetty.splice(indeks, 1);
+  renderPetty();
+  catatPerubahan({ aksi:"hapus", tipe:"petty", id:id });
+}
+
+function batalPetty(){
+  editIdPetty = null;
+  $("formPetty").reset();
+  $("formPetty").elements.masuk.value = 0;
+  $("formPetty").elements.keluar.value = 0;
+  $("judulPetty").textContent = "Input Petty Cash";
+}
+
+function renderPetty(){
+  const perBulan = kelompokBulan(dataPetty);
+
+  const totalMasuk = dataPetty.reduce((t, i) => t + angka(i.masuk), 0);
+  const totalKeluar = dataPetty.reduce((t, i) => t + angka(i.keluar), 0);
+
+  $("kpiPetty").innerHTML = `
+    <div class="card">Total Dana Masuk<b>${rupiah(totalMasuk)}</b></div>
+    <div class="card">Total Dana Keluar<b>${rupiah(totalKeluar)}</b></div>
+    <div class="card">Sisa Dana<b>${rupiah(totalMasuk - totalKeluar)}</b></div>
+  `;
+
+  $("grafikPetty").innerHTML = svgBatang(
+    perBulan.map(bulan => ({
+      label:bulan.pendek,
+      nilai:[
+        bulan.isi.reduce((t, i) => t + angka(i.masuk), 0),
+        bulan.isi.reduce((t, i) => t + angka(i.keluar), 0)
+      ]
+    })),
+    [
+      { nama:"Dana Masuk", warna:PALET.hijau },
+      { nama:"Dana Keluar", warna:PALET.merah }
+    ]
+  );
+
+  if(!perBulan.length){
+    $("pettyBulanan").innerHTML =
+      '<section><div class="empty">Belum ada transaksi.</div></section>';
+    return;
+  }
+
+  /* Saldo berjalan diteruskan dari bulan ke bulan. */
+  let saldo = 0;
+
+  $("pettyBulanan").innerHTML = perBulan.map(bulan => {
+    const saldoAwal = saldo;
+    let masukBulan = 0;
+    let keluarBulan = 0;
+
+    const baris = bulan.isi.map(item => {
+      masukBulan += angka(item.masuk);
+      keluarBulan += angka(item.keluar);
+      saldo += angka(item.masuk) - angka(item.keluar);
+
+      return "<tr>"
+        + sel("Tanggal", tanggalIndo(item.tanggal))
+        + sel("Keterangan", aman(item.keterangan))
+        + sel("ACC Oleh", aman(item.acc))
+        + sel("Dana Masuk", rupiah(item.masuk), "money")
+        + sel("Dana Keluar", rupiah(item.keluar), "money")
+        + sel("Saldo", "<b>" + rupiah(saldo) + "</b>", "money")
+        + tombolAksi("ubahPetty", "hapusPetty", item.id)
+        + "</tr>";
+    }).join("");
+
+    return `
+      <section>
+        <div class="judul-baris">
+          <h2>Petty Cash — ${bulan.nama}</h2>
+          <span class="lencana">Saldo awal ${rupiah(saldoAwal)}</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>Keterangan</th>
+                <th>ACC Oleh</th>
+                <th>Dana Masuk</th>
+                <th>Dana Keluar</th>
+                <th>Saldo</th>
+                <th class="hanya-admin">Aksi</th>
+              </tr>
+            </thead>
+
+            <tbody>${baris}</tbody>
+
+            <tfoot>
+              <tr>
+                ${sel("Subtotal", "Subtotal " + bulan.nama)}
+                ${sel("Keterangan", "")}
+                ${sel("ACC Oleh", "")}
+                ${sel("Dana Masuk", rupiah(masukBulan), "money")}
+                ${sel("Dana Keluar", rupiah(keluarBulan), "money")}
+                ${sel("Saldo Akhir", rupiah(saldo), "money")}
+                ${sudahMasuk() ? sel("Aksi", "", "action hanya-admin") : ""}
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
+    `;
+  }).join("");
+}
+
+/*==========================================================
+  12. UNDUH CSV (bisa dibuka langsung di Excel)
+==========================================================*/
+function unduhCsv(namaBerkas, judulKolom, baris){
+  if(!baris.length){
+    alert("Belum ada data untuk diunduh.");
+    return;
+  }
+
+  const bungkus = nilai => '"' + String(nilai ?? "").replaceAll('"', '""') + '"';
+
+  const isi = "\uFEFF"
+    + [judulKolom].concat(baris)
+        .map(r => r.map(bungkus).join(";"))
+        .join("\r\n");
+
+  const tautan = document.createElement("a");
+
+  tautan.href = URL.createObjectURL(
+    new Blob([isi], { type:"text/csv;charset=utf-8;" }));
+  tautan.download = namaBerkas;
+  tautan.click();
+
+  setTimeout(() => URL.revokeObjectURL(tautan.href), 2000);
+}
+
+function unduhCsvTimeSheet(){
+  const baris = kelompokBulan(dataTimeSheet)
+    .reduce((semua, bulan) => semua.concat(
+      bulan.isi.map(i => [
+        bulan.nama, tanggalIndo(i.tanggal), i.po, i.shift, i.alat, i.diameter,
+        i.namaTitik, angka(i.jumlahTitik), angka(i.tertanam),
+        angka(i.handling), angka(i.joint), i.status, i.kendala
+      ])), []);
+
+  unduhCsv("DailyTimeSheet-AEN.csv",
+    ["Bulan", "Tanggal", "No. PO", "Shift", "No. Alat", "Diameter",
+     "Nama Titik", "Jumlah Titik", "SP Tertanam", "SP Handling",
+     "Joint", "Status", "Kendala"],
+    baris);
+}
+
+function unduhCsvAbsensi(){
+  const baris = kelompokBulan(dataAbsensi)
+    .reduce((semua, bulan) => semua.concat(
+      bulan.isi.map(i => [
+        bulan.nama, tanggalIndo(i.tanggal), i.nama, i.jabatan,
+        "Shift " + tipeShift(i.shift), detailJam(i).waktu,
+        detailJam(i).jam, i.status, i.ket
+      ])), []);
+
+  unduhCsv("DailyAbsensi-AEN.csv",
+    ["Bulan", "Tanggal", "Nama", "Jabatan", "Shift", "Jam Kerja",
+     "Jam Efektif", "Status", "Keterangan"],
+    baris);
+}
+
+function unduhCsvPetty(){
+  let saldo = 0;
+
+  const baris = kelompokBulan(dataPetty)
+    .reduce((semua, bulan) => semua.concat(
+      bulan.isi.map(i => {
+        saldo += angka(i.masuk) - angka(i.keluar);
+
+        return [bulan.nama, tanggalIndo(i.tanggal), i.keterangan, i.acc,
+                angka(i.masuk), angka(i.keluar), saldo];
+      })), []);
+
+  unduhCsv("PettyCash-AEN.csv",
+    ["Bulan", "Tanggal", "Keterangan", "ACC Oleh",
+     "Dana Masuk", "Dana Keluar", "Saldo"],
+    baris);
+}
+
+/*==========================================================
+  13. PEMINDAHAN DATA LAMA (SEKALI PAKAI)
+  Versi terdahulu menyimpan data di localStorage perangkat.
+  Bagian ini hanya membaca sisa data lama itu agar bisa
+  dikirim ke server, lalu boleh dihapus.
+==========================================================*/
+const KUNCI_LAMA = {
+  timesheet:"PILE_DAILY_V4",
+  absensi:"PILE_ABSENSI_V1",
+  petty:"PILE_PETTY_CASH_V1"
+};
+
+function bacaDataLama(){
+  const hasil = {};
+
+  Object.entries(KUNCI_LAMA).forEach(([tipe, kunci]) => {
+    try{
+      const isi = JSON.parse(localStorage.getItem(kunci));
+      if(Array.isArray(isi) && isi.length){ hasil[tipe] = isi; }
+    }catch(error){ /* abaikan */ }
+  });
+
+  return hasil;
+}
+
+function periksaDataLama(){
+  const lama = bacaDataLama();
+  const jenis = Object.keys(lama);
+
+  if(!jenis.length){
+    $("bannerMigrasi").hidden = true;
+    return;
+  }
+
+  $("ringkasanMigrasi").textContent = jenis
+    .map(tipe => lama[tipe].length + " baris " + tipe)
+    .join(", ") + ".";
+
+  $("bannerMigrasi").hidden = false;
+}
+
+async function kirimDataLama(){
+  if(!sudahMasuk()){
+    alert("Masuk dulu dengan kata sandi.");
+    return;
+  }
+
+  const lama = bacaDataLama();
+  let jumlah = 0;
+
+  for(const [tipe, daftar] of Object.entries(lama)){
+    for(const item of daftar){
+      if(!item.id){ item.id = idBaru(); }
+
+      item.tanggal = normalisasiTanggal(item.tanggal) || item.tanggal;
+
+      setStatus("sibuk", "Mengirim data lama… (" + (jumlah + 1) + ")");
+
+      try{
+        await kirimKeServer({ aksi:"simpan", tipe:tipe, item:item, sandi:sandiSesi });
+        jumlah++;
+      }catch(error){
+        alert("Berhenti di baris ke-" + (jumlah + 1) + ": " + error.message);
+        await muatDariServer();
+        return;
+      }
+    }
+  }
+
+  alert(jumlah + " baris data lama berhasil dikirim ke server.\n\n"
+    + "Periksa dulu hasilnya. Kalau sudah benar, tekan "
+    + "\"Hapus data lama dari perangkat\".");
+
+  await muatDariServer();
+}
+
+function hapusDataLama(){
+  if(!confirm("Hapus sisa data lama dari perangkat ini? "
+    + "Pastikan data sudah ada di server.")){
+    return;
+  }
+
+  Object.values(KUNCI_LAMA).forEach(kunci => {
+    try{ localStorage.removeItem(kunci); }catch(error){}
+  });
+
+  try{
+    localStorage.removeItem("PILE_CONFIG_V4");
+    localStorage.removeItem("PILE_ANTRIAN_V1");
+  }catch(error){}
+
+  $("bannerMigrasi").hidden = true;
+}
+
+/*==========================================================
+  14. RENDER, PRINT, DAN JALANKAN
+==========================================================*/
+function renderSemua(){
+  renderDashboard();
+  renderTimeSheet();
+  renderAbsensi();
+  renderPetty();
+}
+
+function cetakHalamanAktif(){
+  renderSemua();
+
+  const halamanAktif = document.querySelector(".page.active");
+
+  if(!halamanAktif){
+    alert("Tidak ada halaman aktif untuk dicetak.");
+    return;
+  }
+
+  document.querySelectorAll(".print-heading")
+    .forEach(element => element.remove());
+
+  const namaMenu = {
+    dashboard:"Dashboard Rekap Pemancangan",
+    timesheet:"Laporan Daily Time Sheet",
+    absensi:"Laporan Daily Absensi",
+    pettycash:"Laporan Petty Cash"
+  };
+
+  const judul = document.createElement("div");
+  judul.className = "print-heading";
+
+  judul.innerHTML = `
+    <h2>${namaMenu[halamanAktif.id] || "Laporan"}</h2>
+    <div>
+      PT. Avindo Energi Nusantara —
+      Customer PT Mucoindo Prakarsa,
+      Area PT KIE - Site Bontang
+    </div>
+  `;
+
+  halamanAktif.prepend(judul);
+
+  halamanAktif.querySelectorAll("form").forEach(form => {
+    const section = form.closest("section");
+
+    if(section){ section.classList.add("print-hide"); }
+  });
+
+  setTimeout(() => { window.print(); }, 150);
+}
+
+window.addEventListener("afterprint", () => {
+  document.querySelectorAll(".print-hide")
+    .forEach(element => element.classList.remove("print-hide"));
+
+  document.querySelectorAll(".print-heading")
+    .forEach(element => element.remove());
+});
+
+/* Peringatan bila halaman ditutup saat masih ada perubahan tertunda. */
+window.addEventListener("beforeunload", e => {
+  if(antrian.length){
+    e.preventDefault();
+    e.returnValue = "";
+  }
+});
+
+/* Gambar ulang grafik saat layar diputar atau ukuran jendela berubah. */
+let jedaUkuran = null;
+
+window.addEventListener("resize", () => {
+  clearTimeout(jedaUkuran);
+  jedaUkuran = setTimeout(() => {
+    renderDashboard();
+    renderPetty();
+  }, 250);
+});
+
+window.addEventListener("online", prosesAntrian);
+
+document.addEventListener("visibilitychange", () => {
+  if(document.visibilityState === "visible"){
+    muatDariServer();
+  }
+});
+
+document.querySelector('nav button[data-menu="dashboard"]').classList.add("aktif");
+
+perbaruiModeAkses();
+periksaDataLama();
+renderSemua();
+muatDariServer();
+</script>
+
+</body>
+</html>
