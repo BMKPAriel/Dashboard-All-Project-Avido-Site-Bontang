@@ -368,6 +368,26 @@ textarea{
   font-size:13px;
 }
 
+.kotak-centang{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  align-self:end;
+  padding:11px 12px;
+  border:1px solid #b6c0ca;
+  border-radius:6px;
+  background:#fffbeb;
+  font-size:13px;
+  line-height:1.4;
+}
+
+.kotak-centang input{
+  width:20px;
+  height:20px;
+  margin:1px 0 0;
+  flex-shrink:0;
+}
+
 .ringkas-isian{
   display:flex;
   flex-wrap:wrap;
@@ -523,13 +543,13 @@ tfoot td{
 }
 
 @media screen and (min-width:721px){
-  #tabelRekapNama{ min-width:820px; }
+  .tabel-rekap-nama{ min-width:880px; }
 
-  #tabelRekapNama th,
-  #tabelRekapNama td{ text-align:center; }
+  .tabel-rekap-nama th,
+  .tabel-rekap-nama td{ text-align:center; }
 
-  #tabelRekapNama th:nth-child(-n+2),
-  #tabelRekapNama td:nth-child(-n+2){ text-align:left; }
+  .tabel-rekap-nama th:nth-child(-n+2),
+  .tabel-rekap-nama td:nth-child(-n+2){ text-align:left; }
 }
 
 @media screen and (max-width:1000px){
@@ -1084,7 +1104,10 @@ tfoot td{
       Satu baris rincian = satu titik pancang. Jumlah titik dihitung
       otomatis dari banyaknya baris yang diisi, jadi satu tanggal boleh
       berisi 25 titik atau lebih. Untuk shift berbeda pada tanggal yang
-      sama, simpan sebagai entri terpisah.
+      sama, simpan sebagai entri terpisah supaya cuaca tiap shift
+      tercatat sendiri-sendiri. Kalau hujan dan tidak ada pemancangan,
+      centang kotak di bawah lalu simpan — harinya tetap tercatat
+      dengan 0 titik beserta keterangan cuacanya.
     </div>
 
     <form id="formTimeSheet">
@@ -1123,6 +1146,18 @@ tfoot td{
         </label>
 
         <label>
+          Cuaca Shift Ini
+          <select name="cuaca">
+            <option>Cerah</option>
+            <option>Berawan</option>
+            <option>Gerimis</option>
+            <option>Hujan Ringan</option>
+            <option>Hujan Deras</option>
+            <option>Hujan Sebagian Hari</option>
+          </select>
+        </label>
+
+        <label>
           Status
           <select name="status">
             <option>Selesai</option>
@@ -1134,6 +1169,12 @@ tfoot td{
         <label>
           Kendala
           <input name="kendala" value="-">
+        </label>
+
+        <label class="kotak-centang">
+          <input type="checkbox" name="tanpaPancang" id="tanpaPancang"
+                 onchange="perbaruiRingkasIsian()">
+          Tidak ada pemancangan pada shift ini (hujan / libur / tunggu izin)
         </label>
       </div>
 
@@ -1185,6 +1226,7 @@ tfoot td{
             <th>Handling</th>
             <th>Tertanam</th>
             <th>Joint</th>
+            <th>Cuaca</th>
             <th>Diinput oleh</th>
             <th>Aksi</th>
           </tr>
@@ -1207,6 +1249,10 @@ tfoot td{
       <b>Shift 1:</b> 07:00–17:00, istirahat 12:00–13:00, efektif 9 jam.
       <br>
       <b>Shift 2:</b> 18:00–22:00, efektif 4 jam.
+      <br>
+      Data absensi tidak bisa diubah. Kalau ada yang salah, hapus
+      barisnya lalu input ulang — data baru otomatis tersusun sesuai
+      tanggalnya dan nama penginput tetap tercatat.
     </div>
 
     <form id="formAbsensi" class="form">
@@ -1309,29 +1355,12 @@ tfoot td{
     </div>
   </section>
 
-  <section>
-    <h2>Rekap Keseluruhan per Nama</h2>
+  <div class="judul-baris no-print" style="margin-top:22px">
+    <h2>Rekap per Nama dan Bulan</h2>
+    <span class="lencana">Termasuk total hari kerja</span>
+  </div>
 
-    <div class="table-wrap">
-      <table id="tabelRekapNama">
-        <thead>
-          <tr>
-            <th>Nama</th>
-            <th>Jabatan</th>
-            <th>Hadir</th>
-            <th>Shift 1</th>
-            <th>Shift 2</th>
-            <th>Total</th>
-            <th>Sakit</th>
-            <th>Izin</th>
-            <th>Alpa</th>
-          </tr>
-        </thead>
-
-        <tbody id="rekapNamaAbsensi"></tbody>
-      </table>
-    </div>
-  </section>
+  <div id="rekapNamaBulanan"></div>
 
 </div>
 
@@ -1507,6 +1536,7 @@ const KONFIG_AWAL = {
   po:"MPO-001",
   titik:200,
   perHari:20,
+  perHariCustomer:25,
   tertanam:4312,
   handling:4312,
   joint:195,
@@ -2074,6 +2104,18 @@ function tombolAksi(fungsiUbah, fungsiHapus, id){
     "action");
 }
 
+/* Absensi sengaja tanpa tombol Edit: data yang salah dihapus lalu
+   diinput ulang, sehingga jejak siapa yang menginput tetap jelas. */
+function tombolHapus(fungsiHapus, id){
+  if(!sudahMasuk()){
+    return "";
+  }
+
+  return sel("Aksi",
+    '<button class="red" onclick="' + fungsiHapus + "('" + id + '\')">Hapus</button>',
+    "action");
+}
+
 function buka(id){
   document.querySelectorAll(".page").forEach(page => {
     page.classList.remove("active");
@@ -2170,6 +2212,15 @@ function ringkasEntri(item){
   };
 }
 
+/* Shift dianggap terhenti kalau ditandai tanpa pemancangan, atau
+   cuacanya hujan dan tidak ada titik sama sekali. */
+function terhentiCuaca(item){
+  if(String(item.tanpaPancang || "").toLowerCase() === "ya"){ return true; }
+
+  return ringkasEntri(item).jumlahTitik === 0
+    && /hujan|gerimis/i.test(String(item.cuaca || ""));
+}
+
 function totalAktual(){
   const total = { titik:0, tertanam:0, handling:0, joint:0 };
 
@@ -2243,7 +2294,7 @@ function potong(teks, panjang){
 
 /* Legenda dibuat bisa turun ke baris berikutnya bila area banyak. */
 function legendaKotak(seri, kiri, W){
-  const perBaris = Math.max(1, Math.floor((W - kiri) / 145));
+  const perBaris = Math.max(1, Math.floor((W - kiri) / 178));
   const jumlahBaris = Math.ceil(seri.length / perBaris);
 
   const svg = seri.map((s, i) => {
@@ -2257,7 +2308,7 @@ function legendaKotak(seri, kiri, W){
       + s.warna + '"/>'
       + '<text x="' + (x + 17) + '" y="' + (y + 10.5)
       + '" font-size="12" fill="' + PALET.teks + '">'
-      + aman(potong(s.nama, 16)) + "</text>";
+      + aman(potong(s.nama, 24)) + "</text>";
   }).join("");
 
   return { svg:svg, tinggi:jumlahBaris * 19 + 10 };
@@ -2696,13 +2747,23 @@ $("formTimeSheet").addEventListener("submit", e => {
   e.preventDefault();
 
   const detail = bacaIsianTitik();
+  const tanpaPancang = $("tanpaPancang").checked;
 
-  if(!detail.length){
-    alert("Isi minimal satu Nama Titik pada rincian titik pemancangan.");
+  if(!detail.length && !tanpaPancang){
+    alert("Isi minimal satu Nama Titik, atau centang "
+      + "\"Tidak ada pemancangan pada shift ini\".");
+    return;
+  }
+
+  if(detail.length && tanpaPancang){
+    alert("Hapus centang \"Tidak ada pemancangan\" kalau ada titik "
+      + "yang dipancang pada shift ini.");
     return;
   }
 
   const item = Object.fromEntries(new FormData(e.target).entries());
+
+  item.tanpaPancang = tanpaPancang ? "Ya" : "";
 
   const indeks = cariIndeks(dataTimeSheet, editIdTimeSheet);
   const lama = indeks < 0 ? null : dataTimeSheet[indeks];
@@ -2737,7 +2798,8 @@ $("formTimeSheet").addEventListener("submit", e => {
   }
 
   catatLokal(lama ? "Ubah" : "Simpan", "timesheet", item.tanggal,
-    item.jumlahTitik + " titik, shift " + item.shift + ", alat " + item.alat);
+    item.jumlahTitik + " titik, shift " + item.shift
+    + ", alat " + item.alat + ", cuaca " + (item.cuaca || "-"));
 
   batalTimeSheet();
   renderSemua();
@@ -2772,6 +2834,9 @@ function ubahTimeSheet(id){
       }))
     : r.detail);
 
+  $("tanpaPancang").checked = String(item.tanpaPancang || "")
+    .toLowerCase() === "ya";
+
   $("judulTimeSheet").textContent = "Edit Daily Time Sheet";
   buka("timesheet");
 }
@@ -2797,6 +2862,7 @@ function batalTimeSheet(){
   editIdTimeSheet = null;
 
   $("formTimeSheet").reset();
+  $("tanpaPancang").checked = false;
   $("judulTimeSheet").textContent = "Input Daily Time Sheet";
   $("po").value = konfigurasi.po;
 
@@ -2830,11 +2896,13 @@ function renderTimeSheet(){
           + sel("Handling", angkaIndo(r.handling), "numeric")
           + sel("Tertanam", angkaIndo(r.tertanam), "numeric")
           + sel("Joint", r.joint, "numeric")
+          + sel("Cuaca", aman(item.cuaca || "-")
+              + (terhentiCuaca(item) ? " (stop)" : ""))
           + sel("Diinput oleh", aman(item.pengubah || item.penginput || "-"))
           + tombolAksi("ubahTimeSheet", "hapusTimeSheet", item.id)
           + "</tr>";
       }).join("")
-    : barisKosong(11, "Belum ada data Daily Time Sheet.");
+    : barisKosong(12, "Belum ada data Daily Time Sheet.");
 }
 
 /*==========================================================
@@ -2844,7 +2912,8 @@ function renderDashboard(){
   const targets = [
     ["po", "No. PO", "text"],
     ["titik", "Plan Titik All (titik)", "number"],
-    ["perHari", "Plan Titik per Hari", "number"],
+    ["perHari", "Plan Titik per Hari (Kemampuan)", "number"],
+    ["perHariCustomer", "Target Titik per Hari (Customer)", "number"],
     ["mulai", "Tanggal Mulai Rencana", "date"],
     ["tertanam", "Target Tertanam (m)", "number"],
     ["handling", "Target Handling (m)", "number"],
@@ -2865,12 +2934,16 @@ function renderDashboard(){
   }
 
   const rencana = jadwalRencana();
+  const rencanaCustomer = jadwalRencana(konfigurasi.perHariCustomer);
 
   $("lencanaTarget").textContent = rencana.durasi
     ? rencana.durasi + " hari kerja"
       + (rencana.mulai
           ? " · " + tanggalIndo(rencana.mulai) + " s/d " + tanggalIndo(rencana.akhir)
           : " · isi Tanggal Mulai Rencana")
+      + (rencanaCustomer.durasi && rencanaCustomer.durasi !== rencana.durasi
+          ? " · target customer " + rencanaCustomer.durasi + " hari"
+          : "")
     : "Isi Plan Titik All dan Plan Titik per Hari";
 
   const aktual = totalAktual();
@@ -2909,7 +2982,7 @@ function renderDashboard(){
 
   const perBulan = kelompokBulan(dataTimeSheet);
 
-  gambarKurvaS(perBulan, aktual, rencana);
+  gambarKurvaS(perBulan, aktual, rencana, rencanaCustomer);
   gambarProduksiBulanan(perBulan);
   gambarRekapBulanan(perBulan);
 }
@@ -2929,6 +3002,15 @@ function gambarRingkasHarian(){
   const hari = [...perTanggal.entries()].sort();
   const totalTitik = hari.reduce((t, [, n]) => t + n, 0);
 
+  const shiftTerhenti = dataTimeSheet.filter(terhentiCuaca).length;
+
+  /* Hari efektif = hari yang benar-benar menghasilkan titik. */
+  const hariEfektif = hari.filter(([, n]) => n > 0);
+
+  const rataEfektif = hariEfektif.length
+    ? (totalTitik / hariEfektif.length).toFixed(1)
+    : 0;
+
   const tertinggi = hari.reduce(
     (puncak, baris) => baris[1] > puncak[1] ? baris : puncak,
     ["-", 0]);
@@ -2944,13 +3026,14 @@ function gambarRingkasHarian(){
     <div class="card">
       <span class="card-title">Hari Kerja Tercatat</span>
       <b>${hari.length} hari</b>
-      <small>Total ${angkaIndo(totalTitik)} titik terpancang</small>
+      <small>${hariEfektif.length} hari menghasilkan titik ·
+        ${shiftTerhenti} shift terhenti cuaca</small>
     </div>
 
     <div class="card">
-      <span class="card-title">Rata-rata per Hari</span>
-      <b>${hari.length ? (totalTitik / hari.length).toFixed(1) : 0} titik</b>
-      <small>Termasuk semua shift</small>
+      <span class="card-title">Rata-rata Hari Efektif</span>
+      <b>${rataEfektif} titik</b>
+      <small>Total ${angkaIndo(totalTitik)} titik, semua shift</small>
     </div>
 
     <div class="card">
@@ -2982,9 +3065,11 @@ function bentukS(x){
 
 /* Jadwal rencana dihitung dari Plan Titik All dibagi Plan Titik per
    Hari, jadi durasi rencana muncul sendiri dalam satuan hari. */
-function jadwalRencana(){
+function jadwalRencana(lajuLain){
   const target = angka(konfigurasi.titik);
-  const perHari = angka(konfigurasi.perHari);
+  const perHari = lajuLain === undefined
+    ? angka(konfigurasi.perHari)
+    : angka(lajuLain);
   const mulai = normalisasiTanggal(konfigurasi.mulai);
 
   const durasi = (target > 0 && perHari > 0)
@@ -3030,7 +3115,7 @@ function rencanaPada(iso, rencana){
 
 /* Kurva S harian: rencana dan aktual sama-sama melengkung, memakai
    sumbu tanggal supaya kedua garis bisa saling menyilang. */
-function gambarKurvaS(perBulan, aktual, rencana){
+function gambarKurvaS(perBulan, aktual, rencana, rencanaCustomer){
   const targetTitik = rencana.target;
 
   /* Aktual per tanggal, semua shift dijumlahkan. */
@@ -3046,6 +3131,9 @@ function gambarKurvaS(perBulan, aktual, rencana){
   });
 
   const hariAktual = [...perTanggal.keys()].sort();
+
+  const adaCustomer = !!(rencanaCustomer && rencanaCustomer.durasi
+    && rencanaCustomer.durasi !== rencana.durasi);
 
   const awal = [rencana.mulai, hariAktual[0]]
     .filter(Boolean).sort()[0] || "";
@@ -3076,15 +3164,27 @@ function gambarKurvaS(perBulan, aktual, rencana){
       label:iso.slice(8) + "/" + BULAN_PENDEK[Number(iso.slice(5, 7)) - 1],
       nilai:[
         (hariTerakhirAktual && iso <= hariTerakhirAktual) ? kumulatif : null,
-        rencanaPada(iso, rencana)
+        rencanaPada(iso, rencana),
+        adaCustomer ? rencanaPada(iso, rencanaCustomer) : null
       ]
     });
   }
 
-  $("grafikKurva").innerHTML = svgKurvaS(deret, [
+  const seri = [
     { nama:"Aktual kumulatif", warna:PALET.hijau, isi:true },
-    { nama:"Rencana (Kurva S)", warna:PALET.oranye, putus:true }
-  ]);
+    { nama:"Rencana " + rencana.perHari + " titik/hari",
+      warna:PALET.oranye, putus:true }
+  ];
+
+  if(adaCustomer){
+    seri.push({
+      nama:"Customer " + rencanaCustomer.perHari + " titik/hari",
+      warna:PALET.biru,
+      putus:true
+    });
+  }
+
+  $("grafikKurva").innerHTML = svgKurvaS(deret, seri);
 
   gambarTabelKurva(perBulan, rencana, hariTerakhirAktual);
 
@@ -3282,18 +3382,26 @@ function gambarRekapBulanan(perBulan){
 
       if(!perTanggal.has(kunci)){
         perTanggal.set(kunci, {
-          shift:new Set(), titik:0, handling:0, tertanam:0, joint:0
+          shift:new Set(), cuaca:[], titik:0, handling:0,
+          tertanam:0, joint:0, terhenti:0
         });
       }
 
       const rekap = perTanggal.get(kunci);
 
       rekap.shift.add(item.shift || "-");
+
+      rekap.cuaca.push((item.shift || "-") + ": " + (item.cuaca || "-")
+        + (terhentiCuaca(item) ? " (stop)" : ""));
+
+      if(terhentiCuaca(item)){ rekap.terhenti++; }
       rekap.titik += r.jumlahTitik;
       rekap.handling += r.handling;
       rekap.tertanam += r.tertanam;
       rekap.joint += r.joint;
     });
+
+    const hariTerhenti = bulan.isi.filter(terhentiCuaca).length;
 
     const barisHarian = [...perTanggal.entries()].sort().map(([kunci, r]) =>
       "<tr>"
@@ -3303,6 +3411,7 @@ function gambarRekapBulanan(perBulan){
       + sel("Handling (m)", angkaIndo(r.handling), "numeric")
       + sel("Tertanam (m)", angkaIndo(r.tertanam), "numeric")
       + sel("Joint (Titik)", angkaIndo(r.joint), "numeric")
+      + sel("Cuaca", aman(r.cuaca.join(" · ")))
       + "</tr>").join("");
 
     /* Tabel rincian per titik. */
@@ -3326,7 +3435,9 @@ function gambarRekapBulanan(perBulan){
           : "";
 
         const akhir = i === 0
-          ? '<td rowspan="' + n + '">' + penginput + "</td>"
+          ? '<td rowspan="' + n + '">' + aman(item.cuaca || "-")
+              + (terhentiCuaca(item) ? " (stop)" : "") + "</td>"
+            + '<td rowspan="' + n + '">' + penginput + "</td>"
           : "";
 
         return "<tr>"
@@ -3349,6 +3460,7 @@ function gambarRekapBulanan(perBulan){
         + "<td>" + angkaIndo(r.tertanam) + "</td>"
         + "<td>" + angkaIndo(r.joint) + "</td>"
         + "<td></td>"
+        + "<td></td>"
         + "</tr>";
 
       return isiBaris + subtotal;
@@ -3359,7 +3471,8 @@ function gambarRekapBulanan(perBulan){
         <div class="judul-baris">
           <h2>Rekap Aktual Pemancangan — ${bulan.nama}</h2>
           <span class="lencana">${perTanggal.size} hari kerja ·
-            ${total.titik} titik</span>
+            ${total.titik} titik${hariTerhenti
+              ? " · " + hariTerhenti + " shift terhenti cuaca" : ""}</span>
         </div>
 
         <div class="sub-judul">Ringkasan per Tanggal</div>
@@ -3374,6 +3487,7 @@ function gambarRekapBulanan(perBulan){
                 <th>Handling (m)</th>
                 <th>Tertanam (m)</th>
                 <th>Joint (Titik)</th>
+                <th>Cuaca per Shift</th>
               </tr>
             </thead>
 
@@ -3387,6 +3501,7 @@ function gambarRekapBulanan(perBulan){
                 ${sel("Handling (m)", angkaIndo(total.handling), "numeric")}
                 ${sel("Tertanam (m)", angkaIndo(total.tertanam), "numeric")}
                 ${sel("Joint (Titik)", angkaIndo(total.joint), "numeric")}
+                ${sel("Cuaca", hariTerhenti + " shift terhenti cuaca")}
               </tr>
             </tfoot>
           </table>
@@ -3409,6 +3524,7 @@ function gambarRekapBulanan(perBulan){
                 <th>Handling (m)</th>
                 <th>Tertanam (m)</th>
                 <th>Joint (Titik)</th>
+                <th>Cuaca</th>
                 <th>Diinput oleh</th>
               </tr>
             </thead>
@@ -3422,6 +3538,7 @@ function gambarRekapBulanan(perBulan){
                 <td>${angkaIndo(total.handling)}</td>
                 <td>${angkaIndo(total.tertanam)}</td>
                 <td>${angkaIndo(total.joint)}</td>
+                <td></td>
                 <td></td>
               </tr>
             </tfoot>
@@ -3468,27 +3585,6 @@ $("formAbsensi").addEventListener("submit", e => {
   catatPerubahan({ aksi:"simpan", tipe:"absensi", item:item });
 });
 
-function ubahAbsensi(id){
-  const item = dataAbsensi[cariIndeks(dataAbsensi, id)];
-
-  if(!item){ return; }
-
-  editIdAbsensi = id;
-
-  Object.entries(item).forEach(([key, value]) => {
-    const kolom = $("formAbsensi").elements[key];
-
-    if(kolom && kolom.tagName){
-      kolom.value = key === "tanggal" ? normalisasiTanggal(value) : value;
-    }
-  });
-
-  $("judulAbsensi").textContent = "Edit Daily Absensi";
-  $("tombolSimpanAbsensi").textContent = "Simpan Perubahan";
-
-  buka("absensi");
-}
-
 function hapusAbsensi(id){
   if(!confirm("Hapus data absensi ini?")){ return; }
 
@@ -3512,10 +3608,11 @@ function batalAbsensi(){
   $("tombolSimpanAbsensi").textContent = "Simpan";
 }
 
-function kelompokAbsensi(perHari){
+function kelompokAbsensi(perHari, daftar){
+  const sumber = daftar || dataAbsensi;
   const hasil = {};
 
-  dataAbsensi.forEach(item => {
+  sumber.forEach(item => {
     const nama = String(item.nama || "").trim().toLowerCase();
 
     if(!nama){ return; }
@@ -3528,7 +3625,8 @@ function kelompokAbsensi(perHari){
         nama:item.nama,
         jabatan:item.jabatan,
         hadir:0, shift1:0, shift2:0,
-        sakit:0, izin:0, alpa:0
+        sakit:0, izin:0, alpa:0,
+        hariKerja:new Set()
       };
     }
 
@@ -3538,6 +3636,9 @@ function kelompokAbsensi(perHari){
 
     if(item.status === "Hadir"){
       rekap.hadir++;
+
+      /* Satu tanggal dihitung satu hari kerja walau dua shift. */
+      rekap.hariKerja.add(normalisasiTanggal(item.tanggal) || item.tanggal);
 
       if(tipeShift(item.shift) === 1){
         rekap.shift1 += 9;
@@ -3553,7 +3654,10 @@ function kelompokAbsensi(perHari){
     }
   });
 
-  return Object.values(hasil);
+  return Object.values(hasil).map(rekap => {
+    rekap.jumlahHariKerja = rekap.hariKerja.size;
+    return rekap;
+  });
 }
 
 function renderAbsensi(){
@@ -3574,7 +3678,7 @@ function renderAbsensi(){
           + sel("Status", aman(item.status))
           + sel("Keterangan", aman(item.ket || "-"))
           + sel("Diinput oleh", aman(item.pengubah || item.penginput || "-"))
-          + tombolAksi("ubahAbsensi", "hapusAbsensi", item.id)
+          + tombolHapus("hapusAbsensi", item.id)
           + "</tr>";
       }).join("")
     : barisKosong(10, "Belum ada data absensi.");
@@ -3593,21 +3697,98 @@ function renderAbsensi(){
         + "</tr>").join("")
     : barisKosong(7, "Belum ada rekap harian.");
 
-  const perNama = kelompokAbsensi(false);
+  gambarRekapNamaBulanan();
+}
 
-  $("rekapNamaAbsensi").innerHTML = perNama.length
-    ? perNama.map(rekap => "<tr>"
-        + sel("Nama", aman(rekap.nama))
-        + sel("Jabatan", aman(rekap.jabatan))
-        + sel("Hadir", rekap.hadir + " shift")
-        + sel("Shift 1", rekap.shift1 + " jam")
-        + sel("Shift 2", rekap.shift2 + " jam")
-        + sel("Total", "<b>" + (rekap.shift1 + rekap.shift2) + " jam</b>")
-        + sel("Sakit", rekap.sakit)
-        + sel("Izin", rekap.izin)
-        + sel("Alpa", rekap.alpa)
-        + "</tr>").join("")
-    : barisKosong(9, "Belum ada rekap keseluruhan.");
+/* Rekap per nama dipecah per bulan, lengkap dengan jumlah hari kerja.
+   Satu tanggal dihitung satu hari walaupun orang itu masuk dua shift. */
+function gambarRekapNamaBulanan(){
+  const perBulan = kelompokBulan(dataAbsensi);
+
+  if(!perBulan.length){
+    $("rekapNamaBulanan").innerHTML =
+      '<section><div class="empty">Belum ada data absensi.</div></section>';
+    return;
+  }
+
+  const bagian = perBulan.map(bulan => ({
+    judul:"Rekap per Nama — " + bulan.nama,
+    lencana:bulan.isi.length + " baris absensi",
+    isi:kelompokAbsensi(false, bulan.isi)
+  }));
+
+  if(perBulan.length > 1){
+    bagian.push({
+      judul:"Rekap per Nama — Seluruh Periode",
+      lencana:perBulan.length + " bulan",
+      isi:kelompokAbsensi(false)
+    });
+  }
+
+  $("rekapNamaBulanan").innerHTML = bagian.map(blok => {
+    const baris = blok.isi.length
+      ? blok.isi.map(rekap => "<tr>"
+          + sel("Nama", "<b>" + aman(rekap.nama) + "</b>")
+          + sel("Jabatan", aman(rekap.jabatan))
+          + sel("Hari Kerja", "<b>" + rekap.jumlahHariKerja + " hari</b>")
+          + sel("Hadir", rekap.hadir + " shift")
+          + sel("Shift 1", rekap.shift1 + " jam")
+          + sel("Shift 2", rekap.shift2 + " jam")
+          + sel("Total Jam", "<b>" + (rekap.shift1 + rekap.shift2) + " jam</b>")
+          + sel("Sakit", rekap.sakit)
+          + sel("Izin", rekap.izin)
+          + sel("Alpa", rekap.alpa)
+          + "</tr>").join("")
+      : barisKosong(10, "Belum ada rekap pada bulan ini.");
+
+    const totalHari = blok.isi.reduce((t, r) => t + r.jumlahHariKerja, 0);
+    const totalJam = blok.isi.reduce((t, r) => t + r.shift1 + r.shift2, 0);
+
+    return `
+      <section>
+        <div class="judul-baris">
+          <h2>${blok.judul}</h2>
+          <span class="lencana">${blok.lencana}</span>
+        </div>
+
+        <div class="table-wrap">
+          <table class="tabel-rekap-nama">
+            <thead>
+              <tr>
+                <th>Nama</th>
+                <th>Jabatan</th>
+                <th>Hari Kerja</th>
+                <th>Hadir</th>
+                <th>Shift 1</th>
+                <th>Shift 2</th>
+                <th>Total Jam</th>
+                <th>Sakit</th>
+                <th>Izin</th>
+                <th>Alpa</th>
+              </tr>
+            </thead>
+
+            <tbody>${baris}</tbody>
+
+            <tfoot>
+              <tr>
+                ${sel("Nama", "Jumlah " + blok.isi.length + " orang")}
+                ${sel("Jabatan", "")}
+                ${sel("Hari Kerja", totalHari + " hari")}
+                ${sel("Hadir", "")}
+                ${sel("Shift 1", "")}
+                ${sel("Shift 2", "")}
+                ${sel("Total Jam", totalJam + " jam")}
+                ${sel("Sakit", "")}
+                ${sel("Izin", "")}
+                ${sel("Alpa", "")}
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
+    `;
+  }).join("");
 }
 
 /*==========================================================
@@ -3983,6 +4164,8 @@ function unduhCsvTimeSheet(){
           titik.handling,
           titik.tertanam,
           titik.joint,
+          item.cuaca || "",
+          terhentiCuaca(item) ? "Ya" : "",
           item.status,
           item.kendala,
           item.pengubah || item.penginput || "",
@@ -3995,7 +4178,8 @@ function unduhCsvTimeSheet(){
   unduhCsv("DailyTimeSheet-AEN.csv",
     ["Bulan", "Tanggal", "No PO", "Shift", "No. Alat", "Diameter",
      "Area", "Nama Titik", "Jumlah Titik (entri)", "Handling (m)",
-     "Tertanam (m)", "Joint (Titik)", "Status", "Kendala",
+     "Tertanam (m)", "Joint (Titik)", "Cuaca", "Terhenti Cuaca",
+     "Status", "Kendala",
      "Diinput oleh", "Waktu Input"],
     baris);
 }
