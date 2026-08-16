@@ -24,14 +24,48 @@ body{
   -webkit-text-size-adjust:100%;
 }
 
-/* Sembunyikan semua alat input bila belum masuk dengan kata sandi. */
-body.mode-tamu .hanya-admin{
+/* Selama kata sandi belum benar, seluruh isi dashboard disembunyikan
+   dan hanya gerbang masuk yang tampil. Tidak ada mode tamu. */
+body.terkunci .status-bar,
+body.terkunci nav,
+body.terkunci main{
   display:none!important;
 }
 
-/* Sebaliknya, keterangan mode lihat hanya untuk pengunjung. */
-body:not(.mode-tamu) .hanya-tamu{
+body:not(.terkunci) #gerbang{
   display:none!important;
+}
+
+#gerbang{
+  display:flex;
+  justify-content:center;
+  padding:36px 4% 70px;
+}
+
+.gerbang-kotak{
+  width:100%;
+  max-width:420px;
+  padding:26px;
+  border-radius:12px;
+  background:#fff;
+  box-shadow:0 6px 22px #0f172a1f;
+}
+
+.gerbang-kotak h2{
+  margin:0 0 8px;
+  font-size:19px;
+}
+
+.gerbang-kotak p{
+  margin:0 0 16px;
+  color:#5b6b7c;
+  font-size:13.5px;
+  line-height:1.6;
+}
+
+.gerbang-kotak button{
+  width:100%;
+  margin:14px 0 0;
 }
 
 header{
@@ -137,6 +171,15 @@ nav button{
 
 nav button.aktif{
   background:#087f73;
+  color:#fff;
+}
+
+/* Tombol berwarna di dalam nav dipaksa berteks putih. Tanpa aturan ini
+   tombol Print mewarisi teks biru tua dari "nav button" sehingga tampak
+   gelap di atas latar biru. */
+nav button.blue,
+nav button.red,
+nav button.gray{
   color:#fff;
 }
 
@@ -699,7 +742,7 @@ tfoot td{
 </style>
 </head>
 
-<body class="mode-tamu">
+<body class="terkunci">
 
 <header>
   <div class="header-content">
@@ -723,14 +766,37 @@ tfoot td{
   </div>
 </header>
 
+<div id="gerbang">
+  <div class="gerbang-kotak">
+    <h2>Masuk ke Dashboard</h2>
+
+    <p>
+      Dashboard ini tertutup. Masukkan kata sandi tim untuk membuka
+      rekap, Daily Time Sheet, Daily Absensi, dan Petty Cash.
+    </p>
+
+    <label>
+      Kata sandi
+      <input type="password" id="isianSandi"
+             autocomplete="current-password" enterkeyhint="go">
+    </label>
+
+    <div id="pesanSandi" class="pesan-salah" hidden></div>
+
+    <button type="button" id="tombolProsesMasuk" onclick="prosesMasuk()">
+      Masuk
+    </button>
+  </div>
+</div>
+
 <div class="status-bar no-print">
   <span id="statusTitik" class="status-titik"></span>
   <span id="statusTeks" class="status-teks">Menyiapkan data…</span>
 
   <button type="button" onclick="muatDariServer()">Muat ulang</button>
 
-  <button type="button" id="tombolAkses" class="kunci" onclick="bukaDialogMasuk()">
-    Masuk untuk input
+  <button type="button" class="kunci" onclick="keluar()">
+    Keluar
   </button>
 </div>
 
@@ -789,14 +855,6 @@ tfoot td{
 
 <!-- DASHBOARD -->
 <div id="dashboard" class="page active">
-
-  <div class="info hanya-tamu no-print">
-    <b>Mode lihat.</b>
-    Halaman ini menampilkan rekap progres pemancangan saja.
-    Daily Time Sheet, Daily Absensi, dan Petty Cash hanya dapat dibuka
-    oleh pemegang kata sandi melalui tombol <b>Masuk untuk input</b>
-    di bagian atas.
-  </div>
 
   <section class="hanya-admin">
     <h2>Target PO</h2>
@@ -1163,34 +1221,6 @@ tfoot td{
 
 </main>
 
-<!-- KOTAK MASUK -->
-<div id="dialogMasuk" class="dialog no-print" hidden>
-  <div class="dialog-kotak">
-    <h2>Masuk untuk input data</h2>
-
-    <p>
-      Melihat data tidak perlu kata sandi. Kata sandi hanya diperlukan
-      untuk menambah, mengubah, dan menghapus data.
-    </p>
-
-    <label>
-      Kata sandi
-      <input type="password" id="isianSandi" autocomplete="current-password">
-    </label>
-
-    <div id="pesanSandi" class="pesan-salah" hidden></div>
-
-    <div class="dialog-aksi">
-      <button type="button" id="tombolProsesMasuk" onclick="prosesMasuk()">
-        Masuk
-      </button>
-      <button type="button" class="gray" onclick="tutupDialogMasuk()">
-        Batal
-      </button>
-    </div>
-  </div>
-</div>
-
 <script>
 /*==========================================================
   1. ALAMAT SERVER
@@ -1272,42 +1302,15 @@ let sandiSesi = ambilSandi();
 
 const sudahMasuk = () => sandiSesi.length > 0;
 
-function perbaruiModeAkses(){
-  document.body.classList.toggle("mode-tamu", !sudahMasuk());
+function perbaruiKunci(){
+  document.body.classList.toggle("terkunci", !sudahMasuk());
 
-  $("tombolAkses").textContent = sudahMasuk()
-    ? "Keluar"
-    : "Masuk untuk input";
-
-  $("tombolAkses").onclick = sudahMasuk() ? keluar : bukaDialogMasuk;
-
-  /* Pengunjung tanpa sandi selalu dikembalikan ke Dashboard Rekap. */
   if(!sudahMasuk()){
-    const aktif = document.querySelector(".page.active");
-
-    if(!aktif || HALAMAN_TERBATAS.includes(aktif.id)){
-      document.querySelectorAll(".page").forEach(page => {
-        page.classList.remove("active");
-      });
-
-      $("dashboard").classList.add("active");
-
-      document.querySelectorAll("nav button[data-menu]").forEach(tombol => {
-        tombol.classList.toggle("aktif", tombol.dataset.menu === "dashboard");
-      });
-    }
+    setTimeout(() => {
+      const isian = $("isianSandi");
+      if(isian){ isian.focus(); }
+    }, 60);
   }
-}
-
-function bukaDialogMasuk(){
-  $("pesanSandi").hidden = true;
-  $("isianSandi").value = "";
-  $("dialogMasuk").hidden = false;
-  setTimeout(() => $("isianSandi").focus(), 60);
-}
-
-function tutupDialogMasuk(){
-  $("dialogMasuk").hidden = true;
 }
 
 async function prosesMasuk(){
@@ -1331,8 +1334,12 @@ async function prosesMasuk(){
 
     sandiSesi = sandi;
     simpanSandi(sandi);
-    perbaruiModeAkses();
-    tutupDialogMasuk();
+
+    $("isianSandi").value = "";
+    $("pesanSandi").hidden = true;
+
+    perbaruiKunci();
+    periksaDataLama();
     await muatDariServer();
   }catch(error){
     tampilkanPesanSandi(error.message);
@@ -1357,14 +1364,19 @@ function keluar(){
   sandiSesi = "";
   hapusSandi();
 
-  /* Data sensitif dikosongkan dari halaman, lalu dimuat ulang
-     versi publiknya saja. */
+  /* Seluruh data dibuang dari halaman, bukan hanya disembunyikan. */
+  kosongkanData();
+
+  perbaruiKunci();
+  renderSemua();
+  setStatus("offline", "Sudah keluar.");
+}
+
+function kosongkanData(){
+  dataTimeSheet = [];
   dataAbsensi = [];
   dataPetty = [];
-
-  perbaruiModeAkses();
-  renderSemua();
-  muatDariServer();
+  konfigurasi = Object.assign({}, KONFIG_AWAL);
 }
 
 $("isianSandi").addEventListener("keydown", e => {
@@ -1396,36 +1408,6 @@ function perbaruiPeringatanAntrian(){
   }
 }
 
-/* Pengambilan data memakai JSONP supaya tetap jalan di semua browser
-   HP tanpa terhalang aturan lintas domain (CORS). */
-function ambilDariServer(){
-  return new Promise((resolve, reject) => {
-    const nama = "aenCallback" + Date.now() + Math.floor(Math.random() * 1000);
-    const skrip = document.createElement("script");
-
-    const batasWaktu = setTimeout(() => {
-      bersihkan();
-      reject(new Error("Server tidak menjawab."));
-    }, 25000);
-
-    function bersihkan(){
-      clearTimeout(batasWaktu);
-      delete window[nama];
-      if(skrip.parentNode){ skrip.parentNode.removeChild(skrip); }
-    }
-
-    window[nama] = data => { bersihkan(); resolve(data); };
-
-    skrip.onerror = () => {
-      bersihkan();
-      reject(new Error("Gagal menghubungi server."));
-    };
-
-    skrip.src = API_URL.trim() + "?callback=" + nama + "&t=" + Date.now();
-    document.body.appendChild(skrip);
-  });
-}
-
 /* Pengiriman perubahan memakai POST teks biasa supaya tidak memicu
    permintaan preflight yang sering ditolak Apps Script. */
 async function kirimKeServer(pesan){
@@ -1435,7 +1417,20 @@ async function kirimKeServer(pesan){
     body:JSON.stringify(pesan)
   });
 
-  const hasil = await jawaban.json();
+  if(!jawaban.ok){
+    throw new Error("Server menjawab kode " + jawaban.status
+      + ". Periksa deployment Apps Script.");
+  }
+
+  const teks = await jawaban.text();
+  let hasil;
+
+  try{
+    hasil = JSON.parse(teks);
+  }catch(error){
+    throw new Error("Jawaban server tidak dikenali. "
+      + "Kemungkinan \"Who has access\" belum diatur ke Anyone.");
+  }
 
   if(!hasil.ok){
     throw new Error(hasil.pesan || "Server menolak permintaan.");
@@ -1464,10 +1459,9 @@ async function catatPerubahan(pesan){
       alert(error.message + "\n\nSilakan masuk ulang dengan kata sandi yang benar.");
       sandiSesi = "";
       hapusSandi();
-      dataAbsensi = [];
-      dataPetty = [];
-      perbaruiModeAkses();
-      await muatDariServer();
+      kosongkanData();
+      perbaruiKunci();
+      renderSemua();
       return;
     }
 
@@ -1508,6 +1502,11 @@ function rapikanAngka(item, daftarField){
 }
 
 async function muatDariServer(){
+  /* Tanpa kata sandi tidak ada apa pun yang diminta ke server. */
+  if(!sudahMasuk()){
+    return;
+  }
+
   if(!apiAktif()){
     $("peringatanApi").hidden = false;
     setStatus("offline", "Alamat server belum diisi.");
@@ -1523,24 +1522,22 @@ async function muatDariServer(){
 
     let data;
 
-    if(sudahMasuk()){
-      /* Pemegang sandi: server mengirim seluruh data, termasuk
-         Absensi dan Petty Cash. */
-      try{
-        data = (await kirimKeServer({ aksi:"muat", sandi:sandiSesi })).hasil;
-      }catch(error){
-        if(/sandi/i.test(error.message)){
-          sandiSesi = "";
-          hapusSandi();
-          perbaruiModeAkses();
-          data = await ambilDariServer();
-        }else{
-          throw error;
-        }
+    try{
+      data = (await kirimKeServer({ aksi:"muat", sandi:sandiSesi })).hasil;
+    }catch(error){
+      /* Sandi sudah diganti di server: kembalikan ke gerbang masuk. */
+      if(/sandi/i.test(error.message)){
+        sandiSesi = "";
+        hapusSandi();
+        kosongkanData();
+        perbaruiKunci();
+        renderSemua();
+        tampilkanPesanSandi(error.message);
+        setStatus("offline", "Kata sandi tidak berlaku lagi.");
+        return;
       }
-    }else{
-      /* Pengunjung biasa: server hanya mengirim data Dashboard Rekap. */
-      data = await ambilDariServer();
+
+      throw error;
     }
 
     if(!data || !data.ok){
@@ -1559,9 +1556,7 @@ async function muatDariServer(){
 
     renderSemua();
 
-    setStatus("online", data.publik
-      ? "Mode lihat — rekap terbaru pukul " + jamSekarang() + "."
-      : "Data lengkap terbaru dari server, pukul " + jamSekarang() + ".");
+    setStatus("online", "Data terbaru dari server, pukul " + jamSekarang() + ".");
   }catch(error){
     renderSemua();
     setStatus("offline", "Gagal memuat: " + error.message);
@@ -1713,15 +1708,7 @@ function tombolAksi(fungsiUbah, fungsiHapus, id){
     "action hanya-admin");
 }
 
-/* Menu yang hanya boleh dibuka pemegang kata sandi. */
-const HALAMAN_TERBATAS = ["timesheet", "absensi", "pettycash"];
-
 function buka(id){
-  if(!sudahMasuk() && HALAMAN_TERBATAS.includes(id)){
-    bukaDialogMasuk();
-    return;
-  }
-
   document.querySelectorAll(".page").forEach(page => {
     page.classList.remove("active");
   });
@@ -2809,10 +2796,14 @@ document.addEventListener("visibilitychange", () => {
 
 document.querySelector('nav button[data-menu="dashboard"]').classList.add("aktif");
 
-perbaruiModeAkses();
-periksaDataLama();
+perbaruiKunci();
 renderSemua();
-muatDariServer();
+
+/* Kalau kata sandi masih tersimpan di sesi tab ini, langsung muat data. */
+if(sudahMasuk()){
+  periksaDataLama();
+  muatDariServer();
+}
 </script>
 
 </body>
