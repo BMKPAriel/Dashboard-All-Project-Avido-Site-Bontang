@@ -63,6 +63,10 @@ body:not(.terkunci) #gerbang{
   line-height:1.6;
 }
 
+.gerbang-kotak label{
+  margin-bottom:12px;
+}
+
 .gerbang-kotak button{
   width:100%;
   margin:14px 0 0;
@@ -135,6 +139,15 @@ header{
   min-width:130px;
 }
 
+.status-nama{
+  padding:3px 10px;
+  border-radius:20px;
+  background:#1d5478;
+  color:#eaf3fa;
+  font-size:12.5px;
+  white-space:nowrap;
+}
+
 .status-bar button{
   padding:6px 12px;
   min-height:34px;
@@ -174,9 +187,7 @@ nav button.aktif{
   color:#fff;
 }
 
-/* Tombol berwarna di dalam nav dipaksa berteks putih. Tanpa aturan ini
-   tombol Print mewarisi teks biru tua dari "nav button" sehingga tampak
-   gelap di atas latar biru. */
+/* Tombol berwarna di dalam nav dipaksa berteks putih. */
 nav button.blue,
 nav button.red,
 nav button.gray{
@@ -207,8 +218,6 @@ button:focus-visible{
   outline-offset:2px;
 }
 
-/* Warna teks ikut ditetapkan di sini agar tombol berwarna tetap putih
-   walau berada di dalam nav, yang teks bawaannya biru tua. */
 .blue{ background:#2563eb; color:#fff; }
 .red{ background:#c62828; color:#fff; }
 .gray{ background:#64748b; color:#fff; }
@@ -243,6 +252,13 @@ section h2{
   margin:0;
 }
 
+.sub-judul{
+  margin:20px 0 10px;
+  font-size:14.5px;
+  font-weight:bold;
+  color:#123d5a;
+}
+
 .lencana{
   padding:3px 10px;
   border-radius:20px;
@@ -266,6 +282,12 @@ section h2{
   display:block;
   font-size:22px;
   margin:8px 0;
+}
+
+.card small{
+  display:block;
+  color:#5b6b7c;
+  font-size:12.5px;
 }
 
 .bar{
@@ -314,6 +336,54 @@ textarea{
   gap:6px;
 }
 
+/* BARIS ISIAN TITIK (satu baris = satu titik pancang) */
+.baris-titik{
+  display:grid;
+  grid-template-columns:36px 1.1fr 1.2fr .85fr .85fr .75fr 92px;
+  gap:9px;
+  align-items:end;
+  margin-bottom:9px;
+  padding:10px;
+  border:1px solid #dbe3ea;
+  border-radius:9px;
+  background:#f7fafc;
+}
+
+.baris-titik .nomor{
+  padding-bottom:11px;
+  color:#5b6b7c;
+  font-weight:bold;
+  font-size:13px;
+  text-align:center;
+}
+
+.baris-titik input{
+  margin-top:5px;
+  padding:9px;
+}
+
+.baris-titik button{
+  min-height:39px;
+  padding:9px;
+  font-size:13px;
+}
+
+.ringkas-isian{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin:12px 0 4px;
+}
+
+.ringkas-isian span{
+  padding:7px 13px;
+  border-radius:8px;
+  background:#e6f4f1;
+  color:#0b6b60;
+  font-size:13.5px;
+  font-weight:bold;
+}
+
 .table-wrap{
   width:100%;
   overflow-x:auto;
@@ -355,6 +425,23 @@ tfoot td{
   padding:7px 11px;
   min-height:36px;
   font-size:13px;
+}
+
+/* Tabel rincian pemancangan memakai sel gabung (rowspan) seperti
+   format yang diminta customer, jadi tabel ini tidak diubah menjadi
+   kartu di layar HP — cukup digeser ke samping. */
+.tabel-rinci th,
+.tabel-rinci td{
+  border:1px solid #c9d4de;
+  text-align:center;
+  white-space:nowrap;
+}
+
+.tabel-rinci td.kiri{ text-align:left; }
+
+.tabel-rinci tr.subtotal td{
+  background:#f1f6fa;
+  font-weight:bold;
 }
 
 .empty{
@@ -405,6 +492,13 @@ tfoot td{
   font-size:13.5px;
 }
 
+.saring{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:14px;
+}
+
 /* KOTAK MASUK KATA SANDI */
 .dialog{
   position:fixed;
@@ -418,34 +512,6 @@ tfoot td{
 }
 
 .dialog[hidden]{ display:none; }
-
-.dialog-kotak{
-  width:100%;
-  max-width:380px;
-  padding:22px;
-  border-radius:12px;
-  background:#fff;
-  box-shadow:0 18px 40px #0004;
-}
-
-.dialog-kotak h2{
-  margin:0 0 8px;
-  font-size:18px;
-}
-
-.dialog-kotak p{
-  margin:0 0 14px;
-  color:#5b6b7c;
-  font-size:13.5px;
-}
-
-.dialog-aksi{
-  display:flex;
-  gap:8px;
-  margin-top:14px;
-}
-
-.dialog-aksi button{ flex:1; }
 
 .pesan-salah{
   margin-top:10px;
@@ -469,6 +535,10 @@ tfoot td{
 @media screen and (max-width:1000px){
   .grid,
   .form{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+
+  .baris-titik{
+    grid-template-columns:36px repeat(3,minmax(0,1fr)) 92px;
+  }
 }
 
 /* TAMPILAN HP: TABEL BERUBAH JADI KARTU */
@@ -507,11 +577,28 @@ tfoot td{
 
   .card b{ font-size:18px; }
 
-  .form{ grid-template-columns:1fr; }
+  .form,
+  .saring{ grid-template-columns:1fr; }
 
   .form-action{ flex-direction:column; }
 
   .form-action button{ width:100%; }
+
+  .baris-titik{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+
+  .baris-titik .nomor{
+    grid-column:1/-1;
+    padding:0 0 2px;
+    text-align:left;
+  }
+
+  .baris-titik button{
+    grid-column:1/-1;
+    width:100%;
+  }
 
   .table-wrap{ overflow-x:visible; }
 
@@ -583,12 +670,49 @@ tfoot td{
     display:none;
   }
 
-  /* Sel subtotal yang kosong tidak perlu tampil sebagai baris kartu. */
   tfoot td:empty{ display:none; }
 
   tr:has(td.empty){
     border:0;
     background:transparent;
+  }
+
+  /* Tabel rincian tetap berbentuk tabel, digeser ke samping. */
+  .table-wrap.geser{ overflow-x:auto; }
+
+  .tabel-rinci{
+    display:table!important;
+    width:auto!important;
+    min-width:780px;
+    font-size:12.5px;
+  }
+
+  .tabel-rinci thead{ display:table-header-group!important; }
+  .tabel-rinci tbody{ display:table-row-group!important; }
+  .tabel-rinci tfoot{ display:table-footer-group!important; }
+
+  .tabel-rinci tr{
+    display:table-row!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+  }
+
+  .tabel-rinci td{
+    display:table-cell!important;
+    width:auto!important;
+    padding:7px 8px!important;
+    border:1px solid #c9d4de!important;
+    text-align:center!important;
+  }
+
+  .tabel-rinci td.kiri{ text-align:left!important; }
+
+  .tabel-rinci td::before{
+    content:""!important;
+    display:none!important;
   }
 }
 
@@ -676,8 +800,7 @@ tfoot td{
 
   .table-wrap{ overflow:visible!important; }
 
-  table,
-  #tabelRekapNama{
+  table{
     display:table!important;
     width:100%!important;
     min-width:0!important;
@@ -701,6 +824,7 @@ tfoot td{
 
   td{
     display:table-cell!important;
+    width:auto!important;
     text-align:left!important;
   }
 
@@ -721,6 +845,9 @@ tfoot td{
   .numeric{ text-align:center!important; }
   .money{ text-align:right!important; }
   .action{ display:none!important; }
+
+  .tabel-rinci td{ text-align:center!important; }
+  .tabel-rinci td.kiri{ text-align:left!important; }
 
   .print-heading{
     display:block!important;
@@ -771,9 +898,16 @@ tfoot td{
     <h2>Masuk ke Dashboard</h2>
 
     <p>
-      Dashboard ini tertutup. Masukkan kata sandi tim untuk membuka
-      rekap, Daily Time Sheet, Daily Absensi, dan Petty Cash.
+      Isi nama Anda dan kata sandi tim. Nama dipakai untuk mencatat
+      siapa yang menginput setiap data, jadi tulis nama yang sama
+      setiap kali masuk.
     </p>
+
+    <label>
+      Nama penginput
+      <input id="isianNama" autocomplete="name" enterkeyhint="next"
+             placeholder="Contoh: Ariel">
+    </label>
 
     <label>
       Kata sandi
@@ -793,6 +927,8 @@ tfoot td{
   <span id="statusTitik" class="status-titik"></span>
   <span id="statusTeks" class="status-teks">Menyiapkan data…</span>
 
+  <span id="statusNama" class="status-nama"></span>
+
   <button type="button" onclick="muatDariServer()">Muat ulang</button>
 
   <button type="button" class="kunci" onclick="keluar()">
@@ -805,16 +941,20 @@ tfoot td{
     Dashboard Rekap
   </button>
 
-  <button type="button" class="hanya-admin" data-menu="timesheet" onclick="buka('timesheet')">
+  <button type="button" data-menu="timesheet" onclick="buka('timesheet')">
     Daily Time Sheet
   </button>
 
-  <button type="button" class="hanya-admin" data-menu="absensi" onclick="buka('absensi')">
+  <button type="button" data-menu="absensi" onclick="buka('absensi')">
     Daily Absensi
   </button>
 
-  <button type="button" class="hanya-admin" data-menu="pettycash" onclick="buka('pettycash')">
+  <button type="button" data-menu="pettycash" onclick="buka('pettycash')">
     Petty Cash
+  </button>
+
+  <button type="button" data-menu="loginput" onclick="buka('loginput')">
+    Log Input
   </button>
 
   <button type="button" class="blue" onclick="cetakHalamanAktif()">
@@ -838,47 +978,44 @@ tfoot td{
   <button type="button" onclick="prosesAntrian()">Coba kirim lagi</button>
 </div>
 
-<div id="bannerMigrasi" class="info perhatian no-print" hidden>
-  <b>Ditemukan data lama di perangkat ini.</b>
-  <span id="ringkasanMigrasi"></span>
-  Data ini masih tersimpan di browser laptop/HP ini saja dan belum ada
-  di server. Masuk dengan kata sandi, lalu kirim ke server.
-  <div class="hanya-admin" style="margin-top:8px">
-    <button type="button" onclick="kirimDataLama()">
-      Kirim data lama ke server
-    </button>
-    <button type="button" class="gray" onclick="hapusDataLama()">
-      Hapus data lama dari perangkat
-    </button>
-  </div>
-</div>
-
 <!-- DASHBOARD -->
 <div id="dashboard" class="page active">
 
-  <section class="hanya-admin">
-    <h2>Target PO</h2>
+  <section>
+    <div class="judul-baris">
+      <h2>Target PO &amp; Jadwal Rencana</h2>
+      <span class="lencana">Dasar perhitungan Kurva S</span>
+    </div>
+
     <div id="target" class="form"></div>
   </section>
 
   <div id="kpi" class="grid"></div>
 
+  <div id="kpiRingkas" class="grid"></div>
+
   <section>
     <div class="judul-baris">
-      <h2>Kurva S — Kumulatif SP Tertanam</h2>
+      <h2>Kurva S — Kumulatif Jumlah Titik</h2>
       <span class="lencana" id="lencanaKurva">—</span>
     </div>
 
     <div id="grafikKurva" class="grafik"></div>
+
+    <div id="tabelKurva"></div>
   </section>
 
   <section>
     <div class="judul-baris">
-      <h2>Produksi per Bulan</h2>
-      <span class="lencana">Titik &amp; Joint</span>
+      <h2>Produksi Titik per Bulan</h2>
+      <span class="lencana">Dikelompokkan per area</span>
     </div>
 
     <div id="grafikBulanan" class="grafik"></div>
+
+    <div class="sub-judul">Jumlah Titik per Area per Bulan</div>
+
+    <div id="tabelArea"></div>
   </section>
 
   <div class="judul-baris no-print" style="margin-top:22px">
@@ -893,98 +1030,88 @@ tfoot td{
 </div>
 
 <!-- TIME SHEET -->
-<div id="timesheet" class="page hanya-admin">
+<div id="timesheet" class="page">
 
-  <section class="hanya-admin">
+  <section>
     <h2 id="judulTimeSheet">Input Daily Time Sheet</h2>
 
-    <form id="formTimeSheet" class="form">
+    <div class="info">
+      Satu baris rincian = satu titik pancang. Jumlah titik dihitung
+      otomatis dari banyaknya baris yang diisi, jadi satu tanggal boleh
+      berisi 25 titik atau lebih. Untuk shift berbeda pada tanggal yang
+      sama, simpan sebagai entri terpisah.
+    </div>
 
-      <label>
-        Tanggal
-        <input type="date" name="tanggal" required>
-      </label>
+    <form id="formTimeSheet">
 
-      <label>
-        No. PO
-        <input name="po" id="po" required>
-      </label>
+      <div class="form">
+        <label>
+          Tanggal
+          <input type="date" name="tanggal" required>
+        </label>
 
-      <label>
-        Shift
-        <select name="shift">
-          <option>Pagi-Sore</option>
-          <option>Sore-Malam</option>
-        </select>
-      </label>
+        <label>
+          No. PO
+          <input name="po" id="po" required>
+        </label>
 
-      <label>
-        No. Alat
-        <input name="alat" required>
-      </label>
+        <label>
+          Shift
+          <select name="shift">
+            <option>Pagi-Sore</option>
+            <option>Sore-Malam</option>
+          </select>
+        </label>
 
-      <label>
-        Diameter
-        <select name="diameter">
-          <option>D400</option>
-          <option>D500</option>
-        </select>
-      </label>
+        <label>
+          No. Alat
+          <input name="alat" required>
+        </label>
 
-      <label>
-        Nama Titik
-        <textarea
-          name="namaTitik"
-          id="namaTitik"
-          placeholder="Contoh: P-01, P-02, P-03"
-          required
-        ></textarea>
-      </label>
+        <label>
+          Diameter
+          <select name="diameter">
+            <option>D400</option>
+            <option>D500</option>
+            <option>D600</option>
+          </select>
+        </label>
 
-      <label>
-        Jumlah Titik
-        <input
-          name="jumlahTitik"
-          id="jumlahTitik"
-          type="number"
-          inputmode="numeric"
-          min="0"
-          required
-        >
-      </label>
+        <label>
+          Status
+          <select name="status">
+            <option>Selesai</option>
+            <option>Proses</option>
+            <option>Tertunda</option>
+          </select>
+        </label>
 
-      <label>
-        SP Tertanam (m)
-        <input name="tertanam" type="number" inputmode="decimal"
-               min="0" step=".01" required>
-      </label>
+        <label>
+          Kendala
+          <input name="kendala" value="-">
+        </label>
+      </div>
 
-      <label>
-        SP Handling (m)
-        <input name="handling" type="number" inputmode="decimal"
-               min="0" step=".01" required>
-      </label>
+      <div class="judul-baris" style="margin-top:20px">
+        <h2 style="font-size:15.5px">Rincian Titik Pemancangan</h2>
 
-      <label>
-        Jumlah Joint
-        <input name="joint" type="number" inputmode="numeric" min="0" required>
-      </label>
+        <span>
+          <button type="button" onclick="tambahBarisTitik()">
+            + Tambah titik
+          </button>
+          <button type="button" class="gray" onclick="tambahBarisTitik(5)">
+            + 5 titik
+          </button>
+        </span>
+      </div>
 
-      <label>
-        Status
-        <select name="status">
-          <option>Selesai</option>
-          <option>Proses</option>
-          <option>Tertunda</option>
-        </select>
-      </label>
+      <div id="isianTitik"></div>
 
-      <label>
-        Kendala
-        <input name="kendala" value="-">
-      </label>
+      <datalist id="daftarArea"></datalist>
 
-      <div class="form-action">
+      <div class="ringkas-isian" id="ringkasIsian"></div>
+
+      <div class="form-action" style="margin-top:14px">
         <button type="submit">Simpan</button>
         <button type="button" class="gray" onclick="batalTimeSheet()">Batal</button>
       </div>
@@ -1006,9 +1133,15 @@ tfoot td{
           <tr>
             <th>Tanggal</th>
             <th>Shift</th>
-            <th>Nama Titik</th>
+            <th>No. Alat</th>
+            <th>Area</th>
+            <th>Titik</th>
             <th>Jumlah</th>
-            <th class="hanya-admin">Aksi</th>
+            <th>Handling</th>
+            <th>Tertanam</th>
+            <th>Joint</th>
+            <th>Diinput oleh</th>
+            <th>Aksi</th>
           </tr>
         </thead>
 
@@ -1020,9 +1153,9 @@ tfoot td{
 </div>
 
 <!-- ABSENSI -->
-<div id="absensi" class="page hanya-admin">
+<div id="absensi" class="page">
 
-  <section class="hanya-admin">
+  <section>
     <h2 id="judulAbsensi">Input Daily Absensi</h2>
 
     <div class="info">
@@ -1099,7 +1232,8 @@ tfoot td{
             <th>Jam Efektif</th>
             <th>Status</th>
             <th>Keterangan</th>
-            <th class="hanya-admin">Aksi</th>
+            <th>Diinput oleh</th>
+            <th>Aksi</th>
           </tr>
         </thead>
 
@@ -1157,7 +1291,7 @@ tfoot td{
 </div>
 
 <!-- PETTY CASH -->
-<div id="pettycash" class="page hanya-admin">
+<div id="pettycash" class="page">
 
   <div id="kpiPetty" class="grid"></div>
 
@@ -1170,7 +1304,7 @@ tfoot td{
     <div id="grafikPetty" class="grafik"></div>
   </section>
 
-  <section class="hanya-admin">
+  <section>
     <h2 id="judulPetty">Input Petty Cash</h2>
 
     <form id="formPetty" class="form">
@@ -1219,6 +1353,95 @@ tfoot td{
 
 </div>
 
+<!-- LOG INPUT -->
+<div id="loginput" class="page">
+
+  <div id="peringatanLog" class="info perhatian no-print" hidden>
+    <b>Server belum mengirim catatan aktivitas.</b>
+    Pasang ulang file <code>Code.gs</code> versi terbaru di Google Apps
+    Script, lalu tekan <b>Deploy → Manage deployments → Edit → New version</b>.
+    Sebelum itu, riwayat hanya terisi dari input yang dilakukan di
+    perangkat ini.
+  </div>
+
+  <div id="kpiLog" class="grid"></div>
+
+  <section>
+    <div class="judul-baris">
+      <h2>Rekap Penginput</h2>
+      <span class="lencana" id="lencanaLog">—</span>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>Time Sheet</th>
+            <th>Absensi</th>
+            <th>Petty Cash</th>
+            <th>Target PO</th>
+            <th>Total</th>
+            <th>Terakhir aktif</th>
+          </tr>
+        </thead>
+
+        <tbody id="rekapPenginput"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="judul-baris">
+      <h2>Riwayat Aktivitas</h2>
+      <button type="button" class="gray no-print" onclick="unduhCsvLog()">
+        Unduh CSV
+      </button>
+    </div>
+
+    <div class="saring no-print">
+      <label>
+        Cari nama penginput
+        <input id="saringNama" oninput="renderLog()" placeholder="Semua nama">
+      </label>
+
+      <label>
+        Tanggal data
+        <input type="date" id="saringTanggal" onchange="renderLog()">
+      </label>
+
+      <label>
+        Jenis data
+        <select id="saringJenis" onchange="renderLog()">
+          <option value="">Semua jenis</option>
+          <option value="timesheet">Time Sheet</option>
+          <option value="absensi">Absensi</option>
+          <option value="petty">Petty Cash</option>
+          <option value="konfigurasi">Target PO</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Waktu Input</th>
+            <th>Penginput</th>
+            <th>Aksi</th>
+            <th>Jenis</th>
+            <th>Tanggal Data</th>
+            <th>Rincian</th>
+          </tr>
+        </thead>
+
+        <tbody id="daftarLog"></tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
 </main>
 
 <script>
@@ -1231,19 +1454,18 @@ const API_URL = "https://script.google.com/macros/s/AKfycbw6zbLe2O_JhngqmmDt3OEq
 
 /*==========================================================
   2. KEADAAN DATA
-  Seluruh data hanya hidup di server (Google Sheet).
-  Tidak ada lagi penyimpanan localStorage di dashboard ini.
-  Yang disimpan sementara di perangkat hanyalah kata sandi
-  sesi, yang otomatis hilang saat tab ditutup.
 ==========================================================*/
 const KUNCI_SESI = "AEN_SANDI_SESI";
+const KUNCI_NAMA = "AEN_NAMA_PENGINPUT";
 
 const KONFIG_AWAL = {
   po:"MPO-001",
   titik:200,
   tertanam:4312,
   handling:4312,
-  joint:195
+  joint:195,
+  mulai:"",
+  selesai:""
 };
 
 const BULAN_PENDEK = ["Jan","Feb","Mar","Apr","Mei","Jun",
@@ -1261,10 +1483,24 @@ const PALET = {
   teks:"#5b6b7c"
 };
 
+/* Warna untuk area pemancangan, dipakai berulang bila area banyak. */
+const WARNA_AREA = ["#087f73","#2563eb","#e08a1e","#7c3aed",
+                    "#c62828","#0891b2","#65a30d","#be185d"];
+
+const NAMA_JENIS = {
+  timesheet:"Time Sheet",
+  absensi:"Absensi",
+  petty:"Petty Cash",
+  konfigurasi:"Target PO"
+};
+
 let dataTimeSheet = [];
 let dataAbsensi   = [];
 let dataPetty     = [];
+let dataLog       = [];
 let konfigurasi   = Object.assign({}, KONFIG_AWAL);
+
+let serverPunyaLog = true;
 
 /* Perubahan yang gagal terkirim ditampung di memori dan dicoba lagi. */
 let antrian = [];
@@ -1281,7 +1517,7 @@ function idBaru(){
 }
 
 /*==========================================================
-  3. KATA SANDI
+  3. KATA SANDI DAN NAMA PENGINPUT
 ==========================================================*/
 function ambilSandi(){
   try{ return sessionStorage.getItem(KUNCI_SESI) || ""; }
@@ -1298,23 +1534,44 @@ function hapusSandi(){
   catch(error){}
 }
 
+function ambilNama(){
+  try{ return localStorage.getItem(KUNCI_NAMA) || ""; }
+  catch(error){ return ""; }
+}
+
+function simpanNama(nama){
+  try{ localStorage.setItem(KUNCI_NAMA, nama); }
+  catch(error){}
+}
+
 let sandiSesi = ambilSandi();
+let namaPengguna = ambilNama();
 
 const sudahMasuk = () => sandiSesi.length > 0;
 
 function perbaruiKunci(){
   document.body.classList.toggle("terkunci", !sudahMasuk());
 
+  $("statusNama").textContent = namaPengguna ? "Penginput: " + namaPengguna : "";
+
   if(!sudahMasuk()){
+    $("isianNama").value = namaPengguna;
+
     setTimeout(() => {
-      const isian = $("isianSandi");
+      const isian = namaPengguna ? $("isianSandi") : $("isianNama");
       if(isian){ isian.focus(); }
     }, 60);
   }
 }
 
 async function prosesMasuk(){
+  const nama = $("isianNama").value.trim();
   const sandi = $("isianSandi").value.trim();
+
+  if(nama.length < 2){
+    tampilkanPesanSandi("Nama penginput belum diisi.");
+    return;
+  }
 
   if(!sandi){
     tampilkanPesanSandi("Kata sandi belum diisi.");
@@ -1330,16 +1587,18 @@ async function prosesMasuk(){
   $("tombolProsesMasuk").textContent = "Memeriksa…";
 
   try{
-    await kirimKeServer({ aksi:"masuk", sandi:sandi });
+    await kirimKeServer({ aksi:"masuk", sandi:sandi, penginput:nama });
 
     sandiSesi = sandi;
+    namaPengguna = nama;
+
     simpanSandi(sandi);
+    simpanNama(nama);
 
     $("isianSandi").value = "";
     $("pesanSandi").hidden = true;
 
     perbaruiKunci();
-    periksaDataLama();
     await muatDariServer();
   }catch(error){
     tampilkanPesanSandi(error.message);
@@ -1364,9 +1623,7 @@ function keluar(){
   sandiSesi = "";
   hapusSandi();
 
-  /* Seluruh data dibuang dari halaman, bukan hanya disembunyikan. */
   kosongkanData();
-
   perbaruiKunci();
   renderSemua();
   setStatus("offline", "Sudah keluar.");
@@ -1376,8 +1633,16 @@ function kosongkanData(){
   dataTimeSheet = [];
   dataAbsensi = [];
   dataPetty = [];
+  dataLog = [];
   konfigurasi = Object.assign({}, KONFIG_AWAL);
 }
+
+$("isianNama").addEventListener("keydown", e => {
+  if(e.key === "Enter"){
+    e.preventDefault();
+    $("isianSandi").focus();
+  }
+});
 
 $("isianSandi").addEventListener("keydown", e => {
   if(e.key === "Enter"){
@@ -1446,12 +1711,14 @@ async function catatPerubahan(pesan){
   }
 
   pesan.sandi = sandiSesi;
+  pesan.penginput = namaPengguna;
 
   setStatus("sibuk", "Menyimpan ke server…");
 
   try{
     await kirimKeServer(pesan);
-    setStatus("online", "Tersimpan. Semua perangkat melihat data yang sama.");
+    setStatus("online", "Tersimpan oleh " + namaPengguna + ", pukul "
+      + jamSekarang() + ".");
     perbaruiPeringatanAntrian();
   }catch(error){
     if(/sandi/i.test(error.message)){
@@ -1502,7 +1769,6 @@ function rapikanAngka(item, daftarField){
 }
 
 async function muatDariServer(){
-  /* Tanpa kata sandi tidak ada apa pun yang diminta ke server. */
   if(!sudahMasuk()){
     return;
   }
@@ -1523,9 +1789,10 @@ async function muatDariServer(){
     let data;
 
     try{
-      data = (await kirimKeServer({ aksi:"muat", sandi:sandiSesi })).hasil;
+      data = (await kirimKeServer({
+        aksi:"muat", sandi:sandiSesi, penginput:namaPengguna
+      })).hasil;
     }catch(error){
-      /* Sandi sudah diganti di server: kembalikan ke gerbang masuk. */
       if(/sandi/i.test(error.message)){
         sandiSesi = "";
         hapusSandi();
@@ -1553,6 +1820,9 @@ async function muatDariServer(){
       rapikanAngka(item, ["masuk", "keluar"]));
 
     konfigurasi = Object.assign({}, KONFIG_AWAL, data.konfigurasi || {});
+
+    serverPunyaLog = Array.isArray(data.log);
+    dataLog = serverPunyaLog ? data.log : dataLog;
 
     renderSemua();
 
@@ -1582,7 +1852,6 @@ function normalisasiTanggal(nilai){
       + String(iso[3]).padStart(2, "0");
   }
 
-  /* Menerima juga data lama berformat dd/mm/yyyy. */
   const lama = teks.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
 
   if(lama){
@@ -1605,6 +1874,24 @@ function tanggalIndo(nilai){
   const bagian = iso.split("-");
 
   return bagian[2] + "/" + BULAN_PENDEK[Number(bagian[1]) - 1] + "/" + bagian[0];
+}
+
+function waktuIndo(nilai){
+  const teks = String(nilai || "").trim();
+
+  if(!teks){ return "-"; }
+
+  const waktu = new Date(teks);
+
+  if(isNaN(waktu.getTime())){ return aman(teks); }
+
+  const tanggal = waktu.getDate() + "/"
+    + BULAN_PENDEK[waktu.getMonth()] + "/" + waktu.getFullYear();
+
+  const jam = String(waktu.getHours()).padStart(2, "0") + ":"
+    + String(waktu.getMinutes()).padStart(2, "0");
+
+  return tanggal + " " + jam;
 }
 
 function kunciBulan(nilai){
@@ -1632,7 +1919,38 @@ function namaBulanPendek(kunci){
   return BULAN_PENDEK[Number(bagian[1]) - 1] + " " + bagian[0].slice(2);
 }
 
-/* Mengurutkan data menurut tanggal, lalu mengelompokkan per bulan. */
+/* Daftar bulan berurutan dari tanggal mulai sampai tanggal selesai. */
+function deretBulan(mulai, selesai){
+  const a = normalisasiTanggal(mulai);
+  const b = normalisasiTanggal(selesai);
+
+  if(!a || !b || a > b){ return []; }
+
+  const hasil = [];
+
+  let tahun = Number(a.slice(0, 4));
+  let bulan = Number(a.slice(5, 7));
+
+  const akhir = b.slice(0, 7);
+
+  for(let i = 0; i < 240; i++){
+    const kunci = tahun + "-" + String(bulan).padStart(2, "0");
+
+    hasil.push(kunci);
+
+    if(kunci >= akhir){ break; }
+
+    bulan++;
+
+    if(bulan > 12){
+      bulan = 1;
+      tahun++;
+    }
+  }
+
+  return hasil;
+}
+
 function kelompokBulan(daftar){
   const urut = daftar.slice().sort((a, b) => {
     const x = normalisasiTanggal(a.tanggal);
@@ -1682,11 +2000,13 @@ function ringkas(value){
   if(Math.abs(n) >= 1000000){ return (n / 1000000).toFixed(1) + " jt"; }
   if(Math.abs(n) >= 1000){ return (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1) + " rb"; }
 
-  return n.toLocaleString("id-ID");
+  return Math.round(n * 100) / 100 + "";
 }
 
-/* Tiap sel diberi data-label supaya di layar HP tabel tampil sebagai
-   kartu bertingkat, bukan tabel yang harus digeser ke samping. */
+function angkaIndo(value){
+  return angka(value).toLocaleString("id-ID");
+}
+
 function sel(label, isi, kelas){
   return '<td data-label="' + label + '"'
     + (kelas ? ' class="' + kelas + '"' : "")
@@ -1705,7 +2025,7 @@ function tombolAksi(fungsiUbah, fungsiHapus, id){
   return sel("Aksi",
     '<button class="blue" onclick="' + fungsiUbah + "('" + id + '\')">Edit</button>'
     + '<button class="red" onclick="' + fungsiHapus + "('" + id + '\')">Hapus</button>',
-    "action hanya-admin");
+    "action");
 }
 
 function buka(id){
@@ -1742,13 +2062,116 @@ function cariIndeks(daftar, id){
 }
 
 /*==========================================================
-  7. GRAFIK (SVG BUATAN SENDIRI, TANPA PUSTAKA LUAR)
+  7. RINCIAN TITIK PADA SATU ENTRI TIME SHEET
+  Data baru menyimpan satu baris per titik pancang di kolom
+  "detail". Data lama yang hanya berisi ringkasan tetap bisa
+  dibaca dan ditampilkan sebagai satu baris.
+==========================================================*/
+function bacaDetail(item){
+  let isi = item.detail;
+
+  if(typeof isi === "string"){
+    const teks = isi.trim();
+
+    if(!teks){ return []; }
+
+    try{ isi = JSON.parse(teks); }
+    catch(error){ return []; }
+  }
+
+  if(!Array.isArray(isi)){ return []; }
+
+  return isi
+    .filter(baris => baris && String(baris.titik || "").trim())
+    .map(baris => ({
+      area:String(baris.area || "-").trim() || "-",
+      titik:String(baris.titik || "").trim(),
+      handling:angka(baris.handling),
+      tertanam:angka(baris.tertanam),
+      joint:angka(baris.joint)
+    }));
+}
+
+/* Ringkasan satu entri: pakai rincian bila ada, kalau tidak pakai
+   angka ringkas milik data lama. */
+function ringkasEntri(item){
+  const detail = bacaDetail(item);
+
+  if(detail.length){
+    return {
+      detail:detail,
+      jumlahTitik:detail.length,
+      handling:detail.reduce((t, b) => t + b.handling, 0),
+      tertanam:detail.reduce((t, b) => t + b.tertanam, 0),
+      joint:detail.reduce((t, b) => t + b.joint, 0),
+      lama:false
+    };
+  }
+
+  return {
+    detail:[{
+      area:String(item.area || "-"),
+      titik:String(item.namaTitik || "-"),
+      handling:angka(item.handling),
+      tertanam:angka(item.tertanam),
+      joint:angka(item.joint)
+    }],
+    jumlahTitik:angka(item.jumlahTitik),
+    handling:angka(item.handling),
+    tertanam:angka(item.tertanam),
+    joint:angka(item.joint),
+    lama:true
+  };
+}
+
+function totalAktual(){
+  const total = { titik:0, tertanam:0, handling:0, joint:0 };
+
+  dataTimeSheet.forEach(item => {
+    const r = ringkasEntri(item);
+
+    total.titik += r.jumlahTitik;
+    total.tertanam += r.tertanam;
+    total.handling += r.handling;
+    total.joint += r.joint;
+  });
+
+  return total;
+}
+
+function totalDaftar(daftar){
+  const total = { titik:0, tertanam:0, handling:0, joint:0 };
+
+  daftar.forEach(item => {
+    const r = ringkasEntri(item);
+
+    total.titik += r.jumlahTitik;
+    total.tertanam += r.tertanam;
+    total.handling += r.handling;
+    total.joint += r.joint;
+  });
+
+  return total;
+}
+
+function daftarArea(){
+  const set = new Set();
+
+  dataTimeSheet.forEach(item => {
+    ringkasEntri(item).detail.forEach(baris => {
+      if(baris.area && baris.area !== "-"){ set.add(baris.area); }
+    });
+  });
+
+  return [...set].sort();
+}
+
+/*==========================================================
+  8. GRAFIK (SVG BUATAN SENDIRI, TANPA PUSTAKA LUAR)
 ==========================================================*/
 function lebarGrafik(){
   const layar = window.innerWidth;
 
-  /* Lebar kanvas disesuaikan lebar layar supaya tulisan pada grafik
-     tidak ikut mengecil saat dibuka di HP. */
   return layar < 500 ? 380
     : layar < 760 ? 520
     : 800;
@@ -1767,8 +2190,34 @@ function batasBagus(nilai){
   return kelipatan * pangkat;
 }
 
-function kerangkaGrafik(W, H, kiri, seri){
-  const atas = seri.length > 1 ? 36 : 18;
+function potong(teks, panjang){
+  const isi = String(teks || "");
+  return isi.length > panjang ? isi.slice(0, panjang - 1) + "…" : isi;
+}
+
+/* Legenda dibuat bisa turun ke baris berikutnya bila area banyak. */
+function legendaKotak(seri, kiri, W){
+  const perBaris = Math.max(1, Math.floor((W - kiri) / 145));
+  const jumlahBaris = Math.ceil(seri.length / perBaris);
+
+  const svg = seri.map((s, i) => {
+    const kolom = i % perBaris;
+    const baris = Math.floor(i / perBaris);
+
+    const x = kiri + kolom * ((W - kiri) / perBaris);
+    const y = 6 + baris * 19;
+
+    return '<rect x="' + x + '" y="' + y + '" width="12" height="12" rx="3" fill="'
+      + s.warna + '"/>'
+      + '<text x="' + (x + 17) + '" y="' + (y + 10.5)
+      + '" font-size="12" fill="' + PALET.teks + '">'
+      + aman(potong(s.nama, 16)) + "</text>";
+  }).join("");
+
+  return { svg:svg, tinggi:jumlahBaris * 19 + 10 };
+}
+
+function kerangkaGrafik(W, H, kiri, atas){
   const bawah = 48;
   const kanan = 14;
 
@@ -1777,17 +2226,6 @@ function kerangkaGrafik(W, H, kiri, seri){
     plotW:W - kiri - kanan,
     plotH:H - atas - bawah
   };
-}
-
-function legenda(seri, kiri, W){
-  return seri.map((s, i) => {
-    const x = kiri + i * Math.min(160, (W - kiri) / seri.length);
-
-    return '<rect x="' + x + '" y="6" width="12" height="12" rx="3" fill="'
-      + s.warna + '"/>'
-      + '<text x="' + (x + 18) + '" y="16" font-size="13" fill="' + PALET.teks
-      + '">' + s.nama + "</text>";
-  }).join("");
 }
 
 function sumbuY(bentuk, maks, W){
@@ -1824,6 +2262,77 @@ function labelX(bentuk, daftarLabel, W){
   }).join("");
 }
 
+/* Batang bertumpuk: satu warna untuk tiap area. */
+function svgBatangTumpuk(daftar, seri){
+  if(!daftar.length){
+    return '<div class="grafik-kosong">Belum ada data untuk digambarkan.</div>';
+  }
+
+  const W = lebarGrafik();
+  const H = W < 500 ? 300 : 340;
+
+  const kiri = W < 500 ? 48 : 62;
+  const kotak = legendaKotak(seri, kiri, W);
+  const bentuk = kerangkaGrafik(W, H, kiri, kotak.tinggi + 12);
+
+  let tertinggi = 0;
+
+  daftar.forEach(item => {
+    tertinggi = Math.max(tertinggi,
+      item.nilai.reduce((t, n) => t + angka(n), 0));
+  });
+
+  const maks = batasBagus(tertinggi);
+  const lebarSlot = bentuk.plotW / daftar.length;
+  const lebarBatang = Math.min(56, lebarSlot * 0.6);
+
+  let batang = "";
+
+  daftar.forEach((item, i) => {
+    const x = bentuk.kiri + lebarSlot * (i + 0.5) - lebarBatang / 2;
+    let dasar = bentuk.atas + bentuk.plotH;
+
+    item.nilai.forEach((n, j) => {
+      const nilai = angka(n);
+
+      if(nilai <= 0){ return; }
+
+      const tinggi = bentuk.plotH * nilai / maks;
+
+      dasar -= tinggi;
+
+      batang += '<rect x="' + x.toFixed(1) + '" y="' + dasar.toFixed(1)
+        + '" width="' + lebarBatang + '" height="' + tinggi.toFixed(1)
+        + '" fill="' + seri[j].warna + '"/>';
+
+      if(tinggi > 16){
+        batang += '<text x="' + (x + lebarBatang / 2).toFixed(1) + '" y="'
+          + (dasar + tinggi / 2 + 4).toFixed(1)
+          + '" font-size="11.5" font-weight="bold" text-anchor="middle"'
+          + ' fill="#fff">' + nilai + "</text>";
+      }
+    });
+
+    const jumlah = item.nilai.reduce((t, n) => t + angka(n), 0);
+
+    if(jumlah > 0){
+      batang += '<text x="' + (x + lebarBatang / 2).toFixed(1) + '" y="'
+        + (dasar - 6).toFixed(1)
+        + '" font-size="12.5" font-weight="bold" text-anchor="middle" fill="'
+        + PALET.teks + '">' + jumlah + "</text>";
+    }
+  });
+
+  return '<svg viewBox="0 0 ' + W + " " + H
+    + '" xmlns="http://www.w3.org/2000/svg" role="img">'
+    + kotak.svg
+    + sumbuY(bentuk, maks, W)
+    + batang
+    + labelX(bentuk, daftar.map(item => item.label), W)
+    + "</svg>";
+}
+
+/* Batang berdampingan, dipakai Petty Cash. */
 function svgBatang(daftar, seri){
   if(!daftar.length){
     return '<div class="grafik-kosong">Belum ada data untuk digambarkan.</div>';
@@ -1831,7 +2340,10 @@ function svgBatang(daftar, seri){
 
   const W = lebarGrafik();
   const H = W < 500 ? 280 : 320;
-  const bentuk = kerangkaGrafik(W, H, W < 500 ? 48 : 62, seri);
+
+  const kiri = W < 500 ? 48 : 62;
+  const kotak = legendaKotak(seri, kiri, W);
+  const bentuk = kerangkaGrafik(W, H, kiri, kotak.tinggi + 8);
 
   let tertinggi = 0;
 
@@ -1869,26 +2381,66 @@ function svgBatang(daftar, seri){
 
   return '<svg viewBox="0 0 ' + W + " " + H
     + '" xmlns="http://www.w3.org/2000/svg" role="img">'
-    + (seri.length > 1 ? legenda(seri, bentuk.kiri, W) : "")
+    + kotak.svg
     + sumbuY(bentuk, maks, W)
     + batang
     + labelX(bentuk, daftar.map(item => item.label), W)
     + "</svg>";
 }
 
-function svgGaris(daftar, seri){
-  if(daftar.length < 1){
-    return '<div class="grafik-kosong">Belum ada data untuk digambarkan.</div>';
+/* Jalur melengkung halus (Catmull-Rom yang dijaga tidak melewati
+   titik data) supaya kurva rencana dan aktual sama-sama berbentuk S. */
+function jalurHalus(titik){
+  if(titik.length < 2){ return ""; }
+
+  const jepit = (nilai, a, b) =>
+    Math.min(Math.max(nilai, Math.min(a, b)), Math.max(a, b));
+
+  let d = "M" + titik[0][0].toFixed(1) + "," + titik[0][1].toFixed(1);
+
+  for(let i = 0; i < titik.length - 1; i++){
+    const p0 = titik[i - 1] || titik[i];
+    const p1 = titik[i];
+    const p2 = titik[i + 1];
+    const p3 = titik[i + 2] || p2;
+
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6;
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6;
+
+    const c1y = jepit(p1[1] + (p2[1] - p0[1]) / 6, p1[1], p2[1]);
+    const c2y = jepit(p2[1] - (p3[1] - p1[1]) / 6, p1[1], p2[1]);
+
+    d += " C" + c1x.toFixed(1) + "," + c1y.toFixed(1)
+      + " " + c2x.toFixed(1) + "," + c2y.toFixed(1)
+      + " " + p2[0].toFixed(1) + "," + p2[1].toFixed(1);
+  }
+
+  return d;
+}
+
+/* Kurva S: garis halus, boleh ada nilai kosong (null) di ujung
+   seri aktual untuk bulan yang belum berjalan. */
+function svgKurvaS(daftar, seri){
+  if(!daftar.length){
+    return '<div class="grafik-kosong">Isi Tanggal Mulai dan Tanggal '
+      + "Selesai pada Target PO, atau input Daily Time Sheet dulu.</div>";
   }
 
   const W = lebarGrafik();
-  const H = W < 500 ? 280 : 320;
-  const bentuk = kerangkaGrafik(W, H, W < 500 ? 48 : 62, seri);
+  const H = W < 500 ? 300 : 340;
+
+  const kiri = W < 500 ? 48 : 62;
+  const kotak = legendaKotak(seri, kiri, W);
+  const bentuk = kerangkaGrafik(W, H, kiri, kotak.tinggi + 8);
 
   let tertinggi = 0;
 
   daftar.forEach(item => {
-    item.nilai.forEach(n => { tertinggi = Math.max(tertinggi, angka(n)); });
+    item.nilai.forEach(n => {
+      if(n !== null && n !== undefined){
+        tertinggi = Math.max(tertinggi, angka(n));
+      }
+    });
   });
 
   const maks = batasBagus(tertinggi);
@@ -1900,32 +2452,42 @@ function svgGaris(daftar, seri){
   let jalur = "";
 
   seri.forEach((s, j) => {
-    const titik = daftar.map((item, i) =>
-      posisiX(i).toFixed(1) + "," + posisiY(item.nilai[j]).toFixed(1));
-
-    if(j === 0 && daftar.length > 1){
-      jalur += '<polygon points="'
-        + posisiX(0).toFixed(1) + "," + (bentuk.atas + bentuk.plotH) + " "
-        + titik.join(" ") + " "
-        + posisiX(daftar.length - 1).toFixed(1) + "," + (bentuk.atas + bentuk.plotH)
-        + '" fill="' + s.warna + '" opacity="0.12"/>';
-    }
-
-    jalur += '<polyline points="' + titik.join(" ")
-      + '" fill="none" stroke="' + s.warna + '" stroke-width="3"'
-      + ' stroke-linejoin="round" stroke-linecap="round"'
-      + (s.putus ? ' stroke-dasharray="8 6"' : "") + "/>";
+    const titik = [];
 
     daftar.forEach((item, i) => {
-      jalur += '<circle cx="' + posisiX(i).toFixed(1) + '" cy="'
-        + posisiY(item.nilai[j]).toFixed(1)
+      const nilai = item.nilai[j];
+
+      if(nilai === null || nilai === undefined){ return; }
+
+      titik.push([posisiX(i), posisiY(nilai)]);
+    });
+
+    if(!titik.length){ return; }
+
+    const garis = jalurHalus(titik);
+
+    if(s.isi && titik.length > 1){
+      jalur += '<path d="' + garis
+        + " L" + titik[titik.length - 1][0].toFixed(1) + ","
+        + (bentuk.atas + bentuk.plotH)
+        + " L" + titik[0][0].toFixed(1) + ","
+        + (bentuk.atas + bentuk.plotH)
+        + ' Z" fill="' + s.warna + '" opacity="0.12"/>';
+    }
+
+    jalur += '<path d="' + garis + '" fill="none" stroke="' + s.warna
+      + '" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"'
+      + (s.putus ? ' stroke-dasharray="9 6"' : "") + "/>";
+
+    titik.forEach(p => {
+      jalur += '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1)
         + '" r="4.5" fill="#fff" stroke="' + s.warna + '" stroke-width="2.5"/>';
     });
   });
 
   return '<svg viewBox="0 0 ' + W + " " + H
     + '" xmlns="http://www.w3.org/2000/svg" role="img">'
-    + legenda(seri, bentuk.kiri, W)
+    + kotak.svg
     + sumbuY(bentuk, maks, W)
     + jalur
     + labelX(bentuk, daftar.map(item => item.label), W)
@@ -1933,21 +2495,137 @@ function svgGaris(daftar, seri){
 }
 
 /*==========================================================
-  8. DAILY TIME SHEET
+  9. DAILY TIME SHEET
 ==========================================================*/
-$("namaTitik").addEventListener("input", event => {
-  $("jumlahTitik").value = event.target.value
-    .split(",")
-    .filter(item => item.trim())
-    .length;
-});
+function barisTitikBaru(isi){
+  const data = isi || { area:"", titik:"", handling:"", tertanam:"", joint:"" };
 
-function totalTimeSheet(field){
-  return dataTimeSheet.reduce((total, item) => total + angka(item[field]), 0);
+  const kotak = document.createElement("div");
+  kotak.className = "baris-titik";
+
+  kotak.innerHTML = `
+    <div class="nomor"></div>
+
+    <label>
+      Area
+      <input class="isi-area" list="daftarArea" value="${aman(data.area)}"
+             placeholder="NaCL">
+    </label>
+
+    <label>
+      Nama Titik
+      <input class="isi-titik" value="${aman(data.titik)}" placeholder="PF1.1">
+    </label>
+
+    <label>
+      Handling (m)
+      <input class="isi-handling" type="number" inputmode="decimal"
+             min="0" step="0.01" value="${aman(data.handling)}">
+    </label>
+
+    <label>
+      Tertanam (m)
+      <input class="isi-tertanam" type="number" inputmode="decimal"
+             min="0" step="0.01" value="${aman(data.tertanam)}">
+    </label>
+
+    <label>
+      Joint (Titik)
+      <input class="isi-joint" type="number" inputmode="numeric"
+             min="0" step="1" value="${aman(data.joint)}">
+    </label>
+
+    <button type="button" class="red" onclick="hapusBarisTitik(this)">
+      Hapus
+    </button>
+  `;
+
+  kotak.querySelectorAll("input").forEach(isian => {
+    isian.addEventListener("input", perbaruiRingkasIsian);
+  });
+
+  return kotak;
+}
+
+function tambahBarisTitik(jumlah){
+  const banyak = angka(jumlah) || 1;
+
+  const daftar = $("isianTitik").querySelectorAll(".baris-titik");
+  const terakhir = daftar[daftar.length - 1];
+
+  const areaTerakhir = terakhir
+    ? terakhir.querySelector(".isi-area").value
+    : "";
+
+  for(let i = 0; i < banyak; i++){
+    $("isianTitik").appendChild(barisTitikBaru({
+      area:areaTerakhir, titik:"", handling:"", tertanam:"", joint:""
+    }));
+  }
+
+  perbaruiRingkasIsian();
+}
+
+function hapusBarisTitik(tombol){
+  const kotak = tombol.closest(".baris-titik");
+
+  if(kotak){ kotak.remove(); }
+
+  if(!$("isianTitik").querySelector(".baris-titik")){
+    tambahBarisTitik();
+  }
+
+  perbaruiRingkasIsian();
+}
+
+function bacaIsianTitik(){
+  return [...$("isianTitik").querySelectorAll(".baris-titik")]
+    .map(kotak => ({
+      area:kotak.querySelector(".isi-area").value.trim() || "-",
+      titik:kotak.querySelector(".isi-titik").value.trim(),
+      handling:angka(kotak.querySelector(".isi-handling").value),
+      tertanam:angka(kotak.querySelector(".isi-tertanam").value),
+      joint:angka(kotak.querySelector(".isi-joint").value)
+    }))
+    .filter(baris => baris.titik);
+}
+
+function perbaruiRingkasIsian(){
+  [...$("isianTitik").querySelectorAll(".baris-titik")]
+    .forEach((kotak, i) => {
+      kotak.querySelector(".nomor").textContent = i + 1;
+    });
+
+  const isi = bacaIsianTitik();
+
+  const handling = isi.reduce((t, b) => t + b.handling, 0);
+  const tertanam = isi.reduce((t, b) => t + b.tertanam, 0);
+  const joint = isi.reduce((t, b) => t + b.joint, 0);
+
+  $("ringkasIsian").innerHTML = `
+    <span>Jumlah Titik: ${isi.length}</span>
+    <span>Handling: ${angkaIndo(handling)} m</span>
+    <span>Tertanam: ${angkaIndo(tertanam)} m</span>
+    <span>Joint: ${angkaIndo(joint)} titik</span>
+  `;
+}
+
+function isiUlangBarisTitik(daftar){
+  $("isianTitik").innerHTML = "";
+
+  const isi = (daftar && daftar.length) ? daftar : [null];
+
+  isi.forEach(baris => {
+    $("isianTitik").appendChild(barisTitikBaru(baris));
+  });
+
+  perbaruiRingkasIsian();
 }
 
 function ubahTarget(field, value){
-  konfigurasi[field] = field === "po" ? value : angka(value);
+  konfigurasi[field] = (field === "po" || field === "mulai" || field === "selesai")
+    ? value
+    : angka(value);
 
   renderDashboard();
   catatPerubahan({ aksi:"konfigurasi", konfigurasi:konfigurasi });
@@ -1956,19 +2634,49 @@ function ubahTarget(field, value){
 $("formTimeSheet").addEventListener("submit", e => {
   e.preventDefault();
 
+  const detail = bacaIsianTitik();
+
+  if(!detail.length){
+    alert("Isi minimal satu Nama Titik pada rincian titik pemancangan.");
+    return;
+  }
+
   const item = Object.fromEntries(new FormData(e.target).entries());
 
-  rapikanAngka(item, ["jumlahTitik", "tertanam", "handling", "joint"]);
-
   const indeks = cariIndeks(dataTimeSheet, editIdTimeSheet);
+  const lama = indeks < 0 ? null : dataTimeSheet[indeks];
 
-  if(indeks < 0){
+  /* Rincian dikirim sebagai teks JSON supaya muat di satu kolom Sheet. */
+  item.detail = JSON.stringify(detail);
+
+  item.jumlahTitik = detail.length;
+  item.handling = detail.reduce((t, b) => t + b.handling, 0);
+  item.tertanam = detail.reduce((t, b) => t + b.tertanam, 0);
+  item.joint = detail.reduce((t, b) => t + b.joint, 0);
+
+  item.area = [...new Set(detail.map(b => b.area))].join(", ");
+  item.namaTitik = detail.map(b => b.titik).join(", ");
+
+  const sekarang = new Date().toISOString();
+
+  if(!lama){
     item.id = idBaru();
+    item.penginput = namaPengguna;
+    item.waktuInput = sekarang;
+
     dataTimeSheet.push(item);
   }else{
-    item.id = dataTimeSheet[indeks].id;
+    item.id = lama.id;
+    item.penginput = lama.penginput || namaPengguna;
+    item.waktuInput = lama.waktuInput || sekarang;
+    item.pengubah = namaPengguna;
+    item.waktuUbah = sekarang;
+
     dataTimeSheet[indeks] = item;
   }
+
+  catatLokal(lama ? "Ubah" : "Simpan", "timesheet", item.tanggal,
+    item.jumlahTitik + " titik, shift " + item.shift + ", alat " + item.alat);
 
   batalTimeSheet();
   renderSemua();
@@ -1991,6 +2699,18 @@ function ubahTimeSheet(id){
     }
   });
 
+  const r = ringkasEntri(item);
+
+  isiUlangBarisTitik(r.lama
+    ? r.detail.map(b => ({
+        area:b.area === "-" ? "" : b.area,
+        titik:b.titik,
+        handling:b.handling,
+        tertanam:b.tertanam,
+        joint:b.joint
+      }))
+    : r.detail);
+
   $("judulTimeSheet").textContent = "Edit Daily Time Sheet";
   buka("timesheet");
 }
@@ -2002,6 +2722,11 @@ function hapusTimeSheet(id){
 
   if(indeks < 0){ return; }
 
+  const item = dataTimeSheet[indeks];
+
+  catatLokal("Hapus", "timesheet", item.tanggal,
+    ringkasEntri(item).jumlahTitik + " titik, shift " + item.shift);
+
   dataTimeSheet.splice(indeks, 1);
   renderSemua();
   catatPerubahan({ aksi:"hapus", tipe:"timesheet", id:id });
@@ -2009,9 +2734,12 @@ function hapusTimeSheet(id){
 
 function batalTimeSheet(){
   editIdTimeSheet = null;
+
   $("formTimeSheet").reset();
   $("judulTimeSheet").textContent = "Input Daily Time Sheet";
   $("po").value = konfigurasi.po;
+
+  isiUlangBarisTitik([]);
 }
 
 function renderTimeSheet(){
@@ -2019,65 +2747,84 @@ function renderTimeSheet(){
     $("po").value = konfigurasi.po;
   }
 
+  $("daftarArea").innerHTML = daftarArea()
+    .map(area => '<option value="' + aman(area) + '">').join("");
+
   const urut = kelompokBulan(dataTimeSheet)
     .reduce((semua, bulan) => semua.concat(bulan.isi), []);
 
   $("daftarTimeSheet").innerHTML = urut.length
-    ? urut.map(item => "<tr>"
-        + sel("Tanggal", tanggalIndo(item.tanggal))
-        + sel("Shift", aman(item.shift))
-        + sel("Nama Titik", aman(item.namaTitik))
-        + sel("Jumlah", angka(item.jumlahTitik), "numeric")
-        + tombolAksi("ubahTimeSheet", "hapusTimeSheet", item.id)
-        + "</tr>").join("")
-    : barisKosong(5, "Belum ada data Daily Time Sheet.");
+    ? urut.map(item => {
+        const r = ringkasEntri(item);
+        const area = [...new Set(r.detail.map(b => b.area))].join(", ");
+        const titik = r.detail.map(b => b.titik).join(", ");
+
+        return "<tr>"
+          + sel("Tanggal", tanggalIndo(item.tanggal))
+          + sel("Shift", aman(item.shift))
+          + sel("No. Alat", aman(item.alat))
+          + sel("Area", aman(area))
+          + sel("Titik", aman(potong(titik, 46)))
+          + sel("Jumlah", r.jumlahTitik, "numeric")
+          + sel("Handling", angkaIndo(r.handling), "numeric")
+          + sel("Tertanam", angkaIndo(r.tertanam), "numeric")
+          + sel("Joint", r.joint, "numeric")
+          + sel("Diinput oleh", aman(item.pengubah || item.penginput || "-"))
+          + tombolAksi("ubahTimeSheet", "hapusTimeSheet", item.id)
+          + "</tr>";
+      }).join("")
+    : barisKosong(11, "Belum ada data Daily Time Sheet.");
 }
 
 /*==========================================================
-  9. DASHBOARD REKAP
+  10. DASHBOARD REKAP
 ==========================================================*/
 function renderDashboard(){
   const targets = [
-    ["po", "No. PO"],
-    ["titik", "Target Titik"],
-    ["tertanam", "Target Tertanam"],
-    ["handling", "Target Handling"],
-    ["joint", "Target Joint"]
+    ["po", "No. PO", "text"],
+    ["titik", "Target Jumlah Titik", "number"],
+    ["tertanam", "Target Tertanam (m)", "number"],
+    ["handling", "Target Handling (m)", "number"],
+    ["joint", "Target Joint (titik)", "number"],
+    ["mulai", "Tanggal Mulai Rencana", "date"],
+    ["selesai", "Tanggal Selesai Rencana", "date"]
   ];
 
-  /* Kolom target tidak digambar ulang selama sedang diketik,
-     supaya kursor tidak melompat keluar di HP. */
   if(!$("target").contains(document.activeElement)){
-    $("target").innerHTML = targets.map(([field, label]) => `
+    $("target").innerHTML = targets.map(([field, label, tipe]) => `
       <label>
         ${label}
-        <input value="${aman(konfigurasi[field])}"
+        <input type="${tipe}"
+               value="${aman(tipe === "date"
+                 ? normalisasiTanggal(konfigurasi[field])
+                 : konfigurasi[field])}"
                onchange="ubahTarget('${field}',this.value)">
       </label>
     `).join("");
   }
 
+  const aktual = totalAktual();
+
   const kpi = [
-    ["Jumlah Titik", "titik", "jumlahTitik", "titik"],
-    ["Tertanam", "tertanam", "tertanam", "m"],
-    ["Handling", "handling", "handling", "m"],
-    ["Joint", "joint", "joint", "joint"]
+    ["Jumlah Titik", "titik", aktual.titik, "titik"],
+    ["SP Tertanam", "tertanam", aktual.tertanam, "m"],
+    ["SP Handling", "handling", aktual.handling, "m"],
+    ["Joint", "joint", aktual.joint, "titik"]
   ];
 
-  $("kpi").innerHTML = kpi.map(([judul, targetField, actualField, satuan]) => {
+  $("kpi").innerHTML = kpi.map(([judul, targetField, nilai, satuan]) => {
     const target = angka(konfigurasi[targetField]);
-    const aktual = totalTimeSheet(actualField);
-    const sisa = target - aktual;
-    const persen = target > 0 ? aktual / target * 100 : 0;
+    const sisa = target - nilai;
+    const persen = target > 0 ? nilai / target * 100 : 0;
 
     return `
       <div class="card">
         <span class="card-title">${judul}</span>
 
-        <b>Sisa: ${sisa.toLocaleString("id-ID")} ${satuan}</b>
+        <b>${angkaIndo(nilai)} ${satuan}</b>
 
-        Target: ${target.toLocaleString("id-ID")}<br>
-        Aktual: ${aktual.toLocaleString("id-ID")}<br>
+        Target: ${angkaIndo(target)}<br>
+        Sisa: ${angkaIndo(sisa)}<br>
         Progres: ${persen.toFixed(2)}%
 
         <div class="bar">
@@ -2087,57 +2834,277 @@ function renderDashboard(){
     `;
   }).join("");
 
+  gambarRingkasHarian();
+
   const perBulan = kelompokBulan(dataTimeSheet);
 
-  gambarKurvaS(perBulan);
+  gambarKurvaS(perBulan, aktual);
   gambarProduksiBulanan(perBulan);
   gambarRekapBulanan(perBulan);
 }
 
-function gambarKurvaS(perBulan){
-  const targetTertanam = angka(konfigurasi.tertanam);
+/* Kartu ringkas: berapa hari kerja, rata-rata titik per hari,
+   hari paling produktif, dan siapa yang terakhir menginput. */
+function gambarRingkasHarian(){
+  const perTanggal = new Map();
 
-  let kumulatif = 0;
+  dataTimeSheet.forEach(item => {
+    const kunci = normalisasiTanggal(item.tanggal) || "0000-00-00";
+    const r = ringkasEntri(item);
 
-  const titik = perBulan.map((bulan, i) => {
-    kumulatif += bulan.isi.reduce((t, item) => t + angka(item.tertanam), 0);
+    perTanggal.set(kunci, (perTanggal.get(kunci) || 0) + r.jumlahTitik);
+  });
+
+  const hari = [...perTanggal.entries()].sort();
+  const totalTitik = hari.reduce((t, [, n]) => t + n, 0);
+
+  const tertinggi = hari.reduce(
+    (puncak, baris) => baris[1] > puncak[1] ? baris : puncak,
+    ["-", 0]);
+
+  const terakhir = hari.length ? hari[hari.length - 1] : null;
+
+  const entriTerbaru = dataTimeSheet
+    .slice()
+    .sort((a, b) => String(a.waktuUbah || a.waktuInput || "")
+      < String(b.waktuUbah || b.waktuInput || "") ? 1 : -1)[0];
+
+  $("kpiRingkas").innerHTML = `
+    <div class="card">
+      <span class="card-title">Hari Kerja Tercatat</span>
+      <b>${hari.length} hari</b>
+      <small>Total ${angkaIndo(totalTitik)} titik terpancang</small>
+    </div>
+
+    <div class="card">
+      <span class="card-title">Rata-rata per Hari</span>
+      <b>${hari.length ? (totalTitik / hari.length).toFixed(1) : 0} titik</b>
+      <small>Termasuk semua shift</small>
+    </div>
+
+    <div class="card">
+      <span class="card-title">Hari Terbanyak</span>
+      <b>${tertinggi[1]} titik</b>
+      <small>${tertinggi[0] === "-" ? "-" : tanggalIndo(tertinggi[0])}</small>
+    </div>
+
+    <div class="card">
+      <span class="card-title">Input Terakhir</span>
+      <b>${terakhir ? tanggalIndo(terakhir[0]) : "-"}</b>
+      <small>${entriTerbaru
+        ? "oleh " + aman(entriTerbaru.pengubah || entriTerbaru.penginput || "-")
+          + (entriTerbaru.waktuUbah || entriTerbaru.waktuInput
+              ? ", " + waktuIndo(entriTerbaru.waktuUbah || entriTerbaru.waktuInput)
+              : "")
+        : "Belum ada input"}</small>
+    </div>
+  `;
+}
+
+/* Bentuk S dipakai untuk rencana: pelan di awal, cepat di tengah,
+   melandai di akhir. Rumus 0,5 x (1 - cos(pi x)) menghasilkan
+   kurva S yang mulus dari 0% sampai 100%. */
+function bentukS(x){
+  const batas = Math.min(Math.max(x, 0), 1);
+  return 0.5 * (1 - Math.cos(Math.PI * batas));
+}
+
+function gambarKurvaS(perBulan, aktual){
+  const targetTitik = angka(konfigurasi.titik);
+
+  const bulanRencana = deretBulan(konfigurasi.mulai, konfigurasi.selesai);
+  const bulanAktual = perBulan.map(b => b.kunci).filter(k => k !== "0000-00");
+
+  const semuaBulan = [...new Set(bulanRencana.concat(bulanAktual))].sort();
+
+  if(!semuaBulan.length){
+    $("grafikKurva").innerHTML = svgKurvaS([], []);
+    $("tabelKurva").innerHTML = "";
+    $("lencanaKurva").textContent = "Belum ada data";
+    return;
+  }
+
+  /* Rencana kumulatif per bulan mengikuti bentuk S. */
+  const rencana = {};
+
+  if(bulanRencana.length){
+    bulanRencana.forEach((kunci, i) => {
+      rencana[kunci] = targetTitik * bentukS((i + 1) / bulanRencana.length);
+    });
+  }
+
+  const aktualBulan = {};
+
+  perBulan.forEach(bulan => {
+    aktualBulan[bulan.kunci] = totalDaftar(bulan.isi).titik;
+  });
+
+  const bulanTerakhirAktual = bulanAktual.length
+    ? bulanAktual[bulanAktual.length - 1]
+    : "";
+
+  let kumulatifAktual = 0;
+  let kumulatifRencana = 0;
+
+  const baris = semuaBulan.map(kunci => {
+    const titikBulan = aktualBulan[kunci] || 0;
+
+    kumulatifAktual += titikBulan;
+
+    if(rencana[kunci] !== undefined){
+      kumulatifRencana = rencana[kunci];
+    }else if(bulanRencana.length && kunci > bulanRencana[bulanRencana.length - 1]){
+      kumulatifRencana = targetTitik;
+    }
+
+    const adaAktual = bulanTerakhirAktual && kunci <= bulanTerakhirAktual;
 
     return {
-      label:bulan.pendek,
-      nilai:[
-        kumulatif,
-        targetTertanam * (i + 1) / Math.max(perBulan.length, 1)
-      ]
+      kunci:kunci,
+      label:namaBulanPendek(kunci),
+      titikBulan:titikBulan,
+      rencanaBulan:rencana[kunci] !== undefined
+        ? rencana[kunci] - (bulanRencana.indexOf(kunci) > 0
+            ? rencana[bulanRencana[bulanRencana.indexOf(kunci) - 1]]
+            : 0)
+        : null,
+      kumulatifRencana:bulanRencana.length ? kumulatifRencana : null,
+      kumulatifAktual:adaAktual ? kumulatifAktual : null
     };
   });
 
-  $("grafikKurva").innerHTML = svgGaris(titik, [
-    { nama:"Aktual kumulatif", warna:PALET.hijau },
-    { nama:"Rencana linear", warna:PALET.oranye, putus:true }
-  ]);
+  $("grafikKurva").innerHTML = svgKurvaS(
+    baris.map(b => ({
+      label:b.label,
+      nilai:[b.kumulatifAktual, b.kumulatifRencana]
+    })),
+    [
+      { nama:"Aktual kumulatif", warna:PALET.hijau, isi:true },
+      { nama:"Rencana (Kurva S)", warna:PALET.oranye, putus:true }
+    ]
+  );
 
-  const persen = targetTertanam > 0 ? kumulatif / targetTertanam * 100 : 0;
+  const isiTabel = baris.map(b => "<tr>"
+    + sel("Bulan", namaBulan(b.kunci))
+    + sel("Rencana Bulan Ini",
+        b.rencanaBulan === null ? "-" : Math.round(b.rencanaBulan), "numeric")
+    + sel("Aktual Bulan Ini", b.titikBulan, "numeric")
+    + sel("Rencana Kumulatif",
+        b.kumulatifRencana === null ? "-" : Math.round(b.kumulatifRencana), "numeric")
+    + sel("Aktual Kumulatif",
+        b.kumulatifAktual === null ? "-" : b.kumulatifAktual, "numeric")
+    + sel("Deviasi",
+        (b.kumulatifAktual === null || b.kumulatifRencana === null)
+          ? "-"
+          : (b.kumulatifAktual - Math.round(b.kumulatifRencana) >= 0 ? "+" : "")
+            + (b.kumulatifAktual - Math.round(b.kumulatifRencana)),
+        "numeric")
+    + "</tr>").join("");
 
-  $("lencanaKurva").textContent = persen.toFixed(1) + "% dari target";
+  $("tabelKurva").innerHTML = `
+    <div class="sub-judul">Rencana dan Aktual Jumlah Titik per Bulan</div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Bulan</th>
+            <th>Rencana Bulan Ini</th>
+            <th>Aktual Bulan Ini</th>
+            <th>Rencana Kumulatif</th>
+            <th>Aktual Kumulatif</th>
+            <th>Deviasi</th>
+          </tr>
+        </thead>
+
+        <tbody>${isiTabel}</tbody>
+      </table>
+    </div>
+  `;
+
+  const persen = targetTitik > 0 ? aktual.titik / targetTitik * 100 : 0;
+
+  $("lencanaKurva").textContent = aktual.titik + " dari " + targetTitik
+    + " titik (" + persen.toFixed(1) + "%)";
 }
 
 function gambarProduksiBulanan(perBulan){
-  const daftar = perBulan.map(bulan => ({
-    label:bulan.pendek,
-    nilai:[
-      bulan.isi.reduce((t, item) => t + angka(item.jumlahTitik), 0),
-      bulan.isi.reduce((t, item) => t + angka(item.joint), 0)
-    ]
+  const area = daftarArea();
+  const kolomArea = area.length ? area : ["Tanpa Area"];
+
+  const seri = kolomArea.map((nama, i) => ({
+    nama:nama,
+    warna:WARNA_AREA[i % WARNA_AREA.length]
   }));
 
-  $("grafikBulanan").innerHTML = svgBatang(daftar, [
-    { nama:"Jumlah Titik", warna:PALET.hijau },
-    { nama:"Jumlah Joint", warna:PALET.biru }
-  ]);
+  const daftar = perBulan.map(bulan => {
+    const nilai = kolomArea.map(nama => {
+      let jumlah = 0;
+
+      bulan.isi.forEach(item => {
+        ringkasEntri(item).detail.forEach(baris => {
+          const areaBaris = area.length ? baris.area : "Tanpa Area";
+          if(areaBaris === nama){ jumlah++; }
+        });
+      });
+
+      return jumlah;
+    });
+
+    return { label:bulan.pendek, kunci:bulan.kunci, nilai:nilai };
+  });
+
+  $("grafikBulanan").innerHTML = svgBatangTumpuk(daftar, seri);
+
+  if(!daftar.length){
+    $("tabelArea").innerHTML =
+      '<div class="grafik-kosong">Belum ada data titik per area.</div>';
+    return;
+  }
+
+  const totalKolom = daftar.map(bulan =>
+    bulan.nilai.reduce((t, n) => t + n, 0));
+
+  const isi = kolomArea.map((nama, i) => {
+    const perBulanArea = daftar.map(bulan => bulan.nilai[i]);
+    const total = perBulanArea.reduce((t, n) => t + n, 0);
+
+    return "<tr>"
+      + sel("Area", "<b>" + aman(nama) + "</b>")
+      + perBulanArea.map((n, j) =>
+          sel(daftar[j].label, n, "numeric")).join("")
+      + sel("Total", "<b>" + total + "</b>", "numeric")
+      + "</tr>";
+  }).join("");
+
+  $("tabelArea").innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Area</th>
+            ${daftar.map(b => "<th>" + b.label + "</th>").join("")}
+            <th>Total</th>
+          </tr>
+        </thead>
+
+        <tbody>${isi}</tbody>
+
+        <tfoot>
+          <tr>
+            ${sel("Area", "Total Titik")}
+            ${totalKolom.map((n, j) =>
+              sel(daftar[j].label, n, "numeric")).join("")}
+            ${sel("Total", totalKolom.reduce((t, n) => t + n, 0), "numeric")}
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  `;
 }
 
-/* Rekap Aktual Pemancangan dipecah menjadi satu bagian per bulan,
-   masing-masing dengan baris subtotal. */
+/* Rekap per bulan: ringkasan harian dulu, lalu tabel rincian
+   per titik dengan sel gabung sesuai format customer. */
 function gambarRekapBulanan(perBulan){
   if(!perBulan.length){
     $("rekapBulanan").innerHTML =
@@ -2146,62 +3113,158 @@ function gambarRekapBulanan(perBulan){
   }
 
   $("rekapBulanan").innerHTML = perBulan.map(bulan => {
-    const jumlahTitik = bulan.isi.reduce((t, i) => t + angka(i.jumlahTitik), 0);
-    const tertanam = bulan.isi.reduce((t, i) => t + angka(i.tertanam), 0);
-    const handling = bulan.isi.reduce((t, i) => t + angka(i.handling), 0);
-    const joint = bulan.isi.reduce((t, i) => t + angka(i.joint), 0);
+    const total = totalDaftar(bulan.isi);
 
-    const baris = bulan.isi.map(item => "<tr>"
-      + sel("Tanggal", tanggalIndo(item.tanggal))
-      + sel("PO MP", aman(item.po))
-      + sel("Shift", aman(item.shift))
-      + sel("No. Alat", aman(item.alat))
-      + sel("Diameter", aman(item.diameter))
-      + sel("No. Titik", aman(item.namaTitik))
-      + sel("Jumlah", angka(item.jumlahTitik), "numeric")
-      + sel("Tertanam", angka(item.tertanam).toLocaleString("id-ID"), "numeric")
-      + sel("Handling", angka(item.handling).toLocaleString("id-ID"), "numeric")
-      + sel("Joint", angka(item.joint), "numeric")
+    /* Ringkasan per tanggal, karena satu tanggal bisa dua shift. */
+    const perTanggal = new Map();
+
+    bulan.isi.forEach(item => {
+      const kunci = normalisasiTanggal(item.tanggal) || "0000-00-00";
+      const r = ringkasEntri(item);
+
+      if(!perTanggal.has(kunci)){
+        perTanggal.set(kunci, {
+          shift:new Set(), titik:0, handling:0, tertanam:0, joint:0
+        });
+      }
+
+      const rekap = perTanggal.get(kunci);
+
+      rekap.shift.add(item.shift || "-");
+      rekap.titik += r.jumlahTitik;
+      rekap.handling += r.handling;
+      rekap.tertanam += r.tertanam;
+      rekap.joint += r.joint;
+    });
+
+    const barisHarian = [...perTanggal.entries()].sort().map(([kunci, r]) =>
+      "<tr>"
+      + sel("Tanggal", tanggalIndo(kunci))
+      + sel("Shift", [...r.shift].join(" + "), "numeric")
+      + sel("Jumlah Titik", "<b>" + r.titik + "</b>", "numeric")
+      + sel("Handling (m)", angkaIndo(r.handling), "numeric")
+      + sel("Tertanam (m)", angkaIndo(r.tertanam), "numeric")
+      + sel("Joint (Titik)", angkaIndo(r.joint), "numeric")
       + "</tr>").join("");
+
+    /* Tabel rincian per titik. */
+    const barisRinci = bulan.isi.map(item => {
+      const r = ringkasEntri(item);
+      const n = r.detail.length;
+
+      const penginput = aman(item.pengubah || item.penginput || "-");
+
+      const isiBaris = r.detail.map((baris, i) => {
+        const awal = i === 0
+          ? '<td rowspan="' + n + '">' + tanggalIndo(item.tanggal) + "</td>"
+            + '<td rowspan="' + n + '" class="kiri">' + aman(item.po) + "</td>"
+            + '<td rowspan="' + n + '">' + aman(item.shift) + "</td>"
+            + '<td rowspan="' + n + '">' + aman(item.alat) + "</td>"
+            + '<td rowspan="' + n + '">' + aman(item.diameter) + "</td>"
+          : "";
+
+        const tengah = i === 0
+          ? '<td rowspan="' + n + '">' + r.jumlahTitik + "</td>"
+          : "";
+
+        const akhir = i === 0
+          ? '<td rowspan="' + n + '">' + penginput + "</td>"
+          : "";
+
+        return "<tr>"
+          + awal
+          + "<td>" + aman(baris.area) + "</td>"
+          + "<td>" + aman(baris.titik) + "</td>"
+          + tengah
+          + "<td>" + angkaIndo(baris.handling) + "</td>"
+          + "<td>" + angkaIndo(baris.tertanam) + "</td>"
+          + "<td>" + (baris.joint ? angkaIndo(baris.joint) : "") + "</td>"
+          + akhir
+          + "</tr>";
+      }).join("");
+
+      const subtotal = '<tr class="subtotal">'
+        + '<td colspan="7" class="kiri">Subtotal ' + tanggalIndo(item.tanggal)
+        + " — " + aman(item.shift) + "</td>"
+        + "<td>" + r.jumlahTitik + "</td>"
+        + "<td>" + angkaIndo(r.handling) + "</td>"
+        + "<td>" + angkaIndo(r.tertanam) + "</td>"
+        + "<td>" + angkaIndo(r.joint) + "</td>"
+        + "<td></td>"
+        + "</tr>";
+
+      return isiBaris + subtotal;
+    }).join("");
 
     return `
       <section>
         <div class="judul-baris">
           <h2>Rekap Aktual Pemancangan — ${bulan.nama}</h2>
-          <span class="lencana">${bulan.isi.length} hari kerja</span>
+          <span class="lencana">${perTanggal.size} hari kerja ·
+            ${total.titik} titik</span>
         </div>
+
+        <div class="sub-judul">Ringkasan per Tanggal</div>
 
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
                 <th>Tanggal</th>
-                <th>PO MP</th>
                 <th>Shift</th>
-                <th>No. Alat</th>
-                <th>Diameter</th>
-                <th>No. Titik</th>
-                <th>Jumlah</th>
-                <th>Tertanam</th>
-                <th>Handling</th>
-                <th>Joint</th>
+                <th>Jumlah Titik</th>
+                <th>Handling (m)</th>
+                <th>Tertanam (m)</th>
+                <th>Joint (Titik)</th>
               </tr>
             </thead>
 
-            <tbody>${baris}</tbody>
+            <tbody>${barisHarian}</tbody>
 
             <tfoot>
               <tr>
-                ${sel("Subtotal", "Subtotal " + bulan.nama)}
-                ${sel("PO MP", "")}
-                ${sel("Shift", "")}
-                ${sel("No. Alat", "")}
-                ${sel("Diameter", "")}
-                ${sel("No. Titik", "")}
-                ${sel("Jumlah", jumlahTitik.toLocaleString("id-ID"), "numeric")}
-                ${sel("Tertanam", tertanam.toLocaleString("id-ID"), "numeric")}
-                ${sel("Handling", handling.toLocaleString("id-ID"), "numeric")}
-                ${sel("Joint", joint.toLocaleString("id-ID"), "numeric")}
+                ${sel("Tanggal", "Total " + bulan.nama)}
+                ${sel("Shift", "", "numeric")}
+                ${sel("Jumlah Titik", total.titik, "numeric")}
+                ${sel("Handling (m)", angkaIndo(total.handling), "numeric")}
+                ${sel("Tertanam (m)", angkaIndo(total.tertanam), "numeric")}
+                ${sel("Joint (Titik)", angkaIndo(total.joint), "numeric")}
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="sub-judul">Rincian per Titik</div>
+
+        <div class="table-wrap geser">
+          <table class="tabel-rinci">
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>No PO</th>
+                <th>Shift</th>
+                <th>No. Alat</th>
+                <th>Diameter</th>
+                <th>Area</th>
+                <th>Nama Titik</th>
+                <th>Jumlah Titik</th>
+                <th>Handling (m)</th>
+                <th>Tertanam (m)</th>
+                <th>Joint (Titik)</th>
+                <th>Diinput oleh</th>
+              </tr>
+            </thead>
+
+            <tbody>${barisRinci}</tbody>
+
+            <tfoot>
+              <tr>
+                <td colspan="7" class="kiri">Total ${bulan.nama}</td>
+                <td>${total.titik}</td>
+                <td>${angkaIndo(total.handling)}</td>
+                <td>${angkaIndo(total.tertanam)}</td>
+                <td>${angkaIndo(total.joint)}</td>
+                <td></td>
               </tr>
             </tfoot>
           </table>
@@ -2212,21 +3275,35 @@ function gambarRekapBulanan(perBulan){
 }
 
 /*==========================================================
-  10. DAILY ABSENSI
+  11. DAILY ABSENSI
 ==========================================================*/
 $("formAbsensi").addEventListener("submit", e => {
   e.preventDefault();
 
   const item = Object.fromEntries(new FormData(e.target).entries());
   const indeks = cariIndeks(dataAbsensi, editIdAbsensi);
+  const lama = indeks < 0 ? null : dataAbsensi[indeks];
 
-  if(indeks < 0){
+  const sekarang = new Date().toISOString();
+
+  if(!lama){
     item.id = idBaru();
+    item.penginput = namaPengguna;
+    item.waktuInput = sekarang;
+
     dataAbsensi.push(item);
   }else{
-    item.id = dataAbsensi[indeks].id;
+    item.id = lama.id;
+    item.penginput = lama.penginput || namaPengguna;
+    item.waktuInput = lama.waktuInput || sekarang;
+    item.pengubah = namaPengguna;
+    item.waktuUbah = sekarang;
+
     dataAbsensi[indeks] = item;
   }
+
+  catatLokal(lama ? "Ubah" : "Simpan", "absensi", item.tanggal,
+    item.nama + " — " + item.status);
 
   batalAbsensi();
   renderSemua();
@@ -2260,6 +3337,10 @@ function hapusAbsensi(id){
   const indeks = cariIndeks(dataAbsensi, id);
 
   if(indeks < 0){ return; }
+
+  const item = dataAbsensi[indeks];
+
+  catatLokal("Hapus", "absensi", item.tanggal, item.nama + " — " + item.status);
 
   dataAbsensi.splice(indeks, 1);
   renderSemua();
@@ -2334,10 +3415,11 @@ function renderAbsensi(){
           + sel("Jam Efektif", detail.jam + " jam", "numeric")
           + sel("Status", aman(item.status))
           + sel("Keterangan", aman(item.ket || "-"))
+          + sel("Diinput oleh", aman(item.pengubah || item.penginput || "-"))
           + tombolAksi("ubahAbsensi", "hapusAbsensi", item.id)
           + "</tr>";
       }).join("")
-    : barisKosong(9, "Belum ada data absensi.");
+    : barisKosong(10, "Belum ada data absensi.");
 
   const harian = kelompokAbsensi(true);
 
@@ -2371,7 +3453,7 @@ function renderAbsensi(){
 }
 
 /*==========================================================
-  11. PETTY CASH
+  12. PETTY CASH
 ==========================================================*/
 $("formPetty").addEventListener("submit", e => {
   e.preventDefault();
@@ -2387,17 +3469,33 @@ $("formPetty").addEventListener("submit", e => {
   }
 
   const indeks = cariIndeks(dataPetty, editIdPetty);
+  const lama = indeks < 0 ? null : dataPetty[indeks];
 
-  if(indeks < 0){
+  const sekarang = new Date().toISOString();
+
+  if(!lama){
     item.id = idBaru();
+    item.penginput = namaPengguna;
+    item.waktuInput = sekarang;
+
     dataPetty.push(item);
   }else{
-    item.id = dataPetty[indeks].id;
+    item.id = lama.id;
+    item.penginput = lama.penginput || namaPengguna;
+    item.waktuInput = lama.waktuInput || sekarang;
+    item.pengubah = namaPengguna;
+    item.waktuUbah = sekarang;
+
     dataPetty[indeks] = item;
   }
 
+  catatLokal(lama ? "Ubah" : "Simpan", "petty", item.tanggal,
+    potong(item.keterangan, 40) + " — masuk " + rupiah(item.masuk)
+    + ", keluar " + rupiah(item.keluar));
+
   batalPetty();
   renderPetty();
+  renderLog();
   catatPerubahan({ aksi:"simpan", tipe:"petty", item:item });
 });
 
@@ -2427,8 +3525,13 @@ function hapusPetty(id){
 
   if(indeks < 0){ return; }
 
+  const item = dataPetty[indeks];
+
+  catatLokal("Hapus", "petty", item.tanggal, potong(item.keterangan, 40));
+
   dataPetty.splice(indeks, 1);
   renderPetty();
+  renderLog();
   catatPerubahan({ aksi:"hapus", tipe:"petty", id:id });
 }
 
@@ -2472,7 +3575,6 @@ function renderPetty(){
     return;
   }
 
-  /* Saldo berjalan diteruskan dari bulan ke bulan. */
   let saldo = 0;
 
   $("pettyBulanan").innerHTML = perBulan.map(bulan => {
@@ -2492,6 +3594,7 @@ function renderPetty(){
         + sel("Dana Masuk", rupiah(item.masuk), "money")
         + sel("Dana Keluar", rupiah(item.keluar), "money")
         + sel("Saldo", "<b>" + rupiah(saldo) + "</b>", "money")
+        + sel("Diinput oleh", aman(item.pengubah || item.penginput || "-"))
         + tombolAksi("ubahPetty", "hapusPetty", item.id)
         + "</tr>";
     }).join("");
@@ -2513,7 +3616,8 @@ function renderPetty(){
                 <th>Dana Masuk</th>
                 <th>Dana Keluar</th>
                 <th>Saldo</th>
-                <th class="hanya-admin">Aksi</th>
+                <th>Diinput oleh</th>
+                <th>Aksi</th>
               </tr>
             </thead>
 
@@ -2527,7 +3631,8 @@ function renderPetty(){
                 ${sel("Dana Masuk", rupiah(masukBulan), "money")}
                 ${sel("Dana Keluar", rupiah(keluarBulan), "money")}
                 ${sel("Saldo Akhir", rupiah(saldo), "money")}
-                ${sudahMasuk() ? sel("Aksi", "", "action hanya-admin") : ""}
+                ${sel("Diinput oleh", "")}
+                ${sudahMasuk() ? sel("Aksi", "", "action") : ""}
               </tr>
             </tfoot>
           </table>
@@ -2538,7 +3643,142 @@ function renderPetty(){
 }
 
 /*==========================================================
-  12. UNDUH CSV (bisa dibuka langsung di Excel)
+  13. LOG INPUT — SIAPA MENGINPUT APA DAN KAPAN
+==========================================================*/
+/* Catatan sementara di layar. Catatan resmi dibuat server dan
+   akan menggantikan daftar ini setiap kali data dimuat ulang. */
+function catatLokal(aksi, tipe, tanggalData, ringkasan){
+  dataLog.unshift({
+    waktu:new Date().toISOString(),
+    penginput:namaPengguna,
+    aksi:aksi,
+    tipe:tipe,
+    tanggalData:normalisasiTanggal(tanggalData) || tanggalData || "",
+    ringkasan:ringkasan || ""
+  });
+}
+
+function logTerurut(){
+  return dataLog.slice().sort((a, b) =>
+    String(b.waktu || "").localeCompare(String(a.waktu || "")));
+}
+
+function renderLog(){
+  $("peringatanLog").hidden = serverPunyaLog;
+
+  const semua = logTerurut();
+
+  /* Rekap per nama. */
+  const rekap = new Map();
+
+  semua.forEach(baris => {
+    const nama = String(baris.penginput || "-").trim() || "-";
+
+    if(!rekap.has(nama)){
+      rekap.set(nama, {
+        nama:nama, timesheet:0, absensi:0, petty:0, konfigurasi:0,
+        total:0, terakhir:""
+      });
+    }
+
+    const isi = rekap.get(nama);
+
+    if(baris.tipe in isi){ isi[baris.tipe]++; }
+
+    isi.total++;
+
+    if(String(baris.waktu || "") > isi.terakhir){
+      isi.terakhir = String(baris.waktu || "");
+    }
+  });
+
+  const daftarRekap = [...rekap.values()].sort((a, b) => b.total - a.total);
+
+  $("rekapPenginput").innerHTML = daftarRekap.length
+    ? daftarRekap.map(isi => "<tr>"
+        + sel("Nama", "<b>" + aman(isi.nama) + "</b>")
+        + sel("Time Sheet", isi.timesheet, "numeric")
+        + sel("Absensi", isi.absensi, "numeric")
+        + sel("Petty Cash", isi.petty, "numeric")
+        + sel("Target PO", isi.konfigurasi, "numeric")
+        + sel("Total", "<b>" + isi.total + "</b>", "numeric")
+        + sel("Terakhir aktif", waktuIndo(isi.terakhir))
+        + "</tr>").join("")
+    : barisKosong(7, "Belum ada catatan aktivitas.");
+
+  $("lencanaLog").textContent = daftarRekap.length + " penginput";
+
+  const hariIni = new Date().toISOString().slice(0, 10);
+
+  const aktivitasHariIni = semua.filter(baris =>
+    String(baris.waktu || "").slice(0, 10) === hariIni).length;
+
+  const terbaru = semua[0];
+
+  $("kpiLog").innerHTML = `
+    <div class="card">
+      <span class="card-title">Total Aktivitas</span>
+      <b>${semua.length}</b>
+      <small>Tercatat di server</small>
+    </div>
+
+    <div class="card">
+      <span class="card-title">Aktivitas Hari Ini</span>
+      <b>${aktivitasHariIni}</b>
+      <small>Sejak tengah malam</small>
+    </div>
+
+    <div class="card">
+      <span class="card-title">Penginput Terakhir</span>
+      <b>${terbaru ? aman(terbaru.penginput || "-") : "-"}</b>
+      <small>${terbaru ? waktuIndo(terbaru.waktu) : "Belum ada"}</small>
+    </div>
+
+    <div class="card">
+      <span class="card-title">Anda Masuk Sebagai</span>
+      <b>${aman(namaPengguna || "-")}</b>
+      <small>Nama ini tercatat di setiap input</small>
+    </div>
+  `;
+
+  /* Riwayat dengan penyaring. */
+  const cariNama = ($("saringNama").value || "").trim().toLowerCase();
+  const cariTanggal = $("saringTanggal").value || "";
+  const cariJenis = $("saringJenis").value || "";
+
+  const hasil = semua.filter(baris => {
+    if(cariNama && !String(baris.penginput || "").toLowerCase().includes(cariNama)){
+      return false;
+    }
+
+    if(cariTanggal && normalisasiTanggal(baris.tanggalData) !== cariTanggal){
+      return false;
+    }
+
+    if(cariJenis && baris.tipe !== cariJenis){
+      return false;
+    }
+
+    return true;
+  });
+
+  const tampil = hasil.slice(0, 300);
+
+  $("daftarLog").innerHTML = tampil.length
+    ? tampil.map(baris => "<tr>"
+        + sel("Waktu Input", waktuIndo(baris.waktu))
+        + sel("Penginput", "<b>" + aman(baris.penginput || "-") + "</b>")
+        + sel("Aksi", aman(baris.aksi || "-"))
+        + sel("Jenis", aman(NAMA_JENIS[baris.tipe] || baris.tipe || "-"))
+        + sel("Tanggal Data", baris.tanggalData
+            ? tanggalIndo(baris.tanggalData) : "-")
+        + sel("Rincian", aman(baris.ringkasan || "-"))
+        + "</tr>").join("")
+    : barisKosong(6, "Tidak ada aktivitas yang cocok dengan penyaring.");
+}
+
+/*==========================================================
+  14. UNDUH CSV (bisa dibuka langsung di Excel)
 ==========================================================*/
 function unduhCsv(namaBerkas, judulKolom, baris){
   if(!baris.length){
@@ -2563,19 +3803,42 @@ function unduhCsv(namaBerkas, judulKolom, baris){
   setTimeout(() => URL.revokeObjectURL(tautan.href), 2000);
 }
 
+/* CSV Time Sheet kini satu baris per titik, sesuai format customer. */
 function unduhCsvTimeSheet(){
-  const baris = kelompokBulan(dataTimeSheet)
-    .reduce((semua, bulan) => semua.concat(
-      bulan.isi.map(i => [
-        bulan.nama, tanggalIndo(i.tanggal), i.po, i.shift, i.alat, i.diameter,
-        i.namaTitik, angka(i.jumlahTitik), angka(i.tertanam),
-        angka(i.handling), angka(i.joint), i.status, i.kendala
-      ])), []);
+  const baris = [];
+
+  kelompokBulan(dataTimeSheet).forEach(bulan => {
+    bulan.isi.forEach(item => {
+      const r = ringkasEntri(item);
+
+      r.detail.forEach(titik => {
+        baris.push([
+          bulan.nama,
+          tanggalIndo(item.tanggal),
+          item.po,
+          item.shift,
+          item.alat,
+          item.diameter,
+          titik.area,
+          titik.titik,
+          r.jumlahTitik,
+          titik.handling,
+          titik.tertanam,
+          titik.joint,
+          item.status,
+          item.kendala,
+          item.pengubah || item.penginput || "",
+          waktuIndo(item.waktuUbah || item.waktuInput)
+        ]);
+      });
+    });
+  });
 
   unduhCsv("DailyTimeSheet-AEN.csv",
-    ["Bulan", "Tanggal", "No. PO", "Shift", "No. Alat", "Diameter",
-     "Nama Titik", "Jumlah Titik", "SP Tertanam", "SP Handling",
-     "Joint", "Status", "Kendala"],
+    ["Bulan", "Tanggal", "No PO", "Shift", "No. Alat", "Diameter",
+     "Area", "Nama Titik", "Jumlah Titik (entri)", "Handling (m)",
+     "Tertanam (m)", "Joint (Titik)", "Status", "Kendala",
+     "Diinput oleh", "Waktu Input"],
     baris);
 }
 
@@ -2585,12 +3848,13 @@ function unduhCsvAbsensi(){
       bulan.isi.map(i => [
         bulan.nama, tanggalIndo(i.tanggal), i.nama, i.jabatan,
         "Shift " + tipeShift(i.shift), detailJam(i).waktu,
-        detailJam(i).jam, i.status, i.ket
+        detailJam(i).jam, i.status, i.ket,
+        i.pengubah || i.penginput || ""
       ])), []);
 
   unduhCsv("DailyAbsensi-AEN.csv",
     ["Bulan", "Tanggal", "Nama", "Jabatan", "Shift", "Jam Kerja",
-     "Jam Efektif", "Status", "Keterangan"],
+     "Jam Efektif", "Status", "Keterangan", "Diinput oleh"],
     baris);
 }
 
@@ -2603,117 +3867,38 @@ function unduhCsvPetty(){
         saldo += angka(i.masuk) - angka(i.keluar);
 
         return [bulan.nama, tanggalIndo(i.tanggal), i.keterangan, i.acc,
-                angka(i.masuk), angka(i.keluar), saldo];
+                angka(i.masuk), angka(i.keluar), saldo,
+                i.pengubah || i.penginput || ""];
       })), []);
 
   unduhCsv("PettyCash-AEN.csv",
     ["Bulan", "Tanggal", "Keterangan", "ACC Oleh",
-     "Dana Masuk", "Dana Keluar", "Saldo"],
+     "Dana Masuk", "Dana Keluar", "Saldo", "Diinput oleh"],
+    baris);
+}
+
+function unduhCsvLog(){
+  const baris = logTerurut().map(i => [
+    waktuIndo(i.waktu), i.penginput, i.aksi,
+    NAMA_JENIS[i.tipe] || i.tipe,
+    i.tanggalData ? tanggalIndo(i.tanggalData) : "",
+    i.ringkasan
+  ]);
+
+  unduhCsv("LogInput-AEN.csv",
+    ["Waktu Input", "Penginput", "Aksi", "Jenis", "Tanggal Data", "Rincian"],
     baris);
 }
 
 /*==========================================================
-  13. PEMINDAHAN DATA LAMA (SEKALI PAKAI)
-  Versi terdahulu menyimpan data di localStorage perangkat.
-  Bagian ini hanya membaca sisa data lama itu agar bisa
-  dikirim ke server, lalu boleh dihapus.
-==========================================================*/
-const KUNCI_LAMA = {
-  timesheet:"PILE_DAILY_V4",
-  absensi:"PILE_ABSENSI_V1",
-  petty:"PILE_PETTY_CASH_V1"
-};
-
-function bacaDataLama(){
-  const hasil = {};
-
-  Object.entries(KUNCI_LAMA).forEach(([tipe, kunci]) => {
-    try{
-      const isi = JSON.parse(localStorage.getItem(kunci));
-      if(Array.isArray(isi) && isi.length){ hasil[tipe] = isi; }
-    }catch(error){ /* abaikan */ }
-  });
-
-  return hasil;
-}
-
-function periksaDataLama(){
-  const lama = bacaDataLama();
-  const jenis = Object.keys(lama);
-
-  if(!jenis.length){
-    $("bannerMigrasi").hidden = true;
-    return;
-  }
-
-  $("ringkasanMigrasi").textContent = jenis
-    .map(tipe => lama[tipe].length + " baris " + tipe)
-    .join(", ") + ".";
-
-  $("bannerMigrasi").hidden = false;
-}
-
-async function kirimDataLama(){
-  if(!sudahMasuk()){
-    alert("Masuk dulu dengan kata sandi.");
-    return;
-  }
-
-  const lama = bacaDataLama();
-  let jumlah = 0;
-
-  for(const [tipe, daftar] of Object.entries(lama)){
-    for(const item of daftar){
-      if(!item.id){ item.id = idBaru(); }
-
-      item.tanggal = normalisasiTanggal(item.tanggal) || item.tanggal;
-
-      setStatus("sibuk", "Mengirim data lama… (" + (jumlah + 1) + ")");
-
-      try{
-        await kirimKeServer({ aksi:"simpan", tipe:tipe, item:item, sandi:sandiSesi });
-        jumlah++;
-      }catch(error){
-        alert("Berhenti di baris ke-" + (jumlah + 1) + ": " + error.message);
-        await muatDariServer();
-        return;
-      }
-    }
-  }
-
-  alert(jumlah + " baris data lama berhasil dikirim ke server.\n\n"
-    + "Periksa dulu hasilnya. Kalau sudah benar, tekan "
-    + "\"Hapus data lama dari perangkat\".");
-
-  await muatDariServer();
-}
-
-function hapusDataLama(){
-  if(!confirm("Hapus sisa data lama dari perangkat ini? "
-    + "Pastikan data sudah ada di server.")){
-    return;
-  }
-
-  Object.values(KUNCI_LAMA).forEach(kunci => {
-    try{ localStorage.removeItem(kunci); }catch(error){}
-  });
-
-  try{
-    localStorage.removeItem("PILE_CONFIG_V4");
-    localStorage.removeItem("PILE_ANTRIAN_V1");
-  }catch(error){}
-
-  $("bannerMigrasi").hidden = true;
-}
-
-/*==========================================================
-  14. RENDER, PRINT, DAN JALANKAN
+  15. RENDER, PRINT, DAN JALANKAN
 ==========================================================*/
 function renderSemua(){
   renderDashboard();
   renderTimeSheet();
   renderAbsensi();
   renderPetty();
+  renderLog();
 }
 
 function cetakHalamanAktif(){
@@ -2733,7 +3918,8 @@ function cetakHalamanAktif(){
     dashboard:"Dashboard Rekap Pemancangan",
     timesheet:"Laporan Daily Time Sheet",
     absensi:"Laporan Daily Absensi",
-    pettycash:"Laporan Petty Cash"
+    pettycash:"Laporan Petty Cash",
+    loginput:"Laporan Log Input Data"
   };
 
   const judul = document.createElement("div");
@@ -2767,7 +3953,6 @@ window.addEventListener("afterprint", () => {
     .forEach(element => element.remove());
 });
 
-/* Peringatan bila halaman ditutup saat masih ada perubahan tertunda. */
 window.addEventListener("beforeunload", e => {
   if(antrian.length){
     e.preventDefault();
@@ -2775,7 +3960,6 @@ window.addEventListener("beforeunload", e => {
   }
 });
 
-/* Gambar ulang grafik saat layar diputar atau ukuran jendela berubah. */
 let jedaUkuran = null;
 
 window.addEventListener("resize", () => {
@@ -2796,15 +3980,15 @@ document.addEventListener("visibilitychange", () => {
 
 document.querySelector('nav button[data-menu="dashboard"]').classList.add("aktif");
 
+isiUlangBarisTitik([]);
 perbaruiKunci();
 renderSemua();
 
-/* Kalau kata sandi masih tersimpan di sesi tab ini, langsung muat data. */
 if(sudahMasuk()){
-  periksaDataLama();
   muatDariServer();
 }
 </script>
 
 </body>
 </html>
+  
