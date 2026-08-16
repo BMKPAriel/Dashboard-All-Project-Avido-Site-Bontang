@@ -790,12 +790,57 @@ tfoot td{
     break-inside:avoid;
   }
 
-  .grid{
-    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  /* Judul bagian ikut tercetak, jadi susunan hasil PDF sama persis
+     dengan urutan yang terlihat di menu. */
+  section h2,
+  .judul-baris h2{
+    font-size:11pt!important;
+    margin:0 0 3mm!important;
   }
 
+  .judul-baris{
+    margin-bottom:3mm!important;
+    padding-bottom:2mm;
+    border-bottom:1px solid #cbd5e1;
+  }
+
+  .lencana{
+    padding:1mm 2mm!important;
+    border:1px solid #b7c6d3;
+    background:#f1f6fa!important;
+    font-size:8pt!important;
+  }
+
+  .sub-judul{
+    margin:4mm 0 2mm!important;
+    font-size:9.5pt!important;
+    break-after:avoid;
+  }
+
+  .grid{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:3mm!important;
+    margin-bottom:5mm!important;
+  }
+
+  .card b{ font-size:12pt!important; }
+
   .grafik svg{
-    max-height:70mm;
+    max-height:62mm;
+  }
+
+  /* Kurva S dan tabel pendampingnya dicetak dalam satu halaman. */
+  .blok-kurva{
+    break-inside:avoid;
+    page-break-inside:avoid;
+  }
+
+  /* Tiap bulan pada rekap pemancangan mulai di halaman baru
+     supaya tabel rinciannya tidak terpotong di tengah. */
+  #rekapBulanan section + section,
+  #pettyBulanan section + section{
+    break-before:page;
+    page-break-before:always;
   }
 
   .table-wrap{ overflow:visible!important; }
@@ -981,10 +1026,10 @@ tfoot td{
 <!-- DASHBOARD -->
 <div id="dashboard" class="page active">
 
-  <section>
+  <section class="no-print">
     <div class="judul-baris">
       <h2>Target PO &amp; Jadwal Rencana</h2>
-      <span class="lencana">Dasar perhitungan Kurva S</span>
+      <span class="lencana" id="lencanaTarget">Dasar perhitungan Kurva S</span>
     </div>
 
     <div id="target" class="form"></div>
@@ -994,7 +1039,7 @@ tfoot td{
 
   <div id="kpiRingkas" class="grid"></div>
 
-  <section>
+  <section class="blok-kurva">
     <div class="judul-baris">
       <h2>Kurva S — Kumulatif Jumlah Titik</h2>
       <span class="lencana" id="lencanaKurva">—</span>
@@ -1461,6 +1506,7 @@ const KUNCI_NAMA = "AEN_NAMA_PENGINPUT";
 const KONFIG_AWAL = {
   po:"MPO-001",
   titik:200,
+  perHari:20,
   tertanam:4312,
   handling:4312,
   joint:195,
@@ -2251,7 +2297,16 @@ function labelX(bentuk, daftarLabel, W){
   const lebarSlot = bentuk.plotW / daftarLabel.length;
   const miring = daftarLabel.length > 5;
 
+  /* Kalau titiknya banyak (kurva harian), label ditampilkan
+     berselang supaya tidak saling menimpa. */
+  const maksLabel = W < 500 ? 6 : 10;
+  const lompat = Math.ceil(daftarLabel.length / maksLabel);
+
   return daftarLabel.map((label, i) => {
+    const tampil = i % lompat === 0 || i === daftarLabel.length - 1;
+
+    if(!tampil){ return ""; }
+
     const x = bentuk.kiri + lebarSlot * (i + 0.5);
     const y = bentuk.atas + bentuk.plotH + 20;
 
@@ -2422,8 +2477,8 @@ function jalurHalus(titik){
    seri aktual untuk bulan yang belum berjalan. */
 function svgKurvaS(daftar, seri){
   if(!daftar.length){
-    return '<div class="grafik-kosong">Isi Tanggal Mulai dan Tanggal '
-      + "Selesai pada Target PO, atau input Daily Time Sheet dulu.</div>";
+    return '<div class="grafik-kosong">Isi Plan Titik All, Plan Titik per '
+      + "Hari, dan Tanggal Mulai Rencana, atau input Daily Time Sheet dulu.</div>";
   }
 
   const W = lebarGrafik();
@@ -2480,6 +2535,8 @@ function svgKurvaS(daftar, seri){
       + (s.putus ? ' stroke-dasharray="9 6"' : "") + "/>";
 
     titik.forEach(p => {
+      if(daftar.length > 45){ return; }
+
       jalur += '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1)
         + '" r="4.5" fill="#fff" stroke="' + s.warna + '" stroke-width="2.5"/>';
     });
@@ -2626,6 +2683,10 @@ function ubahTarget(field, value){
   konfigurasi[field] = (field === "po" || field === "mulai" || field === "selesai")
     ? value
     : angka(value);
+
+  /* Tanggal selesai rencana tidak diketik, tapi dihitung dari
+     Plan Titik All dibagi Plan Titik per Hari. */
+  konfigurasi.selesai = jadwalRencana().akhir;
 
   renderDashboard();
   catatPerubahan({ aksi:"konfigurasi", konfigurasi:konfigurasi });
@@ -2782,12 +2843,12 @@ function renderTimeSheet(){
 function renderDashboard(){
   const targets = [
     ["po", "No. PO", "text"],
-    ["titik", "Target Jumlah Titik", "number"],
+    ["titik", "Plan Titik All (titik)", "number"],
+    ["perHari", "Plan Titik per Hari", "number"],
+    ["mulai", "Tanggal Mulai Rencana", "date"],
     ["tertanam", "Target Tertanam (m)", "number"],
     ["handling", "Target Handling (m)", "number"],
-    ["joint", "Target Joint (titik)", "number"],
-    ["mulai", "Tanggal Mulai Rencana", "date"],
-    ["selesai", "Tanggal Selesai Rencana", "date"]
+    ["joint", "Target Joint (titik)", "number"]
   ];
 
   if(!$("target").contains(document.activeElement)){
@@ -2802,6 +2863,15 @@ function renderDashboard(){
       </label>
     `).join("");
   }
+
+  const rencana = jadwalRencana();
+
+  $("lencanaTarget").textContent = rencana.durasi
+    ? rencana.durasi + " hari kerja"
+      + (rencana.mulai
+          ? " · " + tanggalIndo(rencana.mulai) + " s/d " + tanggalIndo(rencana.akhir)
+          : " · isi Tanggal Mulai Rencana")
+    : "Isi Plan Titik All dan Plan Titik per Hari";
 
   const aktual = totalAktual();
 
@@ -2823,8 +2893,9 @@ function renderDashboard(){
 
         <b>${angkaIndo(nilai)} ${satuan}</b>
 
-        Target: ${angkaIndo(target)}<br>
-        Sisa: ${angkaIndo(sisa)}<br>
+        Target: ${angkaIndo(target)} ${satuan}<br>
+        Aktual: ${angkaIndo(nilai)} ${satuan}<br>
+        Sisa: ${angkaIndo(sisa)} ${satuan}<br>
         Progres: ${persen.toFixed(2)}%
 
         <div class="bar">
@@ -2838,7 +2909,7 @@ function renderDashboard(){
 
   const perBulan = kelompokBulan(dataTimeSheet);
 
-  gambarKurvaS(perBulan, aktual);
+  gambarKurvaS(perBulan, aktual, rencana);
   gambarProduksiBulanan(perBulan);
   gambarRekapBulanan(perBulan);
 }
@@ -2909,97 +2980,189 @@ function bentukS(x){
   return 0.5 * (1 - Math.cos(Math.PI * batas));
 }
 
-function gambarKurvaS(perBulan, aktual){
-  const targetTitik = angka(konfigurasi.titik);
+/* Jadwal rencana dihitung dari Plan Titik All dibagi Plan Titik per
+   Hari, jadi durasi rencana muncul sendiri dalam satuan hari. */
+function jadwalRencana(){
+  const target = angka(konfigurasi.titik);
+  const perHari = angka(konfigurasi.perHari);
+  const mulai = normalisasiTanggal(konfigurasi.mulai);
 
-  const bulanRencana = deretBulan(konfigurasi.mulai, konfigurasi.selesai);
-  const bulanAktual = perBulan.map(b => b.kunci).filter(k => k !== "0000-00");
+  const durasi = (target > 0 && perHari > 0)
+    ? Math.ceil(target / perHari)
+    : 0;
 
-  const semuaBulan = [...new Set(bulanRencana.concat(bulanAktual))].sort();
+  return {
+    target:target,
+    perHari:perHari,
+    durasi:durasi,
+    mulai:mulai,
+    akhir:(mulai && durasi) ? tambahHari(mulai, durasi - 1) : ""
+  };
+}
 
-  if(!semuaBulan.length){
+function tambahHari(iso, jumlah){
+  const waktu = new Date(iso + "T00:00:00");
+
+  waktu.setDate(waktu.getDate() + jumlah);
+
+  return waktu.getFullYear() + "-"
+    + String(waktu.getMonth() + 1).padStart(2, "0") + "-"
+    + String(waktu.getDate()).padStart(2, "0");
+}
+
+function selisihHari(awal, akhir){
+  return Math.round(
+    (Date.parse(akhir + "T00:00:00") - Date.parse(awal + "T00:00:00"))
+    / 86400000);
+}
+
+/* Kumulatif rencana pada satu tanggal, mengikuti bentuk S. */
+function rencanaPada(iso, rencana){
+  if(!rencana.mulai || !rencana.durasi || !rencana.target){ return null; }
+
+  const hariKe = selisihHari(rencana.mulai, iso) + 1;
+
+  if(hariKe <= 0){ return 0; }
+  if(hariKe >= rencana.durasi){ return rencana.target; }
+
+  return rencana.target * bentukS(hariKe / rencana.durasi);
+}
+
+/* Kurva S harian: rencana dan aktual sama-sama melengkung, memakai
+   sumbu tanggal supaya kedua garis bisa saling menyilang. */
+function gambarKurvaS(perBulan, aktual, rencana){
+  const targetTitik = rencana.target;
+
+  /* Aktual per tanggal, semua shift dijumlahkan. */
+  const perTanggal = new Map();
+
+  dataTimeSheet.forEach(item => {
+    const iso = normalisasiTanggal(item.tanggal);
+
+    if(!iso){ return; }
+
+    perTanggal.set(iso,
+      (perTanggal.get(iso) || 0) + ringkasEntri(item).jumlahTitik);
+  });
+
+  const hariAktual = [...perTanggal.keys()].sort();
+
+  const awal = [rencana.mulai, hariAktual[0]]
+    .filter(Boolean).sort()[0] || "";
+
+  const akhir = [rencana.akhir, hariAktual[hariAktual.length - 1]]
+    .filter(Boolean).sort().pop() || "";
+
+  if(!awal || !akhir){
     $("grafikKurva").innerHTML = svgKurvaS([], []);
     $("tabelKurva").innerHTML = "";
     $("lencanaKurva").textContent = "Belum ada data";
     return;
   }
 
-  /* Rencana kumulatif per bulan mengikuti bentuk S. */
-  const rencana = {};
+  const jumlahHari = Math.min(selisihHari(awal, akhir) + 1, 400);
+  const hariTerakhirAktual = hariAktual[hariAktual.length - 1] || "";
 
-  if(bulanRencana.length){
-    bulanRencana.forEach((kunci, i) => {
-      rencana[kunci] = targetTitik * bentukS((i + 1) / bulanRencana.length);
+  let kumulatif = 0;
+  const deret = [];
+
+  for(let i = 0; i < jumlahHari; i++){
+    const iso = tambahHari(awal, i);
+
+    kumulatif += perTanggal.get(iso) || 0;
+
+    deret.push({
+      iso:iso,
+      label:iso.slice(8) + "/" + BULAN_PENDEK[Number(iso.slice(5, 7)) - 1],
+      nilai:[
+        (hariTerakhirAktual && iso <= hariTerakhirAktual) ? kumulatif : null,
+        rencanaPada(iso, rencana)
+      ]
     });
   }
 
-  const aktualBulan = {};
+  $("grafikKurva").innerHTML = svgKurvaS(deret, [
+    { nama:"Aktual kumulatif", warna:PALET.hijau, isi:true },
+    { nama:"Rencana (Kurva S)", warna:PALET.oranye, putus:true }
+  ]);
 
-  perBulan.forEach(bulan => {
-    aktualBulan[bulan.kunci] = totalDaftar(bulan.isi).titik;
-  });
+  gambarTabelKurva(perBulan, rencana, hariTerakhirAktual);
 
-  const bulanTerakhirAktual = bulanAktual.length
-    ? bulanAktual[bulanAktual.length - 1]
-    : "";
+  const persen = targetTitik > 0 ? aktual.titik / targetTitik * 100 : 0;
+
+  const rencanaHariIni = hariTerakhirAktual
+    ? rencanaPada(hariTerakhirAktual, rencana)
+    : null;
+
+  const deviasi = rencanaHariIni === null
+    ? null
+    : aktual.titik - Math.round(rencanaHariIni);
+
+  $("lencanaKurva").textContent = aktual.titik + " dari " + targetTitik
+    + " titik (" + persen.toFixed(1) + "%)"
+    + (deviasi === null ? ""
+      : " · " + (deviasi >= 0 ? "unggul " : "tertinggal ")
+        + Math.abs(deviasi) + " titik dari rencana");
+}
+
+/* Tabel pendamping tetap per bulan, satu halaman dengan grafiknya. */
+function gambarTabelKurva(perBulan, rencana, hariTerakhirAktual){
+  const bulanAktual = perBulan.map(b => b.kunci).filter(k => k !== "0000-00");
+
+  const bulanRencana = (rencana.mulai && rencana.akhir)
+    ? deretBulan(rencana.mulai, rencana.akhir)
+    : [];
+
+  const semuaBulan = [...new Set(bulanRencana.concat(bulanAktual))].sort();
+
+  if(!semuaBulan.length){
+    $("tabelKurva").innerHTML = "";
+    return;
+  }
 
   let kumulatifAktual = 0;
-  let kumulatifRencana = 0;
+  let rencanaSebelumnya = 0;
 
   const baris = semuaBulan.map(kunci => {
-    const titikBulan = aktualBulan[kunci] || 0;
+    const bulan = perBulan.find(b => b.kunci === kunci);
+    const titikBulan = bulan ? totalDaftar(bulan.isi).titik : 0;
 
     kumulatifAktual += titikBulan;
 
-    if(rencana[kunci] !== undefined){
-      kumulatifRencana = rencana[kunci];
-    }else if(bulanRencana.length && kunci > bulanRencana[bulanRencana.length - 1]){
-      kumulatifRencana = targetTitik;
-    }
+    const tahun = Number(kunci.slice(0, 4));
+    const nomorBulan = Number(kunci.slice(5, 7));
 
-    const adaAktual = bulanTerakhirAktual && kunci <= bulanTerakhirAktual;
+    const hariAkhirBulan = new Date(tahun, nomorBulan, 0).getDate();
 
-    return {
-      kunci:kunci,
-      label:namaBulanPendek(kunci),
-      titikBulan:titikBulan,
-      rencanaBulan:rencana[kunci] !== undefined
-        ? rencana[kunci] - (bulanRencana.indexOf(kunci) > 0
-            ? rencana[bulanRencana[bulanRencana.indexOf(kunci) - 1]]
-            : 0)
-        : null,
-      kumulatifRencana:bulanRencana.length ? kumulatifRencana : null,
-      kumulatifAktual:adaAktual ? kumulatifAktual : null
-    };
-  });
+    const akhirBulan = kunci + "-" + String(hariAkhirBulan).padStart(2, "0");
 
-  $("grafikKurva").innerHTML = svgKurvaS(
-    baris.map(b => ({
-      label:b.label,
-      nilai:[b.kumulatifAktual, b.kumulatifRencana]
-    })),
-    [
-      { nama:"Aktual kumulatif", warna:PALET.hijau, isi:true },
-      { nama:"Rencana (Kurva S)", warna:PALET.oranye, putus:true }
-    ]
-  );
+    const kumulatifRencana = rencanaPada(akhirBulan, rencana);
 
-  const isiTabel = baris.map(b => "<tr>"
-    + sel("Bulan", namaBulan(b.kunci))
-    + sel("Rencana Bulan Ini",
-        b.rencanaBulan === null ? "-" : Math.round(b.rencanaBulan), "numeric")
-    + sel("Aktual Bulan Ini", b.titikBulan, "numeric")
-    + sel("Rencana Kumulatif",
-        b.kumulatifRencana === null ? "-" : Math.round(b.kumulatifRencana), "numeric")
-    + sel("Aktual Kumulatif",
-        b.kumulatifAktual === null ? "-" : b.kumulatifAktual, "numeric")
-    + sel("Deviasi",
-        (b.kumulatifAktual === null || b.kumulatifRencana === null)
-          ? "-"
-          : (b.kumulatifAktual - Math.round(b.kumulatifRencana) >= 0 ? "+" : "")
-            + (b.kumulatifAktual - Math.round(b.kumulatifRencana)),
-        "numeric")
-    + "</tr>").join("");
+    const rencanaBulan = kumulatifRencana === null
+      ? null
+      : kumulatifRencana - rencanaSebelumnya;
+
+    if(kumulatifRencana !== null){ rencanaSebelumnya = kumulatifRencana; }
+
+    const adaAktual = hariTerakhirAktual
+      && kunci <= hariTerakhirAktual.slice(0, 7);
+
+    return "<tr>"
+      + sel("Bulan", namaBulan(kunci))
+      + sel("Rencana Bulan Ini",
+          rencanaBulan === null ? "-" : Math.round(rencanaBulan), "numeric")
+      + sel("Aktual Bulan Ini", titikBulan, "numeric")
+      + sel("Rencana Kumulatif",
+          kumulatifRencana === null ? "-" : Math.round(kumulatifRencana), "numeric")
+      + sel("Aktual Kumulatif", adaAktual ? kumulatifAktual : "-", "numeric")
+      + sel("Deviasi",
+          (!adaAktual || kumulatifRencana === null)
+            ? "-"
+            : (kumulatifAktual - Math.round(kumulatifRencana) >= 0 ? "+" : "")
+              + (kumulatifAktual - Math.round(kumulatifRencana)),
+          "numeric")
+      + "</tr>";
+  }).join("");
 
   $("tabelKurva").innerHTML = `
     <div class="sub-judul">Rencana dan Aktual Jumlah Titik per Bulan</div>
@@ -3017,15 +3180,10 @@ function gambarKurvaS(perBulan, aktual){
           </tr>
         </thead>
 
-        <tbody>${isiTabel}</tbody>
+        <tbody>${baris}</tbody>
       </table>
     </div>
   `;
-
-  const persen = targetTitik > 0 ? aktual.titik / targetTitik * 100 : 0;
-
-  $("lencanaKurva").textContent = aktual.titik + " dari " + targetTitik
-    + " titik (" + persen.toFixed(1) + "%)";
 }
 
 function gambarProduksiBulanan(perBulan){
@@ -3991,4 +4149,3 @@ if(sudahMasuk()){
 
 </body>
 </html>
-  
