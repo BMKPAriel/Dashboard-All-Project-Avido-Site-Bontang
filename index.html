@@ -1563,21 +1563,58 @@ tfoot td{
 <div id="foto" class="page">
 
   <section>
-    <h2>Unggah Foto Kegiatan</h2>
+    <div class="judul-baris">
+      <h2>Foto dari Google Drive</h2>
+      <span class="lencana" id="lencanaSegar">Belum pernah disegarkan</span>
+    </div>
 
     <div class="info">
-      <b>Cara 1:</b> pilih foto dari HP atau laptop, nanti dikecilkan
-      otomatis lalu dikirim ke Drive perusahaan.
-      <b>Cara 2 (disarankan):</b> kalau fotonya sudah ada di Google
-      Drive, cukup tempel link folder bulanannya — isinya dibaca
-      sendiri sampai tiga tingkat ke bawah, tanpa unggah ulang.
+      Link folder induk cukup diisi <b>sekali saja</b>. Sesudah itu
+      tim hanya perlu menekan tombol <b>Segarkan Foto</b> — folder
+      bulan dan folder tanggal yang baru ikut terbaca sendiri, dan
+      foto yang sudah terdaftar dilewati. Tanggalnya diambil dari
+      nama folder, misalnya "Foto Kegiatan Tgl. 10" di dalam "Foto
+      Kegiatan Bulan Agustus 2026" terbaca sebagai 10 Agustus 2026.
       <br><br>
-      Untuk Cara 2, <b>kosongkan Tanggal</b> supaya tanggal diambil
-      dari nama folder, misalnya "Foto Kegiatan Tgl. 10" di dalam
-      "Foto Kegiatan Bulan Agustus 2026" terbaca sebagai 10 Agustus
-      2026. Kalau nama folder menyebut shift, shiftnya ikut terbaca.
-      Foto yang sudah pernah terdaftar dilewati, jadi aman kalau
-      folder yang sama ditempel lagi bulan depan.
+      <b>Perbaiki Tanggal Foto</b> dipakai kalau ada foto yang
+      tanggalnya terlanjur salah — misalnya dulu diisi manual satu
+      tanggal untuk semua foto. Tombol itu membaca ulang nama folder
+      tiap foto lalu membetulkan tanggalnya, tanpa mengunggah ulang.
+    </div>
+
+    <div class="form">
+      <label style="grid-column:1/-1">
+        Link Folder Induk Google Drive
+        <input id="folderIndukFoto"
+               placeholder="https://drive.google.com/drive/folders/…">
+      </label>
+
+      <div class="form-action">
+        <button type="button" id="tombolSegarkan" onclick="segarkanFoto()">
+          Segarkan Foto
+        </button>
+
+        <button type="button" class="gray" onclick="simpanFolderInduk()">
+          Simpan Link
+        </button>
+
+        <button type="button" class="gray" id="tombolPerbaikiTanggal"
+                onclick="perbaikiTanggalFoto()">
+          Perbaiki Tanggal Foto
+        </button>
+      </div>
+    </div>
+
+    <div id="statusSegar" class="info" hidden></div>
+  </section>
+
+  <section>
+    <h2>Unggah Foto dari Perangkat</h2>
+
+    <div class="info">
+      Dipakai kalau fotonya belum ada di Google Drive — misalnya
+      langsung dari HP di lapangan. Foto dikecilkan otomatis sebelum
+      dikirim supaya hemat kuota.
     </div>
 
     <form id="formFoto">
@@ -1608,15 +1645,13 @@ tfoot td{
         </label>
 
         <label>
-          Cara 1 — Pilih Foto dari Perangkat Ini
+          Pilih Foto (boleh lebih dari satu)
           <input type="file" id="berkasFoto" accept="image/*" multiple>
         </label>
 
         <label style="grid-column:1/-1">
-          Cara 2 — Tempel Link Folder atau Link Foto Google Drive
-          <textarea id="tautanDrive" placeholder="Tempel link folder bulanan, contoh:
-https://drive.google.com/drive/folders/1AbCdEfGhIjKlMnOpQrStUvWxYz
-Boleh beberapa link sekaligus, satu link per baris."></textarea>
+          Link Drive Tambahan (opsional, di luar folder induk)
+          <textarea id="tautanDrive" placeholder="Kosongkan saja kalau fotonya sudah ada di folder induk."></textarea>
         </label>
 
         <div class="form-action">
@@ -1625,7 +1660,7 @@ Boleh beberapa link sekaligus, satu link per baris."></textarea>
           </button>
 
           <button type="button" id="tombolAmbilDrive" onclick="ambilDariDrive()">
-            Ambil dari Google Drive
+            Ambil Link Tambahan
           </button>
 
           <button type="button" class="gray" onclick="batalFoto()">Batal</button>
@@ -1803,6 +1838,11 @@ const NAMA_JENIS = {
 let daftarPo = [];
 let poTerpilih = "";
 
+/* Link folder induk Google Drive, disimpan sekali di lembar
+   Konfigurasi lalu dipakai tombol Segarkan Foto. */
+let folderIndukId = "";
+let waktuSegarFoto = "";
+
 let dataTimeSheet = [];
 let dataAbsensi   = [];
 let dataPetty     = [];
@@ -1948,6 +1988,8 @@ function kosongkanData(){
   konfigurasi = Object.assign({}, KONFIG_AWAL);
   daftarPo = [];
   poTerpilih = "";
+  folderIndukId = "";
+  waktuSegarFoto = "";
 }
 
 $("isianNama").addEventListener("keydown", e => {
@@ -2137,6 +2179,9 @@ async function muatDariServer(){
     konfigurasi = Object.assign({}, KONFIG_AWAL, data.konfigurasi || {});
 
     daftarPo = bacaDaftarPo(konfigurasi);
+
+    folderIndukId = String(konfigurasi.folderFoto || "").trim();
+    waktuSegarFoto = String(konfigurasi.fotoTerakhir || "").trim();
 
     const pilihanTersimpan = String(konfigurasi.poAktif || "").trim();
 
@@ -2540,7 +2585,9 @@ function simpanDaftarPo(){
 
   konfigurasi = Object.assign({}, aktif, {
     daftar:JSON.stringify(daftarPo),
-    poAktif:poTerpilih
+    poAktif:poTerpilih,
+    folderFoto:folderIndukId,
+    fotoTerakhir:waktuSegarFoto
   });
 
   catatPerubahan({ aksi:"konfigurasi", konfigurasi:konfigurasi });
@@ -3862,6 +3909,7 @@ function gambarRekapBulanan(perBulan){
 
       if(!perTanggal.has(kunci)){
         perTanggal.set(kunci, {
+          po:String(item.po || "").trim(),
           shift:new Set(), cuaca:[], titik:0, handling:0,
           tertanam:0, joint:0, terhenti:0
         });
@@ -3892,6 +3940,7 @@ function gambarRekapBulanan(perBulan){
       + sel("Tertanam (m)", angkaIndo(r.tertanam), "numeric")
       + sel("Joint (Titik)", angkaIndo(r.joint), "numeric")
       + sel("Cuaca", aman(r.cuaca.join(" · ")))
+      + sel("Foto", gambarKecil(fotoTanggal(kunci, r.po)))
       + "</tr>").join("");
 
     /* Tabel rincian per titik. */
@@ -3977,6 +4026,7 @@ function gambarRekapBulanan(perBulan){
                 <th>Tertanam (m)</th>
                 <th>Joint (Titik)</th>
                 <th>Cuaca per Shift</th>
+                <th>Foto</th>
               </tr>
             </thead>
 
@@ -3991,6 +4041,7 @@ function gambarRekapBulanan(perBulan){
                 ${sel("Tertanam (m)", angkaIndo(total.tertanam), "numeric")}
                 ${sel("Joint (Titik)", angkaIndo(total.joint), "numeric")}
                 ${sel("Cuaca", hariTerhenti + " shift terhenti cuaca")}
+                ${sel("Foto", "")}
               </tr>
             </tfoot>
           </table>
@@ -4498,14 +4549,35 @@ function kunciFoto(tanggal, shift){
    jumlah foto tiap hari tidak menentu. */
 function fotoUntuk(item){
   const po = String(item.po || "").trim();
+  const shift = String(item.shift || "").trim().toLowerCase();
+  const tanggal = normalisasiTanggal(item.tanggal);
 
   return dataFoto.filter(foto => {
-    if(kunciFoto(foto.tanggal, foto.shift)
-      !== kunciFoto(item.tanggal, item.shift)){ return false; }
+    if(normalisasiTanggal(foto.tanggal) !== tanggal){ return false; }
+
+    /* Foto hasil Segarkan sering tidak menyebut shift atau PO.
+       Foto seperti itu dianggap milik seluruh shift hari tersebut. */
+    const shiftFoto = String(foto.shift || "").trim().toLowerCase();
+
+    if(shiftFoto && shift && shiftFoto !== shift){ return false; }
 
     const poFoto = String(foto.po || "").trim();
 
     return !poFoto || !po || poFoto === po;
+  });
+}
+
+/* Semua foto pada satu tanggal, tanpa memandang shift. */
+function fotoTanggal(tanggal, po){
+  const kunci = normalisasiTanggal(tanggal);
+  const nomor = String(po || "").trim();
+
+  return dataFoto.filter(foto => {
+    if(normalisasiTanggal(foto.tanggal) !== kunci){ return false; }
+
+    const poFoto = String(foto.po || "").trim();
+
+    return !poFoto || !nomor || poFoto === nomor;
   });
 }
 
@@ -4666,6 +4738,211 @@ function idDrive(teks){
   return hasil;
 }
 
+/* Membaca tanggal dari nama folder atau nama berkas, mengikuti cara
+   yang sama seperti di Apps Script. */
+const BULAN_TEKS = ["januari", "februari", "maret", "april", "mei", "juni",
+                    "juli", "agustus", "september", "oktober", "november",
+                    "desember"];
+
+function tanggalDariTeks(teks){
+  const isi = String(teks || "");
+  const dua = angka => String(angka).padStart(2, "0");
+
+  const iso = isi.match(/(20\d{2})[-\/.](\d{1,2})[-\/.](\d{1,2})/);
+
+  if(iso){ return iso[1] + "-" + dua(iso[2]) + "-" + dua(iso[3]); }
+
+  const lokal = isi.match(/(\d{1,2})[-\/.](\d{1,2})[-\/.](20\d{2})/);
+
+  if(lokal){ return lokal[3] + "-" + dua(lokal[2]) + "-" + dua(lokal[1]); }
+
+  const panjang = isi.match(/(\d{1,2})\s+([A-Za-z]{3,})\s+(20\d{2})/);
+
+  if(panjang){
+    const bulan = BULAN_TEKS.findIndex(nama =>
+      nama.indexOf(panjang[2].toLowerCase()) === 0
+      || panjang[2].toLowerCase().indexOf(nama) === 0);
+
+    if(bulan >= 0){
+      return panjang[3] + "-" + dua(bulan + 1) + "-" + dua(panjang[1]);
+    }
+  }
+
+  return "";
+}
+
+async function perbaikiTanggalFoto(){
+  const perlu = [];
+
+  dataFoto.forEach(foto => {
+    const benar = tanggalDariTeks(foto.keterangan)
+      || tanggalDariTeks(foto.namaBerkas);
+
+    if(benar && benar !== normalisasiTanggal(foto.tanggal)){
+      perlu.push({ foto:foto, benar:benar });
+    }
+  });
+
+  if(!perlu.length){
+    tampilkanStatusSegar("Semua tanggal foto sudah sesuai nama foldernya.",
+      false);
+    return;
+  }
+
+  if(!confirm(perlu.length + " foto tanggalnya tidak cocok dengan nama "
+    + "foldernya dan akan dibetulkan. Lanjutkan?")){
+    return;
+  }
+
+  $("tombolPerbaikiTanggal").disabled = true;
+
+  let selesai = 0;
+
+  try{
+    for(let i = 0; i < perlu.length; i++){
+      tampilkanStatusSegar("Membetulkan tanggal foto " + (i + 1)
+        + " dari " + perlu.length + "…", false);
+
+      const item = Object.assign({}, perlu[i].foto, {
+        tanggal:perlu[i].benar,
+        pengubah:namaPengguna,
+        waktuUbah:new Date().toISOString()
+      });
+
+      await kirimKeServer({
+        aksi:"simpan",
+        tipe:"foto",
+        sandi:sandiSesi,
+        penginput:namaPengguna,
+        item:item
+      });
+
+      perlu[i].foto.tanggal = perlu[i].benar;
+      selesai++;
+    }
+
+    tampilkanStatusSegar(selesai + " tanggal foto berhasil dibetulkan "
+      + "sesuai nama foldernya.", false);
+
+    catatLokal("Ubah", "foto", "",
+      selesai + " tanggal foto dibetulkan dari nama folder");
+
+    renderSemua();
+  }catch(error){
+    tampilkanStatusSegar("Berhenti setelah " + selesai + " foto: "
+      + error.message, true);
+    renderSemua();
+  }finally{
+    $("tombolPerbaikiTanggal").disabled = false;
+  }
+}
+
+function simpanFolderInduk(){
+  const daftar = idDrive($("folderIndukFoto").value);
+
+  if(!daftar.length){
+    alert("Tempel dulu link folder Google Drive-nya.");
+    return;
+  }
+
+  folderIndukId = daftar[0];
+
+  simpanDaftarPo();
+  renderFoto();
+
+  tampilkanStatusSegar("Link folder tersimpan. Mulai sekarang tim "
+    + "cukup menekan tombol Segarkan Foto.", false);
+}
+
+/* Sekali tekan: seluruh folder bulan dan folder tanggal di dalam
+   folder induk dibaca ulang, dan hanya foto baru yang masuk. */
+async function segarkanFoto(){
+  if(!folderIndukId){
+    const daftar = idDrive($("folderIndukFoto").value);
+
+    if(!daftar.length){
+      alert("Tempel dulu link folder induk Google Drive, "
+        + "lalu tekan Simpan Link.");
+      return;
+    }
+
+    folderIndukId = daftar[0];
+  }
+
+  if(!apiAktif()){
+    alert("Alamat server belum diisi.");
+    return;
+  }
+
+  $("tombolSegarkan").disabled = true;
+
+  let masuk = 0;
+  let lewat = 0;
+  let putaran = 0;
+
+  try{
+    let lanjut = true;
+
+    while(lanjut && putaran < 5){
+      putaran++;
+
+      tampilkanStatusSegar(putaran === 1
+        ? "Membaca folder Google Drive… mohon tunggu, jangan tutup halaman."
+        : "Masih banyak foto, melanjutkan bagian ke-" + putaran + "…",
+        false);
+
+      const jawaban = await kirimKeServer({
+        aksi:"fotoDrive",
+        sandi:sandiSesi,
+        penginput:namaPengguna,
+        idList:[folderIndukId],
+        item:{
+          tanggal:"",
+          po:"",
+          shift:"",
+          keterangan:"",
+          penginput:namaPengguna,
+          waktuInput:new Date().toISOString()
+        }
+      });
+
+      (jawaban.items || []).forEach(item => dataFoto.push(item));
+
+      masuk += (jawaban.items || []).length;
+      lewat += jawaban.lewat || 0;
+
+      lanjut = !!jawaban.terpotong && (jawaban.items || []).length > 0;
+    }
+
+    waktuSegarFoto = new Date().toISOString();
+
+    simpanDaftarPo();
+
+    tampilkanStatusSegar(masuk
+      ? masuk + " foto baru masuk. " + lewat + " foto sudah terdaftar "
+        + "sebelumnya dan dilewati."
+      : "Tidak ada foto baru. Semua foto di folder itu sudah terdaftar.",
+      false);
+
+    if(masuk){
+      catatLokal("Simpan", "foto", "",
+        masuk + " foto baru dari Google Drive (Segarkan)");
+    }
+
+    renderSemua();
+  }catch(error){
+    tampilkanStatusSegar("Gagal menyegarkan: " + error.message, true);
+  }finally{
+    $("tombolSegarkan").disabled = false;
+  }
+}
+
+function tampilkanStatusSegar(pesan, bermasalah){
+  $("statusSegar").className = "info" + (bermasalah ? " peringatan" : "");
+  $("statusSegar").textContent = pesan;
+  $("statusSegar").hidden = false;
+}
+
 async function ambilDariDrive(){
   const daftarId = idDrive($("tautanDrive").value);
 
@@ -4796,9 +5073,25 @@ function isiPilihanFoto(){
 function renderFoto(){
   isiPilihanFoto();
 
+  if(document.activeElement !== $("folderIndukFoto")){
+    $("folderIndukFoto").value = folderIndukId
+      ? "https://drive.google.com/drive/folders/" + folderIndukId
+      : "";
+  }
+
+  $("lencanaSegar").textContent = waktuSegarFoto
+    ? "Terakhir disegarkan " + waktuIndo(waktuSegarFoto)
+    : (folderIndukId ? "Link tersimpan, belum pernah disegarkan"
+        : "Link folder belum diisi");
+
+  /* Foto hasil Segarkan tidak menyebut PO, jadi ikut tampil pada
+     PO mana pun yang sedang dipilih. */
   const terpilih = poSemua()
     ? dataFoto
-    : dataFoto.filter(foto => String(foto.po || "").trim() === poTerpilih);
+    : dataFoto.filter(foto => {
+        const poFoto = String(foto.po || "").trim();
+        return !poFoto || poFoto === poTerpilih;
+      });
 
   $("lencanaFoto").textContent = terpilih.length + " foto"
     + (poSemua() ? "" : " · " + poTerpilih);
@@ -4819,20 +5112,30 @@ function renderFoto(){
     perTanggal.get(kunci).push(foto);
   });
 
-  const urut = [...perTanggal.keys()].sort().reverse();
+  /* Urut dari tanggal termuda ke tanggal terakhir, sama seperti
+     urutan rekap pemancangan dan absensi. */
+  const urut = [...perTanggal.keys()].sort();
 
-  $("galeriFoto").innerHTML = urut.map(kunci => {
-    const isi = perTanggal.get(kunci);
+  /* Dikelompokkan per bulan dulu, lalu per tanggal di dalamnya. */
+  const perBulan = new Map();
 
-    const kartu = isi.map(foto => `
+  urut.forEach(kunci => {
+    const bulan = kunci.slice(0, 7);
+
+    if(!perBulan.has(bulan)){ perBulan.set(bulan, []); }
+
+    perBulan.get(bulan).push(kunci);
+  });
+
+  const kartuFoto = foto => `
       <div class="kartu-foto">
         <img src="${alamatFoto(foto, LEBAR_KECIL)}"
-             alt="Foto ${aman(foto.titik || "kegiatan")}"
+             alt="Foto ${aman(foto.keterangan || "kegiatan")}"
              loading="lazy"
              onclick="bukaZoom('${aman(foto.id)}')">
 
         <div class="ket">
-          <b>${aman(foto.shift || "-")}</b>
+          <b>${aman(foto.shift || "Semua shift")}</b>
           ${aman(foto.keterangan || foto.titik || "Foto kegiatan")}<br>
           oleh ${aman(foto.penginput || "-")}
         </div>
@@ -4840,26 +5143,45 @@ function renderFoto(){
         <button type="button" class="red no-print"
                 onclick="hapusFoto('${aman(foto.id)}')">Hapus</button>
       </div>
-    `).join("");
+    `;
 
-    const perShift = {};
+  $("galeriFoto").innerHTML = [...perBulan.keys()].map(bulan => {
+    const tanggalBulan = perBulan.get(bulan);
 
-    isi.forEach(foto => {
-      const shift = foto.shift || "-";
-      perShift[shift] = (perShift[shift] || 0) + 1;
-    });
+    const jumlahBulan = tanggalBulan.reduce((total, kunci) =>
+      total + perTanggal.get(kunci).length, 0);
 
-    const rincianShift = Object.keys(perShift)
-      .map(shift => shift + ": " + perShift[shift]).join(" · ");
+    const isiTanggal = tanggalBulan.map(kunci => {
+      const isi = perTanggal.get(kunci);
+
+      const perShift = {};
+
+      isi.forEach(foto => {
+        const shift = foto.shift || "Tanpa keterangan shift";
+        perShift[shift] = (perShift[shift] || 0) + 1;
+      });
+
+      const rincianShift = Object.keys(perShift)
+        .map(shift => shift + ": " + perShift[shift]).join(" · ");
+
+      return `
+        <div class="sub-judul">
+          ${tanggalIndo(kunci)} — ${isi.length} foto · ${aman(rincianShift)}
+        </div>
+
+        <div class="kisi-foto">${isi.map(kartuFoto).join("")}</div>
+      `;
+    }).join("");
 
     return `
       <section>
         <div class="judul-baris">
-          <h2>${tanggalIndo(kunci)}</h2>
-          <span class="lencana">${isi.length} foto · ${aman(rincianShift)}</span>
+          <h2>${bulan === "0000-00" ? "Tanpa Tanggal" : namaBulan(bulan)}</h2>
+          <span class="lencana">${jumlahBulan} foto ·
+            ${tanggalBulan.length} hari</span>
         </div>
 
-        <div class="kisi-foto">${kartu}</div>
+        ${isiTanggal}
       </section>
     `;
   }).join("");
