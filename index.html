@@ -1566,12 +1566,18 @@ tfoot td{
     <h2>Unggah Foto Kegiatan</h2>
 
     <div class="info">
-      Foto disimpan di Google Drive milik perusahaan dan dicatat per
-      tanggal dan shift — jumlahnya bebas, mau 3 atau 8 foto sehari.
-      Semua foto pada satu tanggal dan shift otomatis muncul sebagai
-      gambar kecil di tabel Rincian per Titik pada Dashboard Rekap.
-      Foto dikecilkan otomatis sebelum dikirim supaya hemat kuota
-      di lapangan.
+      <b>Cara 1:</b> pilih foto dari HP atau laptop, nanti dikecilkan
+      otomatis lalu dikirim ke Drive perusahaan.
+      <b>Cara 2 (disarankan):</b> kalau fotonya sudah ada di Google
+      Drive, cukup tempel link folder bulanannya — isinya dibaca
+      sendiri sampai tiga tingkat ke bawah, tanpa unggah ulang.
+      <br><br>
+      Untuk Cara 2, <b>kosongkan Tanggal</b> supaya tanggal diambil
+      dari nama folder, misalnya "Foto Kegiatan Tgl. 10" di dalam
+      "Foto Kegiatan Bulan Agustus 2026" terbaca sebagai 10 Agustus
+      2026. Kalau nama folder menyebut shift, shiftnya ikut terbaca.
+      Foto yang sudah pernah terdaftar dilewati, jadi aman kalau
+      folder yang sama ditempel lagi bulan depan.
     </div>
 
     <form id="formFoto">
@@ -1602,12 +1608,26 @@ tfoot td{
         </label>
 
         <label>
-          Pilih Foto (boleh lebih dari satu)
+          Cara 1 — Pilih Foto dari Perangkat Ini
           <input type="file" id="berkasFoto" accept="image/*" multiple>
         </label>
 
+        <label style="grid-column:1/-1">
+          Cara 2 — Tempel Link Folder atau Link Foto Google Drive
+          <textarea id="tautanDrive" placeholder="Tempel link folder bulanan, contoh:
+https://drive.google.com/drive/folders/1AbCdEfGhIjKlMnOpQrStUvWxYz
+Boleh beberapa link sekaligus, satu link per baris."></textarea>
+        </label>
+
         <div class="form-action">
-          <button type="submit" id="tombolUnggahFoto">Unggah Foto</button>
+          <button type="submit" id="tombolUnggahFoto">
+            Unggah dari Perangkat
+          </button>
+
+          <button type="button" id="tombolAmbilDrive" onclick="ambilDariDrive()">
+            Ambil dari Google Drive
+          </button>
+
           <button type="button" class="gray" onclick="batalFoto()">Batal</button>
         </div>
       </div>
@@ -4631,6 +4651,93 @@ $("formFoto").addEventListener("submit", async e => {
   renderSemua();
 });
 
+/* Mengambil foto yang sudah ada di Google Drive: yang dikirim ke
+   server hanya id folder atau id berkasnya, bukan gambarnya. */
+function idDrive(teks){
+  const hasil = [];
+  const pola = /[-\w]{20,}/g;
+
+  let cocok;
+
+  while((cocok = pola.exec(String(teks || ""))) !== null){
+    if(hasil.indexOf(cocok[0]) === -1){ hasil.push(cocok[0]); }
+  }
+
+  return hasil;
+}
+
+async function ambilDariDrive(){
+  const daftarId = idDrive($("tautanDrive").value);
+
+  if(!daftarId.length){
+    alert("Tempel dulu link folder atau link foto Google Drive.");
+    return;
+  }
+
+  if(!apiAktif()){
+    alert("Alamat server belum diisi.");
+    return;
+  }
+
+  const isian = Object.fromEntries(new FormData($("formFoto")).entries());
+
+  $("tombolAmbilDrive").disabled = true;
+
+  tampilkanStatusUnggah("Membaca " + daftarId.length
+    + " link di Google Drive… ini bisa memakan waktu kalau fotonya banyak.",
+    false);
+
+  try{
+    const jawaban = await kirimKeServer({
+      aksi:"fotoDrive",
+      sandi:sandiSesi,
+      penginput:namaPengguna,
+      idList:daftarId,
+      item:{
+        tanggal:normalisasiTanggal(isian.tanggal),
+        po:isian.po,
+        shift:isian.shift,
+        keterangan:isian.keterangan || "",
+        penginput:namaPengguna,
+        waktuInput:new Date().toISOString()
+      }
+    });
+
+    const masuk = jawaban.items || [];
+
+    masuk.forEach(item => dataFoto.push(item));
+
+    tampilkanStatusUnggah(masuk.length + " foto berhasil didaftarkan"
+      + (jawaban.lewat ? ", " + jawaban.lewat + " dilewati karena sudah ada"
+        : "")
+      + (jawaban.gagal ? ", " + jawaban.gagal + " link tidak bisa dibuka"
+        : "")
+      + (jawaban.tanpaTanggal
+        ? ", " + jawaban.tanpaTanggal + " foto memakai tanggal berkas "
+          + "karena nama foldernya tidak menyebut tanggal"
+        : "")
+      + "."
+      + (jawaban.terpotong
+        ? " Foto terlalu banyak untuk sekali jalan — tempel lagi link "
+          + "yang sama untuk melanjutkan sisanya."
+        : ""),
+      masuk.length === 0);
+
+    if(masuk.length){
+      $("tautanDrive").value = "";
+
+      catatLokal("Simpan", "foto", isian.tanggal,
+        masuk.length + " foto diambil dari Google Drive");
+    }
+
+    renderSemua();
+  }catch(error){
+    tampilkanStatusUnggah("Gagal mengambil dari Drive: " + error.message, true);
+  }finally{
+    $("tombolAmbilDrive").disabled = false;
+  }
+}
+
 function tampilkanStatusUnggah(pesan, bermasalah){
   $("statusUnggah").className = "info" + (bermasalah ? " peringatan" : "");
   $("statusUnggah").textContent = pesan;
@@ -4640,6 +4747,7 @@ function tampilkanStatusUnggah(pesan, bermasalah){
 function batalFoto(){
   $("formFoto").reset();
   $("berkasFoto").value = "";
+  $("tautanDrive").value = "";
   $("statusUnggah").hidden = true;
 
   isiPilihanFoto();
