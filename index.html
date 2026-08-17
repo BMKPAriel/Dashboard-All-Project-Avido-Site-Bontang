@@ -570,6 +570,11 @@ tfoot td{
   justify-content:center;
 }
 
+.sel-foto{
+  min-width:120px;
+  max-width:150px;
+}
+
 .foto-tabel img{
   width:30px;
   height:30px;
@@ -1561,11 +1566,12 @@ tfoot td{
     <h2>Unggah Foto Kegiatan</h2>
 
     <div class="info">
-      Foto disimpan di Google Drive milik perusahaan dan dicatat sesuai
-      tanggal, shift, serta nama titik. Kalau Nama Titik diisi, fotonya
-      ikut muncul sebagai gambar kecil di tabel Rincian per Titik pada
-      Dashboard Rekap. Foto dikecilkan otomatis sebelum dikirim supaya
-      hemat kuota di lapangan.
+      Foto disimpan di Google Drive milik perusahaan dan dicatat per
+      tanggal dan shift — jumlahnya bebas, mau 3 atau 8 foto sehari.
+      Semua foto pada satu tanggal dan shift otomatis muncul sebagai
+      gambar kecil di tabel Rincian per Titik pada Dashboard Rekap.
+      Foto dikecilkan otomatis sebelum dikirim supaya hemat kuota
+      di lapangan.
     </div>
 
     <form id="formFoto">
@@ -1590,16 +1596,9 @@ tfoot td{
         </label>
 
         <label>
-          Nama Titik (boleh dikosongkan)
-          <input name="titik" id="fotoTitik" list="daftarTitikFoto"
-                 placeholder="Contoh: PF1.1">
-        </label>
-
-        <datalist id="daftarTitikFoto"></datalist>
-
-        <label>
           Keterangan
-          <input name="keterangan" placeholder="Contoh: Proses pemancangan">
+          <input name="keterangan"
+                 placeholder="Contoh: Proses pemancangan PF1.1 - PF1.5">
         </label>
 
         <label>
@@ -3900,12 +3899,13 @@ function gambarRekapBulanan(perBulan){
               + (terhentiCuaca(item) ? " (stop)" : "") + "</td>"
           : "";
 
+        /* Foto milik satu shift ditampilkan sekali dalam sel gabung,
+           karena jumlah foto per hari tidak menentu. */
         const akhir = i === 0
-          ? '<td rowspan="' + n + '">' + penginput + "</td>"
+          ? '<td rowspan="' + n + '" class="sel-foto">'
+              + gambarKecil(fotoUntuk(item)) + "</td>"
+            + '<td rowspan="' + n + '">' + penginput + "</td>"
           : "";
-
-        /* Foto dipasang per titik; klik gambarnya untuk memperbesar. */
-        const foto = gambarKecil(fotoUntuk(item, baris.titik));
 
         return "<tr>"
           + awal
@@ -3916,7 +3916,6 @@ function gambarRekapBulanan(perBulan){
           + "<td>" + angkaIndo(baris.tertanam) + "</td>"
           + "<td>" + (baris.joint ? angkaIndo(baris.joint) : "") + "</td>"
           + cuaca
-          + "<td>" + foto + "</td>"
           + akhir
           + "</tr>";
       }).join("");
@@ -3929,7 +3928,7 @@ function gambarRekapBulanan(perBulan){
         + "<td>" + angkaIndo(r.tertanam) + "</td>"
         + "<td>" + angkaIndo(r.joint) + "</td>"
         + "<td></td>"
-        + "<td>" + gambarKecil(fotoUntuk(item, "")) + "</td>"
+        + "<td></td>"
         + "<td></td>"
         + "</tr>";
 
@@ -4470,18 +4469,24 @@ function alamatFoto(item, lebar){
     + "&sz=w" + lebar;
 }
 
-function kunciFoto(tanggal, shift, titik){
+function kunciFoto(tanggal, shift){
   return (normalisasiTanggal(tanggal) || "")
-    + "|" + String(shift || "").trim().toLowerCase()
-    + "|" + String(titik || "").trim().toLowerCase();
+    + "|" + String(shift || "").trim().toLowerCase();
 }
 
-/* Foto milik satu titik pada satu shift. Titik kosong berarti foto
-   umum shift tersebut. */
-function fotoUntuk(item, namaTitik){
-  return dataFoto.filter(foto =>
-    kunciFoto(foto.tanggal, foto.shift, foto.titik)
-      === kunciFoto(item.tanggal, item.shift, namaTitik));
+/* Foto dicocokkan per tanggal dan shift, bukan per titik, karena
+   jumlah foto tiap hari tidak menentu. */
+function fotoUntuk(item){
+  const po = String(item.po || "").trim();
+
+  return dataFoto.filter(foto => {
+    if(kunciFoto(foto.tanggal, foto.shift)
+      !== kunciFoto(item.tanggal, item.shift)){ return false; }
+
+    const poFoto = String(foto.po || "").trim();
+
+    return !poFoto || !po || poFoto === po;
+  });
 }
 
 function gambarKecil(daftar){
@@ -4490,7 +4495,7 @@ function gambarKecil(daftar){
   return '<span class="foto-tabel">'
     + daftar.map(foto =>
         '<img src="' + alamatFoto(foto, LEBAR_KECIL) + '" alt="Foto '
-        + aman(foto.titik || foto.keterangan || "kegiatan")
+        + aman(foto.keterangan || "kegiatan")
         + '" loading="lazy" onclick="bukaZoom(\'' + aman(foto.id) + '\')">')
       .join("")
     + "</span>";
@@ -4505,8 +4510,8 @@ function bukaZoom(id){
 
   $("ketZoom").textContent = tanggalIndo(foto.tanggal)
     + " · " + (foto.shift || "-")
-    + (foto.titik ? " · " + foto.titik : "")
     + (foto.keterangan ? " · " + foto.keterangan : "")
+    + (foto.titik ? " · " + foto.titik : "")
     + " · oleh " + (foto.penginput || "-");
 
   $("kotakZoom").hidden = false;
@@ -4595,7 +4600,6 @@ $("formFoto").addEventListener("submit", async e => {
           tanggal:normalisasiTanggal(isian.tanggal),
           po:isian.po,
           shift:isian.shift,
-          titik:String(isian.titik || "").trim(),
           keterangan:isian.keterangan || "",
           penginput:namaPengguna,
           waktuInput:new Date().toISOString()
@@ -4622,7 +4626,7 @@ $("formFoto").addEventListener("submit", async e => {
 
   catatLokal("Simpan", "foto", isian.tanggal,
     berhasil + " foto · shift " + isian.shift
-    + (isian.titik ? " · titik " + isian.titik : ""));
+    + (isian.keterangan ? " · " + isian.keterangan : ""));
 
   renderSemua();
 });
@@ -4653,7 +4657,7 @@ function hapusFoto(id){
   const foto = dataFoto[indeks];
 
   catatLokal("Hapus", "foto", foto.tanggal,
-    "foto " + (foto.titik || foto.keterangan || "kegiatan"));
+    "foto " + (foto.keterangan || "kegiatan") + " · " + (foto.shift || "-"));
 
   dataFoto.splice(indeks, 1);
   renderSemua();
@@ -4679,23 +4683,7 @@ function isiPilihanFoto(){
     + (po === dipakai ? " selected" : "") + ">"
     + aman(po) + "</option>").join("");
 
-  const tanggal = normalisasiTanggal($("fotoTanggal").value);
-
-  const titik = new Set();
-
-  dataTimeSheet.forEach(item => {
-    if(tanggal && normalisasiTanggal(item.tanggal) !== tanggal){ return; }
-
-    ringkasEntri(item).detail.forEach(baris => {
-      if(baris.titik && baris.titik !== "-"){ titik.add(baris.titik); }
-    });
-  });
-
-  $("daftarTitikFoto").innerHTML = [...titik].sort().map(nama =>
-    '<option value="' + aman(nama) + '">').join("");
 }
-
-$("fotoTanggal").addEventListener("change", isiPilihanFoto);
 
 function renderFoto(){
   isiPilihanFoto();
@@ -4736,9 +4724,8 @@ function renderFoto(){
              onclick="bukaZoom('${aman(foto.id)}')">
 
         <div class="ket">
-          <b>${aman(foto.titik || "Foto umum")}</b>
-          ${aman(foto.shift || "-")}${foto.keterangan
-            ? " · " + aman(foto.keterangan) : ""}<br>
+          <b>${aman(foto.shift || "-")}</b>
+          ${aman(foto.keterangan || foto.titik || "Foto kegiatan")}<br>
           oleh ${aman(foto.penginput || "-")}
         </div>
 
@@ -4747,11 +4734,21 @@ function renderFoto(){
       </div>
     `).join("");
 
+    const perShift = {};
+
+    isi.forEach(foto => {
+      const shift = foto.shift || "-";
+      perShift[shift] = (perShift[shift] || 0) + 1;
+    });
+
+    const rincianShift = Object.keys(perShift)
+      .map(shift => shift + ": " + perShift[shift]).join(" · ");
+
     return `
       <section>
         <div class="judul-baris">
           <h2>${tanggalIndo(kunci)}</h2>
-          <span class="lencana">${isi.length} foto</span>
+          <span class="lencana">${isi.length} foto · ${aman(rincianShift)}</span>
         </div>
 
         <div class="kisi-foto">${kartu}</div>
