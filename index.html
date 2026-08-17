@@ -571,8 +571,27 @@ tfoot td{
 }
 
 .sel-foto{
-  min-width:120px;
-  max-width:150px;
+  min-width:230px;
+  max-width:280px;
+  padding:6px!important;
+}
+
+/* Ukuran besar khusus tabel Rincian per Titik */
+.foto-lega img{
+  width:96px!important;
+  height:96px!important;
+  border-radius:6px!important;
+}
+
+.foto-sedang img{
+  width:66px!important;
+  height:66px!important;
+  border-radius:5px!important;
+}
+
+.foto-rapat img{
+  width:48px!important;
+  height:48px!important;
 }
 
 .foto-tabel img{
@@ -1029,8 +1048,30 @@ tfoot td{
   .tabel-rinci td{ text-align:center!important; }
 
   .foto-tabel img{
-    width:22px!important;
-    height:22px!important;
+    width:20px!important;
+    height:20px!important;
+  }
+
+  /* Saat dicetak, foto di Rincian per Titik tetap agak besar
+     supaya masih terlihat jelas di kertas. */
+  .foto-lega img{
+    width:17mm!important;
+    height:17mm!important;
+  }
+
+  .foto-sedang img{
+    width:12mm!important;
+    height:12mm!important;
+  }
+
+  .foto-rapat img{
+    width:9mm!important;
+    height:9mm!important;
+  }
+
+  .sel-foto{
+    min-width:42mm!important;
+    max-width:52mm!important;
   }
 
   .kartu-foto img{ height:32mm!important; }
@@ -3972,7 +4013,7 @@ function gambarRekapBulanan(perBulan){
            karena jumlah foto per hari tidak menentu. */
         const akhir = i === 0
           ? '<td rowspan="' + n + '" class="sel-foto">'
-              + gambarKecil(fotoUntuk(item)) + "</td>"
+              + gambarKecil(fotoUntuk(item), true) + "</td>"
             + '<td rowspan="' + n + '">' + penginput + "</td>"
           : "";
 
@@ -4581,10 +4622,17 @@ function fotoTanggal(tanggal, po){
   });
 }
 
-function gambarKecil(daftar){
+/* besar = true dipakai di tabel Rincian per Titik. Ukurannya
+   menyusut sendiri kalau fotonya banyak supaya tetap muat. */
+function gambarKecil(daftar, besar){
   if(!daftar.length){ return ""; }
 
-  return '<span class="foto-tabel">'
+  const kelas = !besar ? "foto-tabel"
+    : daftar.length <= 6 ? "foto-tabel foto-lega"
+    : daftar.length <= 15 ? "foto-tabel foto-sedang"
+    : "foto-tabel foto-rapat";
+
+  return '<span class="' + kelas + '">'
     + daftar.map(foto =>
         '<img src="' + alamatFoto(foto, LEBAR_KECIL) + '" alt="Foto '
         + aman(foto.keterangan || "kegiatan")
