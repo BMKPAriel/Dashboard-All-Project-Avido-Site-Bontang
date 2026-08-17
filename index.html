@@ -519,6 +519,86 @@ tfoot td{
   margin-bottom:14px;
 }
 
+/* FOTO KEGIATAN */
+.kisi-foto{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:11px;
+}
+
+.kartu-foto{
+  border:1px solid #dbe3ea;
+  border-radius:9px;
+  overflow:hidden;
+  background:#f8fafc;
+}
+
+.kartu-foto img{
+  display:block;
+  width:100%;
+  height:112px;
+  object-fit:cover;
+  cursor:zoom-in;
+  background:#e2e8f0;
+}
+
+.kartu-foto .ket{
+  padding:7px 9px;
+  font-size:12.5px;
+  line-height:1.45;
+  color:#5b6b7c;
+}
+
+.kartu-foto .ket b{
+  display:block;
+  color:#243447;
+}
+
+.kartu-foto button{
+  width:calc(100% - 14px);
+  margin:0 7px 8px;
+  min-height:34px;
+  padding:6px;
+  font-size:12.5px;
+}
+
+/* Gambar kecil di dalam tabel rincian */
+.foto-tabel{
+  display:flex;
+  flex-wrap:wrap;
+  gap:3px;
+  justify-content:center;
+}
+
+.foto-tabel img{
+  width:30px;
+  height:30px;
+  object-fit:cover;
+  border:1px solid #c9d4de;
+  border-radius:4px;
+  cursor:zoom-in;
+  background:#e2e8f0;
+}
+
+.isi-zoom{
+  max-width:96vw;
+  max-height:92vh;
+  text-align:center;
+}
+
+.isi-zoom img{
+  max-width:96vw;
+  max-height:76vh;
+  border-radius:8px;
+  background:#0f172a;
+}
+
+.isi-zoom div{
+  margin:9px 0;
+  color:#e8eef4;
+  font-size:13.5px;
+}
+
 /* KOTAK MASUK KATA SANDI */
 .dialog{
   position:fixed;
@@ -849,10 +929,40 @@ tfoot td{
     max-height:62mm;
   }
 
-  /* Kurva S dan tabel pendampingnya dicetak dalam satu halaman. */
-  .blok-kurva{
+  /* Kurva S dan Produksi per Bulan dicetak bersusun dalam satu
+     halaman penuh: kurva di atas, produksi di bawah. Ukuran grafik
+     dan tabelnya dikecilkan supaya keduanya muat. */
+  .blok-grafik{
+    break-before:page;
+    page-break-before:always;
     break-inside:avoid;
     page-break-inside:avoid;
+  }
+
+  .blok-kurva,
+  .blok-produksi{
+    break-inside:avoid;
+    page-break-inside:avoid;
+    margin-bottom:4mm!important;
+    padding:3mm!important;
+  }
+
+  .blok-grafik .grafik svg{
+    max-height:38mm;
+  }
+
+  .blok-grafik .sub-judul{
+    margin:2mm 0 1mm!important;
+    font-size:8.5pt!important;
+  }
+
+  .blok-grafik table{
+    font-size:6.8pt!important;
+  }
+
+  .blok-grafik th,
+  .blok-grafik td{
+    padding:2px 3px!important;
   }
 
   /* Tiap bulan pada rekap pemancangan mulai di halaman baru
@@ -912,6 +1022,14 @@ tfoot td{
   .action{ display:none!important; }
 
   .tabel-rinci td{ text-align:center!important; }
+
+  .foto-tabel img{
+    width:22px!important;
+    height:22px!important;
+  }
+
+  .kartu-foto img{ height:32mm!important; }
+  .kartu-foto button{ display:none!important; }
   .tabel-rinci td.kiri{ text-align:left!important; }
 
   .print-heading{
@@ -1018,6 +1136,10 @@ tfoot td{
     Petty Cash
   </button>
 
+  <button type="button" data-menu="foto" onclick="buka('foto')">
+    Foto Kegiatan
+  </button>
+
   <button type="button" data-menu="loginput" onclick="buka('loginput')">
     Log Input
   </button>
@@ -1059,29 +1181,34 @@ tfoot td{
 
   <div id="kpiRingkas" class="grid"></div>
 
-  <section class="blok-kurva">
-    <div class="judul-baris">
-      <h2>Kurva S — Kumulatif Jumlah Titik</h2>
-      <span class="lencana" id="lencanaKurva">—</span>
-    </div>
+  <!-- Kedua grafik ini bersusun dan dicetak dalam satu halaman. -->
+  <div class="blok-grafik">
 
-    <div id="grafikKurva" class="grafik"></div>
+    <section class="blok-kurva">
+      <div class="judul-baris">
+        <h2>Kurva S — Kumulatif Jumlah Titik</h2>
+        <span class="lencana" id="lencanaKurva">—</span>
+      </div>
 
-    <div id="tabelKurva"></div>
-  </section>
+      <div id="grafikKurva" class="grafik"></div>
 
-  <section>
-    <div class="judul-baris">
-      <h2>Produksi Titik per Bulan</h2>
-      <span class="lencana">Dikelompokkan per area</span>
-    </div>
+      <div id="tabelKurva"></div>
+    </section>
 
-    <div id="grafikBulanan" class="grafik"></div>
+    <section class="blok-produksi">
+      <div class="judul-baris">
+        <h2>Produksi Titik per Bulan</h2>
+        <span class="lencana">Dikelompokkan per area</span>
+      </div>
 
-    <div class="sub-judul">Jumlah Titik per Area per Bulan</div>
+      <div id="grafikBulanan" class="grafik"></div>
 
-    <div id="tabelArea"></div>
-  </section>
+      <div class="sub-judul">Jumlah Titik per Area per Bulan</div>
+
+      <div id="tabelArea"></div>
+    </section>
+
+  </div>
 
   <div class="judul-baris no-print" style="margin-top:22px">
     <h2>Rekap Aktual Pemancangan per Bulan</h2>
@@ -1120,7 +1247,7 @@ tfoot td{
 
         <label>
           No. PO
-          <input name="po" id="po" required>
+          <select name="po" id="po" required></select>
         </label>
 
         <label>
@@ -1207,7 +1334,7 @@ tfoot td{
 
   <section>
     <div class="judul-baris">
-      <h2>Data Daily Time Sheet</h2>
+      <h2 id="judulTimeSheetData">Data Daily Time Sheet</h2>
       <button type="button" class="gray no-print" onclick="unduhCsvTimeSheet()">
         Unduh CSV
       </button>
@@ -1427,6 +1554,79 @@ tfoot td{
 
 </div>
 
+<!-- FOTO KEGIATAN -->
+<div id="foto" class="page">
+
+  <section>
+    <h2>Unggah Foto Kegiatan</h2>
+
+    <div class="info">
+      Foto disimpan di Google Drive milik perusahaan dan dicatat sesuai
+      tanggal, shift, serta nama titik. Kalau Nama Titik diisi, fotonya
+      ikut muncul sebagai gambar kecil di tabel Rincian per Titik pada
+      Dashboard Rekap. Foto dikecilkan otomatis sebelum dikirim supaya
+      hemat kuota di lapangan.
+    </div>
+
+    <form id="formFoto">
+
+      <div class="form">
+        <label>
+          Tanggal Kegiatan
+          <input type="date" name="tanggal" id="fotoTanggal" required>
+        </label>
+
+        <label>
+          No. PO
+          <select name="po" id="fotoPo" required></select>
+        </label>
+
+        <label>
+          Shift
+          <select name="shift">
+            <option>Pagi-Sore</option>
+            <option>Sore-Malam</option>
+          </select>
+        </label>
+
+        <label>
+          Nama Titik (boleh dikosongkan)
+          <input name="titik" id="fotoTitik" list="daftarTitikFoto"
+                 placeholder="Contoh: PF1.1">
+        </label>
+
+        <datalist id="daftarTitikFoto"></datalist>
+
+        <label>
+          Keterangan
+          <input name="keterangan" placeholder="Contoh: Proses pemancangan">
+        </label>
+
+        <label>
+          Pilih Foto (boleh lebih dari satu)
+          <input type="file" id="berkasFoto" accept="image/*" multiple>
+        </label>
+
+        <div class="form-action">
+          <button type="submit" id="tombolUnggahFoto">Unggah Foto</button>
+          <button type="button" class="gray" onclick="batalFoto()">Batal</button>
+        </div>
+      </div>
+
+    </form>
+
+    <div id="statusUnggah" class="info" hidden></div>
+  </section>
+
+  <div class="judul-baris no-print" style="margin-top:22px">
+    <h2>Galeri Foto per Tanggal</h2>
+    <span class="lencana" id="lencanaFoto">—</span>
+  </div>
+
+  <div id="galeriFoto"></div>
+
+</div>
+
 <!-- LOG INPUT -->
 <div id="loginput" class="page">
 
@@ -1518,6 +1718,14 @@ tfoot td{
 
 </main>
 
+<div id="kotakZoom" class="dialog" hidden onclick="tutupZoom()">
+  <div class="isi-zoom">
+    <img id="gambarZoom" alt="Foto kegiatan">
+    <div id="ketZoom"></div>
+    <button type="button" class="gray" onclick="tutupZoom()">Tutup</button>
+  </div>
+</div>
+
 <script>
 /*==========================================================
   1. ALAMAT SERVER
@@ -1567,12 +1775,19 @@ const NAMA_JENIS = {
   timesheet:"Time Sheet",
   absensi:"Absensi",
   petty:"Petty Cash",
+  foto:"Foto Kegiatan",
   konfigurasi:"Target PO"
 };
+
+/* Daftar paket PO. Tiap PO punya target dan jadwal rencananya
+   sendiri, sehingga PO lama tetap tersimpan saat PO baru dimulai. */
+let daftarPo = [];
+let poTerpilih = "";
 
 let dataTimeSheet = [];
 let dataAbsensi   = [];
 let dataPetty     = [];
+let dataFoto      = [];
 let dataLog       = [];
 let konfigurasi   = Object.assign({}, KONFIG_AWAL);
 
@@ -1709,8 +1924,11 @@ function kosongkanData(){
   dataTimeSheet = [];
   dataAbsensi = [];
   dataPetty = [];
+  dataFoto = [];
   dataLog = [];
   konfigurasi = Object.assign({}, KONFIG_AWAL);
+  daftarPo = [];
+  poTerpilih = "";
 }
 
 $("isianNama").addEventListener("keydown", e => {
@@ -1895,7 +2113,16 @@ async function muatDariServer(){
     dataPetty = (data.petty || []).map(item =>
       rapikanAngka(item, ["masuk", "keluar"]));
 
+    dataFoto = data.foto || [];
+
     konfigurasi = Object.assign({}, KONFIG_AWAL, data.konfigurasi || {});
+
+    daftarPo = bacaDaftarPo(konfigurasi);
+
+    const pilihanTersimpan = String(konfigurasi.poAktif || "").trim();
+
+    poTerpilih = pilihanTersimpan === "__semua" ? ""
+      : (paketPo(pilihanTersimpan) ? pilihanTersimpan : daftarPo[0].po);
 
     serverPunyaLog = Array.isArray(data.log);
     dataLog = serverPunyaLog ? data.log : dataLog;
@@ -2221,10 +2448,157 @@ function terhentiCuaca(item){
     && /hujan|gerimis/i.test(String(item.cuaca || ""));
 }
 
-function totalAktual(){
+/*==========================================================
+  7b. PAKET PO — SATU DASHBOARD UNTUK BANYAK PO
+==========================================================*/
+const FIELD_PO = ["po", "titik", "perHari", "perHariCustomer",
+                  "tertanam", "handling", "joint", "mulai", "selesai"];
+
+function rapikanPo(isi){
+  const hasil = Object.assign({}, KONFIG_AWAL, isi || {});
+
+  hasil.po = String(hasil.po || "").trim();
+  hasil.mulai = normalisasiTanggal(hasil.mulai);
+
+  ["titik", "perHari", "perHariCustomer", "tertanam", "handling", "joint"]
+    .forEach(field => { hasil[field] = angka(hasil[field]); });
+
+  return hasil;
+}
+
+/* Daftar PO disimpan sebagai teks JSON di lembar Konfigurasi. Kalau
+   belum ada (data versi lama), satu paket dibuat dari target lama
+   supaya tidak ada angka yang hilang. */
+function bacaDaftarPo(data){
+  let isi = data.daftar;
+
+  if(typeof isi === "string" && isi.trim()){
+    try{ isi = JSON.parse(isi); }catch(error){ isi = null; }
+  }
+
+  if(!Array.isArray(isi) || !isi.length){
+    isi = [Object.assign({}, KONFIG_AWAL, data)];
+  }
+
+  const hasil = isi.map(rapikanPo).filter(paket => paket.po);
+
+  return hasil.length ? hasil : [rapikanPo(KONFIG_AWAL)];
+}
+
+function paketPo(nomor){
+  return daftarPo.find(paket => paket.po === nomor) || null;
+}
+
+function poSemua(){
+  return !poTerpilih;
+}
+
+/* Target gabungan dipakai saat semua PO ditampilkan sekaligus. */
+function targetTerpilih(){
+  if(!poSemua()){
+    return paketPo(poTerpilih) || rapikanPo(KONFIG_AWAL);
+  }
+
+  const gabungan = rapikanPo({ po:"Semua PO", mulai:"" });
+
+  ["titik", "tertanam", "handling", "joint"].forEach(field => {
+    gabungan[field] = daftarPo.reduce((total, paket) =>
+      total + angka(paket[field]), 0);
+  });
+
+  return gabungan;
+}
+
+function timeSheetTerpilih(){
+  if(poSemua()){ return dataTimeSheet; }
+
+  return dataTimeSheet.filter(item =>
+    String(item.po || "").trim() === poTerpilih);
+}
+
+function simpanDaftarPo(){
+  const aktif = paketPo(poTerpilih) || daftarPo[0] || rapikanPo(KONFIG_AWAL);
+
+  konfigurasi = Object.assign({}, aktif, {
+    daftar:JSON.stringify(daftarPo),
+    poAktif:poTerpilih
+  });
+
+  catatPerubahan({ aksi:"konfigurasi", konfigurasi:konfigurasi });
+}
+
+function gantiPo(nilai){
+  poTerpilih = nilai === "__semua" ? "" : nilai;
+
+  simpanDaftarPo();
+  batalTimeSheet();
+  renderSemua();
+}
+
+function tambahPo(){
+  const nomor = String(prompt("Nomor PO baru:", "") || "").trim();
+
+  if(!nomor){ return; }
+
+  if(paketPo(nomor)){
+    alert("Nomor PO itu sudah terdaftar.");
+    return;
+  }
+
+  const contoh = paketPo(poTerpilih) || daftarPo[daftarPo.length - 1] || {};
+
+  daftarPo.push(rapikanPo({
+    po:nomor,
+    titik:contoh.titik,
+    perHari:contoh.perHari,
+    perHariCustomer:contoh.perHariCustomer,
+    tertanam:contoh.tertanam,
+    handling:contoh.handling,
+    joint:contoh.joint,
+    mulai:""
+  }));
+
+  poTerpilih = nomor;
+
+  simpanDaftarPo();
+  batalTimeSheet();
+  renderSemua();
+
+  alert("PO " + nomor + " ditambahkan. Sesuaikan targetnya, "
+    + "lalu pilih PO ini saat input Daily Time Sheet.");
+}
+
+function hapusPo(){
+  if(poSemua()){
+    alert("Pilih dulu satu PO yang mau dihapus.");
+    return;
+  }
+
+  if(daftarPo.length < 2){
+    alert("Minimal satu PO harus tersisa.");
+    return;
+  }
+
+  const jumlahData = dataTimeSheet.filter(item =>
+    String(item.po || "").trim() === poTerpilih).length;
+
+  if(!confirm("Hapus target PO " + poTerpilih + "?\n\n"
+    + jumlahData + " data Daily Time Sheet milik PO ini TIDAK ikut "
+    + "terhapus, tapi tidak akan punya target lagi.")){
+    return;
+  }
+
+  daftarPo = daftarPo.filter(paket => paket.po !== poTerpilih);
+  poTerpilih = daftarPo[0].po;
+
+  simpanDaftarPo();
+  renderSemua();
+}
+
+function totalAktual(sumber){
   const total = { titik:0, tertanam:0, handling:0, joint:0 };
 
-  dataTimeSheet.forEach(item => {
+  (sumber || dataTimeSheet).forEach(item => {
     const r = ringkasEntri(item);
 
     total.titik += r.jumlahTitik;
@@ -2251,10 +2625,10 @@ function totalDaftar(daftar){
   return total;
 }
 
-function daftarArea(){
+function daftarArea(sumber){
   const set = new Set();
 
-  dataTimeSheet.forEach(item => {
+  (sumber || dataTimeSheet).forEach(item => {
     ringkasEntri(item).detail.forEach(baris => {
       if(baris.area && baris.area !== "-"){ set.add(baris.area); }
     });
@@ -2731,16 +3105,21 @@ function isiUlangBarisTitik(daftar){
 }
 
 function ubahTarget(field, value){
-  konfigurasi[field] = (field === "po" || field === "mulai" || field === "selesai")
-    ? value
-    : angka(value);
+  const paket = paketPo(poTerpilih);
+
+  if(!paket){
+    alert("Pilih satu No. PO dulu sebelum mengubah targetnya.");
+    return;
+  }
+
+  paket[field] = (field === "mulai") ? normalisasiTanggal(value) : angka(value);
 
   /* Tanggal selesai rencana tidak diketik, tapi dihitung dari
      Plan Titik All dibagi Plan Titik per Hari. */
-  konfigurasi.selesai = jadwalRencana().akhir;
+  paket.selesai = jadwalRencana(paket.perHari, paket).akhir;
 
+  simpanDaftarPo();
   renderDashboard();
-  catatPerubahan({ aksi:"konfigurasi", konfigurasi:konfigurasi });
 }
 
 $("formTimeSheet").addEventListener("submit", e => {
@@ -2814,6 +3193,8 @@ function ubahTimeSheet(id){
 
   editIdTimeSheet = id;
 
+  isiPilihanPo(item.po);
+
   Object.entries(item).forEach(([key, value]) => {
     const kolom = $("formTimeSheet").elements[key];
 
@@ -2864,20 +3245,46 @@ function batalTimeSheet(){
   $("formTimeSheet").reset();
   $("tanpaPancang").checked = false;
   $("judulTimeSheet").textContent = "Input Daily Time Sheet";
-  $("po").value = konfigurasi.po;
 
+  isiPilihanPo();
   isiUlangBarisTitik([]);
 }
 
+/* Pilihan No. PO pada form diambil dari paket PO yang terdaftar,
+   ditambah PO lama yang mungkin sudah dipakai di data. */
+function isiPilihanPo(nilaiTerpakai){
+  const nomor = daftarPo.map(paket => paket.po);
+
+  dataTimeSheet.forEach(item => {
+    const po = String(item.po || "").trim();
+
+    if(po && nomor.indexOf(po) === -1){ nomor.push(po); }
+  });
+
+  const dipakai = String(nilaiTerpakai || $("po").value || "").trim();
+
+  if(dipakai && nomor.indexOf(dipakai) === -1){ nomor.push(dipakai); }
+
+  const terpilih = dipakai
+    || (poSemua() ? (nomor[0] || "") : poTerpilih);
+
+  $("po").innerHTML = nomor.map(po =>
+    '<option value="' + aman(po) + '"'
+    + (po === terpilih ? " selected" : "") + ">"
+    + aman(po) + "</option>").join("");
+}
+
 function renderTimeSheet(){
-  if(editIdTimeSheet === null && !$("po").value){
-    $("po").value = konfigurasi.po;
-  }
+  isiPilihanPo();
+
+  $("judulTimeSheetData").textContent = poSemua()
+    ? "Data Daily Time Sheet — Semua PO"
+    : "Data Daily Time Sheet — " + poTerpilih;
 
   $("daftarArea").innerHTML = daftarArea()
     .map(area => '<option value="' + aman(area) + '">').join("");
 
-  const urut = kelompokBulan(dataTimeSheet)
+  const urut = kelompokBulan(timeSheetTerpilih())
     .reduce((semua, bulan) => semua.concat(bulan.isi), []);
 
   $("daftarTimeSheet").innerHTML = urut.length
@@ -2909,8 +3316,18 @@ function renderTimeSheet(){
   10. DASHBOARD REKAP
 ==========================================================*/
 function renderDashboard(){
+  if(!daftarPo.length){
+    daftarPo = [rapikanPo(konfigurasi)];
+  }
+
+  if(poTerpilih && !paketPo(poTerpilih)){
+    poTerpilih = "";
+  }
+
+  const paket = targetTerpilih();
+  const semua = poSemua();
+
   const targets = [
-    ["po", "No. PO", "text"],
     ["titik", "Plan Titik All (titik)", "number"],
     ["perHari", "Plan Titik per Hari (Kemampuan)", "number"],
     ["perHariCustomer", "Target Titik per Hari (Customer)", "number"],
@@ -2921,32 +3338,64 @@ function renderDashboard(){
   ];
 
   if(!$("target").contains(document.activeElement)){
-    $("target").innerHTML = targets.map(([field, label, tipe]) => `
+    const pilihan = daftarPo.map(item =>
+      '<option value="' + aman(item.po) + '"'
+      + (item.po === poTerpilih ? " selected" : "") + ">"
+      + aman(item.po) + "</option>").join("")
+      + '<option value="__semua"' + (semua ? " selected" : "")
+      + ">Semua PO (gabungan)</option>";
+
+    const isian = semua
+      ? '<div class="info" style="grid-column:1/-1;margin:0">'
+        + "Sedang menampilkan gabungan " + daftarPo.length + " PO. "
+        + "Target di kartu KPI adalah jumlah seluruh PO. Pilih satu PO "
+        + "untuk mengubah targetnya dan melihat Kurva S-nya.</div>"
+      : targets.map(([field, label, tipe]) => `
+          <label>
+            ${label}
+            <input type="${tipe}"
+                   value="${aman(tipe === "date"
+                     ? normalisasiTanggal(paket[field])
+                     : paket[field])}"
+                   onchange="ubahTarget('${field}',this.value)">
+          </label>
+        `).join("");
+
+    $("target").innerHTML = `
       <label>
-        ${label}
-        <input type="${tipe}"
-               value="${aman(tipe === "date"
-                 ? normalisasiTanggal(konfigurasi[field])
-                 : konfigurasi[field])}"
-               onchange="ubahTarget('${field}',this.value)">
+        No. PO yang Ditampilkan
+        <select onchange="gantiPo(this.value)">${pilihan}</select>
       </label>
-    `).join("");
+
+      <label>
+        Kelola Paket PO
+        <span style="display:flex;gap:6px;margin-top:6px">
+          <button type="button" onclick="tambahPo()">+ PO Baru</button>
+          <button type="button" class="red" onclick="hapusPo()">Hapus PO</button>
+        </span>
+      </label>
+
+      ${isian}
+    `;
   }
 
-  const rencana = jadwalRencana();
-  const rencanaCustomer = jadwalRencana(konfigurasi.perHariCustomer);
+  const rencana = jadwalRencana(paket.perHari, paket);
+  const rencanaCustomer = jadwalRencana(paket.perHariCustomer, paket);
 
-  $("lencanaTarget").textContent = rencana.durasi
-    ? rencana.durasi + " hari kerja"
-      + (rencana.mulai
-          ? " · " + tanggalIndo(rencana.mulai) + " s/d " + tanggalIndo(rencana.akhir)
-          : " · isi Tanggal Mulai Rencana")
-      + (rencanaCustomer.durasi && rencanaCustomer.durasi !== rencana.durasi
-          ? " · target customer " + rencanaCustomer.durasi + " hari"
-          : "")
-    : "Isi Plan Titik All dan Plan Titik per Hari";
+  $("lencanaTarget").textContent = semua
+    ? daftarPo.length + " PO terdaftar"
+    : (rencana.durasi
+        ? rencana.durasi + " hari kerja"
+          + (rencana.mulai
+              ? " · " + tanggalIndo(rencana.mulai) + " s/d " + tanggalIndo(rencana.akhir)
+              : " · isi Tanggal Mulai Rencana")
+          + (rencanaCustomer.durasi && rencanaCustomer.durasi !== rencana.durasi
+              ? " · target customer " + rencanaCustomer.durasi + " hari"
+              : "")
+        : "Isi Plan Titik All dan Plan Titik per Hari");
 
-  const aktual = totalAktual();
+  const sumber = timeSheetTerpilih();
+  const aktual = totalAktual(sumber);
 
   const kpi = [
     ["Jumlah Titik", "titik", aktual.titik, "titik"],
@@ -2956,7 +3405,7 @@ function renderDashboard(){
   ];
 
   $("kpi").innerHTML = kpi.map(([judul, targetField, nilai, satuan]) => {
-    const target = angka(konfigurasi[targetField]);
+    const target = angka(paket[targetField]);
     const sisa = target - nilai;
     const persen = target > 0 ? nilai / target * 100 : 0;
 
@@ -2978,21 +3427,21 @@ function renderDashboard(){
     `;
   }).join("");
 
-  gambarRingkasHarian();
+  gambarRingkasHarian(sumber);
 
-  const perBulan = kelompokBulan(dataTimeSheet);
+  const perBulan = kelompokBulan(sumber);
 
-  gambarKurvaS(perBulan, aktual, rencana, rencanaCustomer);
-  gambarProduksiBulanan(perBulan);
+  gambarKurvaS(perBulan, aktual, rencana, rencanaCustomer, sumber, semua);
+  gambarProduksiBulanan(perBulan, sumber);
   gambarRekapBulanan(perBulan);
 }
 
 /* Kartu ringkas: berapa hari kerja, rata-rata titik per hari,
    hari paling produktif, dan siapa yang terakhir menginput. */
-function gambarRingkasHarian(){
+function gambarRingkasHarian(sumber){
   const perTanggal = new Map();
 
-  dataTimeSheet.forEach(item => {
+  sumber.forEach(item => {
     const kunci = normalisasiTanggal(item.tanggal) || "0000-00-00";
     const r = ringkasEntri(item);
 
@@ -3002,7 +3451,7 @@ function gambarRingkasHarian(){
   const hari = [...perTanggal.entries()].sort();
   const totalTitik = hari.reduce((t, [, n]) => t + n, 0);
 
-  const shiftTerhenti = dataTimeSheet.filter(terhentiCuaca).length;
+  const shiftTerhenti = sumber.filter(terhentiCuaca).length;
 
   /* Hari efektif = hari yang benar-benar menghasilkan titik. */
   const hariEfektif = hari.filter(([, n]) => n > 0);
@@ -3017,7 +3466,7 @@ function gambarRingkasHarian(){
 
   const terakhir = hari.length ? hari[hari.length - 1] : null;
 
-  const entriTerbaru = dataTimeSheet
+  const entriTerbaru = sumber
     .slice()
     .sort((a, b) => String(a.waktuUbah || a.waktuInput || "")
       < String(b.waktuUbah || b.waktuInput || "") ? 1 : -1)[0];
@@ -3065,12 +3514,14 @@ function bentukS(x){
 
 /* Jadwal rencana dihitung dari Plan Titik All dibagi Plan Titik per
    Hari, jadi durasi rencana muncul sendiri dalam satuan hari. */
-function jadwalRencana(lajuLain){
-  const target = angka(konfigurasi.titik);
+function jadwalRencana(lajuLain, paketLain){
+  const paket = paketLain || konfigurasi;
+
+  const target = angka(paket.titik);
   const perHari = lajuLain === undefined
-    ? angka(konfigurasi.perHari)
+    ? angka(paket.perHari)
     : angka(lajuLain);
-  const mulai = normalisasiTanggal(konfigurasi.mulai);
+  const mulai = normalisasiTanggal(paket.mulai);
 
   const durasi = (target > 0 && perHari > 0)
     ? Math.ceil(target / perHari)
@@ -3115,13 +3566,23 @@ function rencanaPada(iso, rencana){
 
 /* Kurva S harian: rencana dan aktual sama-sama melengkung, memakai
    sumbu tanggal supaya kedua garis bisa saling menyilang. */
-function gambarKurvaS(perBulan, aktual, rencana, rencanaCustomer){
+function gambarKurvaS(perBulan, aktual, rencana, rencanaCustomer,
+                      sumber, modeSemuaPo){
   const targetTitik = rencana.target;
+
+  if(modeSemuaPo){
+    $("grafikKurva").innerHTML = '<div class="grafik-kosong">Kurva S '
+      + "dibuat per paket PO karena tiap PO punya tanggal mulai dan "
+      + "targetnya sendiri. Pilih satu No. PO di atas untuk melihatnya.</div>";
+    $("tabelKurva").innerHTML = "";
+    $("lencanaKurva").textContent = "Pilih satu PO";
+    return;
+  }
 
   /* Aktual per tanggal, semua shift dijumlahkan. */
   const perTanggal = new Map();
 
-  dataTimeSheet.forEach(item => {
+  sumber.forEach(item => {
     const iso = normalisasiTanggal(item.tanggal);
 
     if(!iso){ return; }
@@ -3286,8 +3747,8 @@ function gambarTabelKurva(perBulan, rencana, hariTerakhirAktual){
   `;
 }
 
-function gambarProduksiBulanan(perBulan){
-  const area = daftarArea();
+function gambarProduksiBulanan(perBulan, sumber){
+  const area = daftarArea(sumber);
   const kolomArea = area.length ? area : ["Tanpa Area"];
 
   const seri = kolomArea.map((nama, i) => ({
@@ -3434,11 +3895,17 @@ function gambarRekapBulanan(perBulan){
           ? '<td rowspan="' + n + '">' + r.jumlahTitik + "</td>"
           : "";
 
-        const akhir = i === 0
+        const cuaca = i === 0
           ? '<td rowspan="' + n + '">' + aman(item.cuaca || "-")
               + (terhentiCuaca(item) ? " (stop)" : "") + "</td>"
-            + '<td rowspan="' + n + '">' + penginput + "</td>"
           : "";
+
+        const akhir = i === 0
+          ? '<td rowspan="' + n + '">' + penginput + "</td>"
+          : "";
+
+        /* Foto dipasang per titik; klik gambarnya untuk memperbesar. */
+        const foto = gambarKecil(fotoUntuk(item, baris.titik));
 
         return "<tr>"
           + awal
@@ -3448,6 +3915,8 @@ function gambarRekapBulanan(perBulan){
           + "<td>" + angkaIndo(baris.handling) + "</td>"
           + "<td>" + angkaIndo(baris.tertanam) + "</td>"
           + "<td>" + (baris.joint ? angkaIndo(baris.joint) : "") + "</td>"
+          + cuaca
+          + "<td>" + foto + "</td>"
           + akhir
           + "</tr>";
       }).join("");
@@ -3460,6 +3929,7 @@ function gambarRekapBulanan(perBulan){
         + "<td>" + angkaIndo(r.tertanam) + "</td>"
         + "<td>" + angkaIndo(r.joint) + "</td>"
         + "<td></td>"
+        + "<td>" + gambarKecil(fotoUntuk(item, "")) + "</td>"
         + "<td></td>"
         + "</tr>";
 
@@ -3525,6 +3995,7 @@ function gambarRekapBulanan(perBulan){
                 <th>Tertanam (m)</th>
                 <th>Joint (Titik)</th>
                 <th>Cuaca</th>
+                <th>Foto</th>
                 <th>Diinput oleh</th>
               </tr>
             </thead>
@@ -3538,6 +4009,7 @@ function gambarRekapBulanan(perBulan){
                 <td>${angkaIndo(total.handling)}</td>
                 <td>${angkaIndo(total.tertanam)}</td>
                 <td>${angkaIndo(total.joint)}</td>
+                <td></td>
                 <td></td>
                 <td></td>
               </tr>
@@ -3982,7 +4454,314 @@ function renderPetty(){
 }
 
 /*==========================================================
-  13. LOG INPUT — SIAPA MENGINPUT APA DAN KAPAN
+  13. FOTO KEGIATAN
+  Foto disimpan di Google Drive lewat Apps Script; yang dicatat
+  di lembar Foto hanya keterangannya beserta id berkasnya.
+==========================================================*/
+const LEBAR_KECIL = 400;
+const LEBAR_BESAR = 1600;
+
+function alamatFoto(item, lebar){
+  const id = String(item.fileId || "").trim();
+
+  if(!id){ return ""; }
+
+  return "https://drive.google.com/thumbnail?id=" + encodeURIComponent(id)
+    + "&sz=w" + lebar;
+}
+
+function kunciFoto(tanggal, shift, titik){
+  return (normalisasiTanggal(tanggal) || "")
+    + "|" + String(shift || "").trim().toLowerCase()
+    + "|" + String(titik || "").trim().toLowerCase();
+}
+
+/* Foto milik satu titik pada satu shift. Titik kosong berarti foto
+   umum shift tersebut. */
+function fotoUntuk(item, namaTitik){
+  return dataFoto.filter(foto =>
+    kunciFoto(foto.tanggal, foto.shift, foto.titik)
+      === kunciFoto(item.tanggal, item.shift, namaTitik));
+}
+
+function gambarKecil(daftar){
+  if(!daftar.length){ return ""; }
+
+  return '<span class="foto-tabel">'
+    + daftar.map(foto =>
+        '<img src="' + alamatFoto(foto, LEBAR_KECIL) + '" alt="Foto '
+        + aman(foto.titik || foto.keterangan || "kegiatan")
+        + '" loading="lazy" onclick="bukaZoom(\'' + aman(foto.id) + '\')">')
+      .join("")
+    + "</span>";
+}
+
+function bukaZoom(id){
+  const foto = dataFoto.find(item => String(item.id) === String(id));
+
+  if(!foto){ return; }
+
+  $("gambarZoom").src = alamatFoto(foto, LEBAR_BESAR);
+
+  $("ketZoom").textContent = tanggalIndo(foto.tanggal)
+    + " · " + (foto.shift || "-")
+    + (foto.titik ? " · " + foto.titik : "")
+    + (foto.keterangan ? " · " + foto.keterangan : "")
+    + " · oleh " + (foto.penginput || "-");
+
+  $("kotakZoom").hidden = false;
+}
+
+function tutupZoom(){
+  $("kotakZoom").hidden = true;
+  $("gambarZoom").src = "";
+}
+
+/* Foto dikecilkan di HP sebelum dikirim supaya cepat di jaringan
+   lapangan dan tidak membebani kuota Apps Script. */
+function kecilkanGambar(berkas){
+  return new Promise((selesai, gagal) => {
+    const pembaca = new FileReader();
+
+    pembaca.onerror = () => gagal(new Error("Gagal membaca berkas."));
+
+    pembaca.onload = () => {
+      const gambar = new Image();
+
+      gambar.onerror = () => gagal(new Error("Berkas bukan gambar."));
+
+      gambar.onload = () => {
+        const skala = Math.min(1, 1280 / Math.max(gambar.width, gambar.height));
+
+        const kanvas = document.createElement("canvas");
+
+        kanvas.width = Math.round(gambar.width * skala);
+        kanvas.height = Math.round(gambar.height * skala);
+
+        kanvas.getContext("2d").drawImage(gambar, 0, 0,
+          kanvas.width, kanvas.height);
+
+        const hasil = kanvas.toDataURL("image/jpeg", 0.72);
+
+        selesai({
+          data:hasil.split(",")[1],
+          mime:"image/jpeg"
+        });
+      };
+
+      gambar.src = pembaca.result;
+    };
+
+    pembaca.readAsDataURL(berkas);
+  });
+}
+
+$("formFoto").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  const berkas = [...$("berkasFoto").files];
+
+  if(!berkas.length){
+    alert("Pilih dulu foto yang mau diunggah.");
+    return;
+  }
+
+  if(!apiAktif()){
+    alert("Alamat server belum diisi, foto tidak bisa dikirim.");
+    return;
+  }
+
+  const isian = Object.fromEntries(new FormData(e.target).entries());
+
+  $("tombolUnggahFoto").disabled = true;
+
+  let berhasil = 0;
+
+  for(let i = 0; i < berkas.length; i++){
+    tampilkanStatusUnggah("Mengirim foto " + (i + 1) + " dari "
+      + berkas.length + "…", false);
+
+    try{
+      const kecil = await kecilkanGambar(berkas[i]);
+
+      const jawaban = await kirimKeServer({
+        aksi:"fotoUnggah",
+        sandi:sandiSesi,
+        penginput:namaPengguna,
+        nama:berkas[i].name,
+        mime:kecil.mime,
+        data:kecil.data,
+        item:{
+          tanggal:normalisasiTanggal(isian.tanggal),
+          po:isian.po,
+          shift:isian.shift,
+          titik:String(isian.titik || "").trim(),
+          keterangan:isian.keterangan || "",
+          penginput:namaPengguna,
+          waktuInput:new Date().toISOString()
+        }
+      });
+
+      if(jawaban.item){ dataFoto.push(jawaban.item); }
+
+      berhasil++;
+    }catch(error){
+      tampilkanStatusUnggah("Foto ke-" + (i + 1) + " gagal: "
+        + error.message, true);
+
+      $("tombolUnggahFoto").disabled = false;
+      renderFoto();
+      return;
+    }
+  }
+
+  $("tombolUnggahFoto").disabled = false;
+  $("berkasFoto").value = "";
+
+  tampilkanStatusUnggah(berhasil + " foto berhasil diunggah.", false);
+
+  catatLokal("Simpan", "foto", isian.tanggal,
+    berhasil + " foto · shift " + isian.shift
+    + (isian.titik ? " · titik " + isian.titik : ""));
+
+  renderSemua();
+});
+
+function tampilkanStatusUnggah(pesan, bermasalah){
+  $("statusUnggah").className = "info" + (bermasalah ? " peringatan" : "");
+  $("statusUnggah").textContent = pesan;
+  $("statusUnggah").hidden = false;
+}
+
+function batalFoto(){
+  $("formFoto").reset();
+  $("berkasFoto").value = "";
+  $("statusUnggah").hidden = true;
+
+  isiPilihanFoto();
+}
+
+function hapusFoto(id){
+  if(!confirm("Hapus foto ini? Berkasnya juga dibuang dari Google Drive.")){
+    return;
+  }
+
+  const indeks = dataFoto.findIndex(item => String(item.id) === String(id));
+
+  if(indeks < 0){ return; }
+
+  const foto = dataFoto[indeks];
+
+  catatLokal("Hapus", "foto", foto.tanggal,
+    "foto " + (foto.titik || foto.keterangan || "kegiatan"));
+
+  dataFoto.splice(indeks, 1);
+  renderSemua();
+  catatPerubahan({ aksi:"hapus", tipe:"foto", id:id });
+}
+
+/* Pilihan PO dan daftar nama titik pada form foto mengikuti data
+   Daily Time Sheet pada tanggal yang dipilih. */
+function isiPilihanFoto(){
+  const nomor = daftarPo.map(paket => paket.po);
+
+  dataTimeSheet.forEach(item => {
+    const po = String(item.po || "").trim();
+
+    if(po && nomor.indexOf(po) === -1){ nomor.push(po); }
+  });
+
+  const dipakai = $("fotoPo").value
+    || (poSemua() ? (nomor[0] || "") : poTerpilih);
+
+  $("fotoPo").innerHTML = nomor.map(po =>
+    '<option value="' + aman(po) + '"'
+    + (po === dipakai ? " selected" : "") + ">"
+    + aman(po) + "</option>").join("");
+
+  const tanggal = normalisasiTanggal($("fotoTanggal").value);
+
+  const titik = new Set();
+
+  dataTimeSheet.forEach(item => {
+    if(tanggal && normalisasiTanggal(item.tanggal) !== tanggal){ return; }
+
+    ringkasEntri(item).detail.forEach(baris => {
+      if(baris.titik && baris.titik !== "-"){ titik.add(baris.titik); }
+    });
+  });
+
+  $("daftarTitikFoto").innerHTML = [...titik].sort().map(nama =>
+    '<option value="' + aman(nama) + '">').join("");
+}
+
+$("fotoTanggal").addEventListener("change", isiPilihanFoto);
+
+function renderFoto(){
+  isiPilihanFoto();
+
+  const terpilih = poSemua()
+    ? dataFoto
+    : dataFoto.filter(foto => String(foto.po || "").trim() === poTerpilih);
+
+  $("lencanaFoto").textContent = terpilih.length + " foto"
+    + (poSemua() ? "" : " · " + poTerpilih);
+
+  if(!terpilih.length){
+    $("galeriFoto").innerHTML =
+      '<section><div class="empty">Belum ada foto kegiatan.</div></section>';
+    return;
+  }
+
+  const perTanggal = new Map();
+
+  terpilih.forEach(foto => {
+    const kunci = normalisasiTanggal(foto.tanggal) || "0000-00-00";
+
+    if(!perTanggal.has(kunci)){ perTanggal.set(kunci, []); }
+
+    perTanggal.get(kunci).push(foto);
+  });
+
+  const urut = [...perTanggal.keys()].sort().reverse();
+
+  $("galeriFoto").innerHTML = urut.map(kunci => {
+    const isi = perTanggal.get(kunci);
+
+    const kartu = isi.map(foto => `
+      <div class="kartu-foto">
+        <img src="${alamatFoto(foto, LEBAR_KECIL)}"
+             alt="Foto ${aman(foto.titik || "kegiatan")}"
+             loading="lazy"
+             onclick="bukaZoom('${aman(foto.id)}')">
+
+        <div class="ket">
+          <b>${aman(foto.titik || "Foto umum")}</b>
+          ${aman(foto.shift || "-")}${foto.keterangan
+            ? " · " + aman(foto.keterangan) : ""}<br>
+          oleh ${aman(foto.penginput || "-")}
+        </div>
+
+        <button type="button" class="red no-print"
+                onclick="hapusFoto('${aman(foto.id)}')">Hapus</button>
+      </div>
+    `).join("");
+
+    return `
+      <section>
+        <div class="judul-baris">
+          <h2>${tanggalIndo(kunci)}</h2>
+          <span class="lencana">${isi.length} foto</span>
+        </div>
+
+        <div class="kisi-foto">${kartu}</div>
+      </section>
+    `;
+  }).join("");
+}
+
+/*==========================================================
+  14. LOG INPUT — SIAPA MENGINPUT APA DAN KAPAN
 ==========================================================*/
 /* Catatan sementara di layar. Catatan resmi dibuat server dan
    akan menggantikan daftar ini setiap kali data dimuat ulang. */
@@ -4117,7 +4896,7 @@ function renderLog(){
 }
 
 /*==========================================================
-  14. UNDUH CSV (bisa dibuka langsung di Excel)
+  15. UNDUH CSV (bisa dibuka langsung di Excel)
 ==========================================================*/
 function unduhCsv(namaBerkas, judulKolom, baris){
   if(!baris.length){
@@ -4146,7 +4925,7 @@ function unduhCsv(namaBerkas, judulKolom, baris){
 function unduhCsvTimeSheet(){
   const baris = [];
 
-  kelompokBulan(dataTimeSheet).forEach(bulan => {
+  kelompokBulan(timeSheetTerpilih()).forEach(bulan => {
     bulan.isi.forEach(item => {
       const r = ringkasEntri(item);
 
@@ -4233,10 +5012,11 @@ function unduhCsvLog(){
 }
 
 /*==========================================================
-  15. RENDER, PRINT, DAN JALANKAN
+  16. RENDER, PRINT, DAN JALANKAN
 ==========================================================*/
 function renderSemua(){
   renderDashboard();
+  renderFoto();
   renderTimeSheet();
   renderAbsensi();
   renderPetty();
@@ -4261,11 +5041,17 @@ function cetakHalamanAktif(){
     timesheet:"Laporan Daily Time Sheet",
     absensi:"Laporan Daily Absensi",
     pettycash:"Laporan Petty Cash",
+    foto:"Dokumentasi Foto Kegiatan",
     loginput:"Laporan Log Input Data"
   };
 
   const judul = document.createElement("div");
   judul.className = "print-heading";
+
+  const keteranganPo = (halamanAktif.id === "dashboard"
+    || halamanAktif.id === "timesheet")
+    ? (poSemua() ? "Gabungan seluruh PO" : "No. PO: " + poTerpilih)
+    : "";
 
   judul.innerHTML = `
     <h2>${namaMenu[halamanAktif.id] || "Laporan"}</h2>
@@ -4274,6 +5060,7 @@ function cetakHalamanAktif(){
       Customer PT Mucoindo Prakarsa,
       Area PT KIE - Site Bontang
     </div>
+    ${keteranganPo ? "<div><b>" + aman(keteranganPo) + "</b></div>" : ""}
   `;
 
   halamanAktif.prepend(judul);
